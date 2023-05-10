@@ -1,0 +1,17 @@
+
+name: ma-kucerenko
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.10
+  - jupyter
+  - numpy
+  - scikit-learn
+  - matplotlib
+  - nibabel
+  - pyyaml
+  - pip
+  - pip:
+    - nbimporter
