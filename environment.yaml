@@ -8,6 +8,8 @@ dependencies:
   - python=3.10
   - jupyter
   - numpy
+  - pandas
+  - openpyxl
   - scikit-learn
   - matplotlib
   - nibabel
