@@ -8,6 +8,7 @@ import pandas as pd
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import nibabel as nib
@@ -69,15 +70,29 @@ def get_data():
 
     #  Preprocessing - TODO
 
+    # Resize images from (91, 109) to size (64, 64) using bicubic interpolation
+    # -> Idea: Generalize to future cases where image size may change
+    X = F.interpolate(X, size=(64, 64), mode='bicubic', align_corners=False)
+
+    return X.float(), y.float()
 
 
-    return X, y
+def normalize_data_splits(X_train, X_test, X_validation):
+    #  Calculate mean and std along all train examples and along all pixels (-> scalar)
+    X_train_mean = torch.mean(X_train, dim=(0, 2, 3))
+    X_train_std = torch.std(X_train, dim=(0, 2, 3))
+
+    #  Normalization of all splits
+
+    X_train_normalized = (X_train - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
+    X_test_normalized = (X_test - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
+    X_validation_normalized = (X_validation - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
+
+    return X_train_normalized, X_test_normalized, X_validation_normalized
 
 
 def main():
     X, y = get_data()
-    X = X.float()
-    y = y.float()
 
     #   train-test split
     X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -85,11 +100,18 @@ def main():
                                                         random_state=RANDOM_SEED,
                                                         shuffle=True,)
 
-    # test-validation split
+    #  test-validation split
     X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
                                                                   test_size=0.5,
                                                                   random_state=RANDOM_SEED,
                                                                   shuffle=True,)
+
+    #  Normalize all splits
+    X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
+
+
+    # --------------------------------------------------------
+    #   Model training part:
 
     batch_size = 32
 
@@ -110,7 +132,7 @@ def main():
     lr = 0.0001
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    num_epochs = 20
+    num_epochs = 30
 
     for epoch in range(num_epochs):
         # 1. Epoch training
@@ -149,7 +171,7 @@ def main():
 
         # 3. Print results
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], Training Loss: {train_loss}, Validation Loss: {validation_loss}")
+        print(f"Epoch [{epoch+1}/{num_epochs}], Train loss: {train_loss}, Valid loss: {validation_loss}")
 
 
 if __name__ == '__main__':

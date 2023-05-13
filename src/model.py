@@ -5,7 +5,7 @@ class BasicModel(nn.Module):
     def __init__(self):
         super(BasicModel, self).__init__()
 
-        channels_input, heigth, width = 1, 91, 109
+        channels_input, heigth, width = 1, 64, 64
 
         self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
         self.relu = nn.ReLU()
