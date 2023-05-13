@@ -16,6 +16,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import sklearn
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 
 from model import BasicModel
 
@@ -91,49 +92,7 @@ def normalize_data_splits(X_train, X_test, X_validation):
     return X_train_normalized, X_test_normalized, X_validation_normalized
 
 
-def main():
-    X, y = get_data()
-
-    #   train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.3,
-                                                        random_state=RANDOM_SEED,
-                                                        shuffle=True,)
-
-    #  test-validation split
-    X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
-                                                                  test_size=0.5,
-                                                                  random_state=RANDOM_SEED,
-                                                                  shuffle=True,)
-
-    #  Normalize all splits
-    X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
-
-
-    # --------------------------------------------------------
-    #   Model training part:
-
-    batch_size = 32
-
-    train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
-                                  batch_size=batch_size,
-                                  shuffle=True,
-                                  generator=generator)
-
-    validation_dataloader = DataLoader(TensorDataset(X_validation, y_validation),
-                                       batch_size=batch_size,
-                                       shuffle=False,
-                                       generator=generator)
-
-    model = BasicModel()
-    model.initialize_weights()
-
-    loss_fn = nn.BCELoss()
-    lr = 0.0001
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-
-    num_epochs = 30
-
+def train_model(model, num_epochs, train_dataloader, validation_dataloader, optimizer, loss_fn):
     for epoch in range(num_epochs):
         # 1. Epoch training
 
@@ -169,9 +128,103 @@ def main():
         # Average loss for epoch
         validation_loss /= len(validation_dataloader)
 
-        # 3. Print results
+        # 3. Print epoch results
 
         print(f"Epoch [{epoch+1}/{num_epochs}], Train loss: {train_loss}, Valid loss: {validation_loss}")
+
+    return model
+
+
+def evaluate_on_test_data(model, test_loader):
+    model.eval()
+    predictions = []
+    true_labels = []
+
+    with torch.no_grad():
+        for batch_features, batch_labels in test_loader:
+            outputs = model(batch_features)
+
+            # Convert sigmoid outputs to predicted labels
+            predicted_labels = torch.round(outputs)
+
+            # Append predicted labels and true labels to lists
+            predictions.extend(predicted_labels.tolist())
+            true_labels.extend(batch_labels.tolist())
+
+    accuracy = accuracy_score(true_labels, predictions)
+    precision = precision_score(true_labels, predictions)
+    recall = recall_score(true_labels, predictions)
+    f1 = f1_score(true_labels, predictions)
+    print('\nEvaluation on test data:\n')
+    print(f"Accuracy: {accuracy}")
+    print(f"Precision: {precision}")
+    print(f"Recall: {recall}")
+    print(f"F1-score: {f1}")
+
+    conf_matrix = confusion_matrix(true_labels, predictions)
+    classific_report = classification_report(true_labels, predictions, digits=4)
+
+    print('\nConfusion matrix:')
+    print(conf_matrix)
+    print('\nClassification report:')
+    print(classific_report)
+
+
+def main():
+    X, y = get_data()
+
+    #   train-test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        test_size=0.3,
+                                                        random_state=RANDOM_SEED,
+                                                        shuffle=True,)
+
+    #  test-validation split
+    X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
+                                                                  test_size=0.5,
+                                                                  random_state=RANDOM_SEED,
+                                                                  shuffle=True,)
+
+    #  Normalize all splits
+    X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
+
+    # --------------------------------------------------------
+    #   Model training part:
+
+    batch_size = 32
+
+    train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
+                                  batch_size=batch_size,
+                                  shuffle=True,
+                                  generator=generator)
+
+    validation_dataloader = DataLoader(TensorDataset(X_validation, y_validation),
+                                       batch_size=batch_size,
+                                       shuffle=False,
+                                       generator=generator)
+
+    model = BasicModel()
+    model.initialize_weights()
+
+    loss_fn = nn.BCELoss()
+    lr = 0.0001
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    num_epochs = 30
+
+    model = train_model(model,
+                        num_epochs,
+                        train_dataloader,
+                        validation_dataloader,
+                        optimizer,
+                        loss_fn)
+
+    test_loader = DataLoader(TensorDataset(X_test, y_test),
+                             batch_size=batch_size,
+                             shuffle=False,
+                             generator=generator)
+
+    evaluate_on_test_data(model, test_loader)
 
 
 if __name__ == '__main__':
