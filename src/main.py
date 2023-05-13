@@ -66,6 +66,11 @@ def get_data():
     # Add channel dimension (required for loss function)
     y = y.unsqueeze(1)
 
+
+    #  Preprocessing - TODO
+
+
+
     return X, y
 
 
@@ -102,7 +107,8 @@ def main():
     model.initialize_weights()
 
     loss_fn = nn.BCELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    lr = 0.0001
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     num_epochs = 20
 
