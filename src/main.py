@@ -173,17 +173,20 @@ def evaluate_on_test_data(model, test_loader):
 def main():
     X, y = get_data()
 
-    #   train-test split
+    #   train-test split (use stratify to ensure equal distribution)
+    #   -> stratify has made ENOURMOUS improve in convergence
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         test_size=0.3,
                                                         random_state=RANDOM_SEED,
-                                                        shuffle=True,)
+                                                        shuffle=True,
+                                                        stratify=y)
 
-    #  test-validation split
+    #  test-validation split (use stratify to ensure equal distribution)
     X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
                                                                   test_size=0.5,
                                                                   random_state=RANDOM_SEED,
-                                                                  shuffle=True,)
+                                                                  shuffle=True,
+                                                                  stratify=y_test)
 
     #  Normalize all splits
     X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
