@@ -14,7 +14,7 @@ class BasicModel(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
 
         self.flatten = nn.Flatten()
-        self.fc1 = nn.Linear(128 * (91 // 8) * (109 // 8), 512)  # Adjusted dimensions
+        self.fc1 = nn.Linear(128 * (heigth // 8) * (width // 8), 512)
         self.fc2 = nn.Linear(512, 64)
         self.fc3 = nn.Linear(64, 1)
         self.sigmoid = nn.Sigmoid()
@@ -40,3 +40,11 @@ class BasicModel(nn.Module):
         x = self.sigmoid(x)
 
         return x
+
+    def initialize_weights(self):
+        for module in self.modules():
+            if isinstance(module, (nn.Conv2d, nn.Linear)):
+                # He initialization
+                nn.init.kaiming_uniform_(module.weight, mode='fan_in', nonlinearity='relu')
+                if module.bias is not None:
+                    nn.init.constant_(module.bias, 0.0)
