@@ -68,11 +68,11 @@ def get_data():
     # Add channel dimension (required for loss function)
     y = y.unsqueeze(1)
 
-
-    #  Preprocessing - TODO
+    #  Preprocessing
 
     # Resize images from (91, 109) to size (64, 64) using bicubic interpolation
     # -> Idea: Generalize to future cases where image size may change
+    #  Interpolation method has impact on Precision-Recall !!! -> Tune for what is more imprtant
     X = F.interpolate(X, size=(64, 64), mode='bicubic', align_corners=False)
 
     return X.float(), y.float()
