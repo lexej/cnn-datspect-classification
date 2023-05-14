@@ -40,6 +40,9 @@ sklearn.utils.check_random_state(RANDOM_SEED)
 
 def get_data():
 
+    # -----------------------------------------------------------------------------------------------------------
+    #   Features:
+
     #  Resize images from (91, 109) to size (64, 64) using bicubic interpolation
     # -> Idea: Generalize to future cases where image size may change
     #  Interpolation method has impact on Precision and Recall !!!
@@ -68,13 +71,23 @@ def get_data():
     # plt.imshow(features[0][0], cmap='hot')
     # plt.show()
 
-    labels_df = pd.read_excel(LABELS_PATH)
-    y = labels_df[['ID', 'R1', 'R2', 'R3']].sort_values(by=['ID'])
-    # use only rater 'R1' (for now!)
-    y = y['R1'].to_numpy()
-    y = torch.from_numpy(y)
+    # -----------------------------------------------------------------------------------------------------------
+
+    #   Labels:
+
+    labels_raw_table = pd.read_excel(LABELS_PATH)
+
+    #   For now: Compute column with majority values among each rater labels
+    labels_raw_table['y'] = labels_raw_table[['R1', 'R2', 'R3']].mode(axis=1)[0]
+
+    labels = labels_raw_table[['ID', 'y']].sort_values(by=['ID'])
+
+    y = torch.from_numpy(labels['y'].to_numpy())
+
     # Add channel dimension (required for loss function)
     y = y.unsqueeze(1)
+
+    # -----------------------------------------------------------------------------------------------------------
 
     return X.float(), y.float()
 
@@ -175,9 +188,9 @@ def main():
     X, y = get_data()
 
     #   train-test split (use stratify to ensure equal distribution)
-    #   -> stratify has made ENOURMOUS improve in convergence
+    #   -> stratify has made ENORMOUS improve in convergence
     X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.3,
+                                                        test_size=0.4,
                                                         random_state=RANDOM_SEED,
                                                         shuffle=True,
                                                         stratify=y)
