@@ -111,6 +111,10 @@ def normalize_data_splits(X_train, X_test, X_validation):
 
 
 def train_model(model, num_epochs, train_dataloader, validation_dataloader, optimizer, loss_fn):
+    best_loss = float('inf')
+    best_weights = None
+    best_epoch = None
+
     for epoch in range(num_epochs):
         # 1. Epoch training
 
@@ -146,46 +150,60 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
         # Average loss for epoch
         validation_loss /= len(validation_dataloader)
 
+        # Save weights if best
+        if validation_loss < best_loss:
+            best_loss = validation_loss
+            best_weights = model.state_dict()
+            best_epoch = epoch+1
+
         # 3. Print epoch results
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], Train loss: {train_loss}, Valid loss: {validation_loss}")
+        print(f"Epoch [{epoch+1}/{num_epochs}], "
+              f"Train loss: {round(train_loss, 4)}, "
+              f"Valid loss: {round(validation_loss, 4)}")
 
-    return model
+    torch.save(best_weights, 'best_weights.pth')
+
+    return model, best_epoch
 
 
-def evaluate_on_test_data(model, test_loader):
+def evaluate_on_test_data(model, best_epoch, test_loader):
+
+    # Load weights
+    model.load_state_dict(torch.load('best_weights.pth'))
+
+    #   Evaluation mode
     model.eval()
-    predictions = []
-    true_labels = []
+
+    preds = []
+    trues = []
 
     with torch.no_grad():
         for batch_features, batch_labels in test_loader:
             outputs = model(batch_features)
 
-            # Convert sigmoid outputs to predicted labels
+            # Probabilities -> predicted labels (for now: 0.5 decision boundary)
             predicted_labels = torch.round(outputs)
 
-            # Append predicted labels and true labels to lists
-            predictions.extend(predicted_labels.tolist())
-            true_labels.extend(batch_labels.tolist())
+            preds.extend(predicted_labels.tolist())
+            trues.extend(batch_labels.tolist())
 
-    accuracy = accuracy_score(true_labels, predictions)
-    precision = precision_score(true_labels, predictions)
-    recall = recall_score(true_labels, predictions)
-    f1 = f1_score(true_labels, predictions)
-    print('\nEvaluation on test data:\n')
-    print(f"Accuracy: {accuracy}")
+    acc_score = accuracy_score(trues, preds)
+    precision = precision_score(trues, preds)
+    recall = recall_score(trues, preds)
+    f1 = f1_score(trues, preds)
+    conf_matrix = confusion_matrix(trues, preds)
+    class_report = classification_report(trues, preds, digits=4)
+
+    print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
+    print(f"Accuracy: {acc_score}")
     print(f"Precision: {precision}")
     print(f"Recall: {recall}")
     print(f"F1-score: {f1}")
-
-    conf_matrix = confusion_matrix(true_labels, predictions)
-    classific_report = classification_report(true_labels, predictions, digits=4)
-
     print('\nConfusion matrix:')
     print(conf_matrix)
     print('\nClassification report:')
-    print(classific_report)
+    print(class_report)
 
 
 def main():
@@ -236,19 +254,19 @@ def main():
 
     num_epochs = config['model']['parameters']['epochs']
 
-    model = train_model(model,
-                        num_epochs,
-                        train_dataloader,
-                        validation_dataloader,
-                        optimizer,
-                        loss_fn)
+    model, best_epoch = train_model(model,
+                                    num_epochs,
+                                    train_dataloader,
+                                    validation_dataloader,
+                                    optimizer,
+                                    loss_fn)
 
     test_loader = DataLoader(TensorDataset(X_test, y_test),
                              batch_size=batch_size,
                              shuffle=False,
                              generator=generator)
 
-    evaluate_on_test_data(model, test_loader)
+    evaluate_on_test_data(model, best_epoch, test_loader)
 
 
 if __name__ == '__main__':
