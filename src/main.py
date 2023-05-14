@@ -17,6 +17,8 @@ from torchvision.transforms import InterpolationMode
 
 from src.model.model_2d import BaselineModel2d
 
+import matplotlib.pyplot as plt
+
 
 config_file = 'config.yaml'
 
@@ -116,6 +118,9 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
     best_weights = None
     best_epoch = None
 
+    train_losses = []
+    valid_losses = []
+
     for epoch in range(num_epochs):
         # 1. Epoch training
 
@@ -134,8 +139,9 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
 
             train_loss += loss.item()
 
-        # Average loss for epoch
+        # Average epoch loss
         train_loss /= len(train_dataloader)
+        train_losses.append(train_loss)
 
         # 2. Epoch validation
 
@@ -148,8 +154,9 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
                 val_loss = loss_fn(val_outputs, val_labels)
                 validation_loss += val_loss.item()
 
-        # Average loss for epoch
+        # Average epoch loss
         validation_loss /= len(validation_dataloader)
+        valid_losses.append(validation_loss)
 
         # Save weights if best
         if validation_loss < best_loss:
@@ -166,6 +173,17 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
     results_path = 'results/best_weights.pth'
     os.makedirs(os.path.dirname(results_path), exist_ok=True)
     torch.save(best_weights, results_path)
+
+    #   plot loss curves
+    plt.figure()
+    plt.plot(range(1, num_epochs+1), train_losses, label='train loss')
+    plt.plot(range(1, num_epochs+1), valid_losses, label='valid loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+
+    plt.savefig('results/training_curves.png', dpi=300)
 
     return model, best_epoch
 
