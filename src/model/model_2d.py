@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-class BasicModel(nn.Module):
-    def __init__(self, input_height, input_width):
-        super(BasicModel, self).__init__()
+class BaselineModel2d(nn.Module):
+    def __init__(self, input_height: int, input_width: int):
+        super(BaselineModel2d, self).__init__()
 
         #   Stride and padding of Conv layers chosen so that spatial dimensions are preserved
 

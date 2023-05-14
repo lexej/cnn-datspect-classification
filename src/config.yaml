@@ -17,7 +17,7 @@ data:
   valid_to_test_split_size_percent: 0.5  # ratio of validation split to train split
 
 model:
-  parameters:
+  training_params:
     lr: 0.0001
     epochs: 30
     batch_size: 64 # better performance than for 32

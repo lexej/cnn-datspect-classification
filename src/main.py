@@ -1,4 +1,5 @@
 import glob
+import os
 
 import yaml
 import torch
@@ -14,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 from torchvision.transforms import InterpolationMode
 
-from src.model.model import BasicModel
+from src.model.model_2d import BaselineModel2d
 
 
 config_file = 'config.yaml'
@@ -162,7 +163,9 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
               f"Train loss: {round(train_loss, 4)}, "
               f"Valid loss: {round(validation_loss, 4)}")
 
-    torch.save(best_weights, 'best_weights.pth')
+    results_path = 'results/best_weights.pth'
+    os.makedirs(os.path.dirname(results_path), exist_ok=True)
+    torch.save(best_weights, results_path)
 
     return model, best_epoch
 
@@ -170,7 +173,7 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
 def evaluate_on_test_data(model, best_epoch, test_loader):
 
     # Load weights
-    model.load_state_dict(torch.load('best_weights.pth'))
+    model.load_state_dict(torch.load('results/best_weights.pth'))
 
     #   Evaluation mode
     model.eval()
@@ -233,7 +236,7 @@ def main():
     # --------------------------------------------------------
     #   Model training part:
 
-    batch_size = config['model']['parameters']['batch_size']
+    batch_size = config['model']['training_params']['batch_size']
 
     train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
                                   batch_size=batch_size,
@@ -245,14 +248,14 @@ def main():
                                        shuffle=False,
                                        generator=generator)
 
-    model = BasicModel(input_height=input_height, input_width=input_height)
+    model = BaselineModel2d(input_height=input_height, input_width=input_height)
     model.initialize_weights()
 
     loss_fn = nn.BCELoss()
-    lr = config['model']['parameters']['lr']
+    lr = config['model']['training_params']['lr']
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    num_epochs = config['model']['parameters']['epochs']
+    num_epochs = config['model']['training_params']['epochs']
 
     model, best_epoch = train_model(model,
                                     num_epochs,
