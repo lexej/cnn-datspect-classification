@@ -1,8 +1,6 @@
 import glob
-import sys
 
-import random
-import numpy as np
+import yaml
 import torch
 import pandas as pd
 import torch.nn as nn
@@ -11,17 +9,21 @@ from torch.utils.data import DataLoader, TensorDataset
 import torchvision.transforms as transforms
 import nibabel as nib
 from pathlib import Path
-import matplotlib.pyplot as plt
 import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
 from torchvision.transforms import InterpolationMode
 
-from model import BasicModel
+from src.model.model import BasicModel
 
-ROOT_PATH = Path('/Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT')
-IMG_2D_RIGID_PATH = ROOT_PATH.joinpath('rigid', '2d')
-LABELS_PATH = ROOT_PATH.joinpath('scans_20230424.xlsx')
+
+config_file = 'config.yaml'
+
+with open(config_file, 'r') as f:
+    config = yaml.safe_load(f)
+
+IMG_2D_RIGID_PATH = Path(config['paths']['images']['rigid']['2d'])
+LABELS_PATH = Path(config['paths']['labels_file'])
 
 RANDOM_SEED = 1234
 
@@ -38,22 +40,24 @@ generator.manual_seed(RANDOM_SEED)
 sklearn.utils.check_random_state(RANDOM_SEED)
 
 
-def get_data():
+def get_data(target_input_height, target_input_width):
 
     # -----------------------------------------------------------------------------------------------------------
     #   Features:
 
-    #  Resize images from (91, 109) to size (64, 64) using bicubic interpolation
+    #  Resize images from (91, 109) to size (input_height, input_width) using bicubic interpolation
     # -> Idea: Generalize to future cases where image size may change
     #  Interpolation method has impact on Precision and Recall !!!
     #        -> Bilinear for better Precision; Bicubic for better Recall, NEAREST_EXACT makes trade-off
     img_transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize(size=(64, 64), interpolation=InterpolationMode.BICUBIC, antialias=True),
+        transforms.Resize(size=(target_input_height, target_input_width),
+                          interpolation=InterpolationMode.BICUBIC,
+                          antialias=True),
         # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
     ])
 
-    file_paths = sorted(glob.glob(f'{str(IMG_2D_RIGID_PATH)}/*.nii'))
+    file_paths = sorted(glob.glob(f'{str(IMG_2D_RIGID_PATH)}/*.{config["data"]["file_format"]}'))
 
     X = []
 
@@ -185,19 +189,22 @@ def evaluate_on_test_data(model, test_loader):
 
 
 def main():
-    X, y = get_data()
+
+    (input_height, input_width) = config['data']['preprocessing']['target_img_size']
+
+    X, y = get_data(target_input_height=input_height, target_input_width=input_width)
 
     #   train-test split (use stratify to ensure equal distribution)
     #   -> stratify has made ENORMOUS improve in convergence
     X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.4,
+                                                        test_size=config['data']['test_to_train_split_size_percent'],
                                                         random_state=RANDOM_SEED,
                                                         shuffle=True,
                                                         stratify=y)
 
     #  test-validation split (use stratify to ensure equal distribution)
     X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
-                                                                  test_size=0.5,
+                                                                  test_size=config['data']['valid_to_test_split_size_percent'],
                                                                   random_state=RANDOM_SEED,
                                                                   shuffle=True,
                                                                   stratify=y_test)
@@ -208,7 +215,7 @@ def main():
     # --------------------------------------------------------
     #   Model training part:
 
-    batch_size = 32
+    batch_size = config['model']['parameters']['batch_size']
 
     train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
                                   batch_size=batch_size,
@@ -220,14 +227,14 @@ def main():
                                        shuffle=False,
                                        generator=generator)
 
-    model = BasicModel()
+    model = BasicModel(input_height=input_height, input_width=input_height)
     model.initialize_weights()
 
     loss_fn = nn.BCELoss()
-    lr = 0.0001
+    lr = config['model']['parameters']['lr']
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    num_epochs = 30
+    num_epochs = config['model']['parameters']['epochs']
 
     model = train_model(model,
                         num_epochs,

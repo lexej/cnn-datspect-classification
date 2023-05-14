@@ -2,10 +2,8 @@ import torch.nn as nn
 
 
 class BasicModel(nn.Module):
-    def __init__(self):
+    def __init__(self, input_height, input_width):
         super(BasicModel, self).__init__()
-
-        heigth, width = 64, 64
 
         #   Stride and padding of Conv layers chosen so that spatial dimensions are preserved
 
@@ -19,7 +17,7 @@ class BasicModel(nn.Module):
 
         self.flatten = nn.Flatten()
         # Dimensionality reduction only through the application of 3 MaxPool2d layers (each divides size by 2)
-        self.fc1 = nn.Linear(128 * (heigth // (2*2*2)) * (width // (2*2*2)), 512)
+        self.fc1 = nn.Linear(128 * (input_height // (2*2*2)) * (input_width // (2*2*2)), 512)
         self.fc2 = nn.Linear(512, 128)
         self.fc3 = nn.Linear(128, 1)
         self.dropout = nn.Dropout(0.1)
