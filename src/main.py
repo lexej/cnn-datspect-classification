@@ -8,8 +8,6 @@ import pandas as pd
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-import torch.nn.functional as F
-import torchvision
 import torchvision.transforms as transforms
 import nibabel as nib
 from pathlib import Path
@@ -17,6 +15,7 @@ import matplotlib.pyplot as plt
 import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+from torchvision.transforms import InterpolationMode
 
 from model import BasicModel
 
@@ -40,7 +39,16 @@ sklearn.utils.check_random_state(RANDOM_SEED)
 
 
 def get_data():
-    transform = transforms.ToTensor()
+
+    #  Resize images from (91, 109) to size (64, 64) using bicubic interpolation
+    # -> Idea: Generalize to future cases where image size may change
+    #  Interpolation method has impact on Precision and Recall !!!
+    #        -> Bilinear for better Precision; Bicubic for better Recall, NEAREST_EXACT makes trade-off
+    img_transforms = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize(size=(64, 64), interpolation=InterpolationMode.BICUBIC, antialias=True),
+        # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
+    ])
 
     file_paths = sorted(glob.glob(f'{str(IMG_2D_RIGID_PATH)}/*.nii'))
 
@@ -51,7 +59,7 @@ def get_data():
 
         img_nifti = data_nifti.get_fdata()
 
-        img_tensor = transform(img_nifti)
+        img_tensor = img_transforms(img_nifti)
 
         X.append(img_tensor)
 
@@ -67,13 +75,6 @@ def get_data():
     y = torch.from_numpy(y)
     # Add channel dimension (required for loss function)
     y = y.unsqueeze(1)
-
-    #  Preprocessing
-
-    # Resize images from (91, 109) to size (64, 64) using bicubic interpolation
-    # -> Idea: Generalize to future cases where image size may change
-    #  Interpolation method has impact on Precision-Recall !!! -> Tune for what is more imprtant
-    X = F.interpolate(X, size=(64, 64), mode='bicubic', align_corners=False)
 
     return X.float(), y.float()
 
