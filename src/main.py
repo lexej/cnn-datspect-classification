@@ -1,19 +1,23 @@
 import glob
+import json
 import os
-
 import yaml
-import torch
+from pathlib import Path
 import pandas as pd
+
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import torchvision.transforms as transforms
-import nibabel as nib
-from pathlib import Path
+from torchvision.transforms import InterpolationMode
+
 import sklearn
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
-from torchvision.transforms import InterpolationMode
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
+    ConfusionMatrixDisplay
+
+import nibabel as nib
 
 from src.model.model_2d import BaselineModel2d
 
@@ -170,7 +174,7 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
               f"Train loss: {round(train_loss, 4)}, "
               f"Valid loss: {round(validation_loss, 4)}")
 
-    results_path = 'results/best_weights.pth'
+    results_path = 'results/training/best_weights.pth'
     os.makedirs(os.path.dirname(results_path), exist_ok=True)
     torch.save(best_weights, results_path)
 
@@ -183,7 +187,7 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
     plt.legend()
     plt.grid(True)
 
-    plt.savefig('results/training_curves.png', dpi=300)
+    plt.savefig('results/training/training_curves.png', dpi=300)
 
     return model, best_epoch
 
@@ -191,7 +195,7 @@ def train_model(model, num_epochs, train_dataloader, validation_dataloader, opti
 def evaluate_on_test_data(model, best_epoch, test_loader):
 
     # Load weights
-    model.load_state_dict(torch.load('results/best_weights.pth'))
+    model.load_state_dict(torch.load('results/training/best_weights.pth'))
 
     #   Evaluation mode
     model.eval()
@@ -213,8 +217,7 @@ def evaluate_on_test_data(model, best_epoch, test_loader):
     precision = precision_score(trues, preds)
     recall = recall_score(trues, preds)
     f1 = f1_score(trues, preds)
-    conf_matrix = confusion_matrix(trues, preds)
-    class_report = classification_report(trues, preds, digits=4)
+    conf_matrix = confusion_matrix(trues, preds, labels=[0, 1])
 
     print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
     print(f"Accuracy: {acc_score}")
@@ -223,8 +226,26 @@ def evaluate_on_test_data(model, best_epoch, test_loader):
     print(f"F1-score: {f1}")
     print('\nConfusion matrix:')
     print(conf_matrix)
-    print('\nClassification report:')
-    print(class_report)
+
+    # Save results
+
+    results_test_split = {
+        'accuracy': acc_score,
+        'precision': precision,
+        'recall': recall,
+        'f1-score': f1
+    }
+
+    subdir = 'results/testing'
+    if not os.path.exists(subdir):
+        os.makedirs(subdir)
+
+    with open(os.path.join(subdir, 'results_test_split.json'), 'w') as file:
+        json.dump(results_test_split, file, indent=4)
+
+    cmd = ConfusionMatrixDisplay(conf_matrix, display_labels=[0, 1])
+    cmd.plot()
+    plt.savefig('results/testing/conf_matrix_test_split.png')
 
 
 def main():
