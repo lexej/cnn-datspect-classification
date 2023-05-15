@@ -312,9 +312,12 @@ def run_experiment(experiment_name: str, config: dict):
 
 def main():
 
+    #   Path relative to current file
+    configs_dirpath = 'configs'
+
     #   Run experiment for rigid case and 2D images:
 
-    config_rigid_2d_path = 'configs/config_rigid_2d.yaml'
+    config_rigid_2d_path = f'{configs_dirpath}/config_rigid_2d.yaml'
 
     with open(config_rigid_2d_path, 'r') as f:
         config_rigid_2d = yaml.safe_load(f)
@@ -324,7 +327,7 @@ def main():
 
     #   Run experiment for affine case and 2D images:
 
-    config_affine_2d_path = 'configs/config_affine_2d.yaml'
+    config_affine_2d_path = f'{configs_dirpath}/config_affine_2d.yaml'
 
     with open(config_affine_2d_path, 'r') as f:
         config_affine_2d = yaml.safe_load(f)
