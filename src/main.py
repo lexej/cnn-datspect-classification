@@ -139,7 +139,7 @@ def run_experiment(experiment_name: str, config: dict):
 
         return X_train_normalized, X_test_normalized, X_validation_normalized
 
-    def train_model(model, num_epochs, train_dataloader, validation_dataloader, optimizer, loss_fn):
+    def train_model(model, num_epochs, train_dataloader, valid_dataloader, optimizer, loss_fn):
         best_loss = float('inf')
         best_weights = None
         best_epoch = None
@@ -175,13 +175,13 @@ def run_experiment(experiment_name: str, config: dict):
             validation_loss = 0.0
 
             with torch.no_grad():
-                for val_features, val_labels in validation_dataloader:
+                for val_features, val_labels in valid_dataloader:
                     val_outputs = model(val_features)
                     val_loss = loss_fn(val_outputs, val_labels)
                     validation_loss += val_loss.item()
 
             # Average epoch loss
-            validation_loss /= len(validation_dataloader)
+            validation_loss /= len(valid_dataloader)
             valid_losses.append(validation_loss)
 
             # Save weights if best
@@ -213,7 +213,7 @@ def run_experiment(experiment_name: str, config: dict):
 
         return model, best_epoch, best_weights_path
 
-    def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_loader):
+    def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_dataloader):
 
         # Load weights
         model.load_state_dict(torch.load(best_epoch_weights_path))
@@ -225,7 +225,7 @@ def run_experiment(experiment_name: str, config: dict):
         trues = []
 
         with torch.no_grad():
-            for batch_features, batch_labels in test_loader:
+            for batch_features, batch_labels in test_dataloader:
                 outputs = model(batch_features)
 
                 # Probabilities -> predicted labels (for now: 0.5 decision boundary)
@@ -293,15 +293,15 @@ def run_experiment(experiment_name: str, config: dict):
                                   shuffle=True,
                                   generator=generator)
 
-    validation_dataloader = DataLoader(TensorDataset(X_validation, y_validation),
-                                       batch_size=batch_size,
-                                       shuffle=False,
-                                       generator=generator)
+    valid_dataloader = DataLoader(TensorDataset(X_validation, y_validation),
+                                  batch_size=batch_size,
+                                  shuffle=False,
+                                  generator=generator)
 
-    test_loader = DataLoader(TensorDataset(X_test, y_test),
-                             batch_size=batch_size,
-                             shuffle=False,
-                             generator=generator)
+    test_dataloader = DataLoader(TensorDataset(X_test, y_test),
+                                 batch_size=batch_size,
+                                 shuffle=False,
+                                 generator=generator)
 
     #   Initialize and train model
 
@@ -312,15 +312,15 @@ def run_experiment(experiment_name: str, config: dict):
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
     model, best_epoch, best_epoch_weights_path = train_model(model,
-                                                            num_epochs,
-                                                            train_dataloader,
-                                                            validation_dataloader,
-                                                            optimizer,
-                                                            loss_fn)
+                                                             num_epochs,
+                                                             train_dataloader,
+                                                             valid_dataloader,
+                                                             optimizer,
+                                                             loss_fn)
 
     #   Evaluate model on test data
 
-    evaluate_on_test_data(model, best_epoch_weights_path, best_epoch, test_loader)
+    evaluate_on_test_data(model, best_epoch_weights_path, best_epoch, test_dataloader)
 
     print('-----------------------------------------------------------------------------------------')
 
