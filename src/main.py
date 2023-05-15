@@ -25,7 +25,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from src.model.model_2d import BaselineModel2d
 
 
-RANDOM_SEED = 1234
+RANDOM_SEED = 1327
 
 # Set all seeds
 
@@ -45,9 +45,9 @@ def run_experiment(experiment_name: str, config: dict):
     images_dirpath = config['paths']['images']
     labels_filepath = config['paths']['labels_file']
 
-    def get_data(target_input_height, target_input_width):
+    def get_data_splits(target_input_height, target_input_width):
         # -----------------------------------------------------------------------------------------------------------
-        #   Features:
+        #   Get the features
 
         #  Resize images from (91, 109) to size (input_height, input_width) using bicubic interpolation
         # -> Idea: Generalize to future cases where image size may change
@@ -81,7 +81,7 @@ def run_experiment(experiment_name: str, config: dict):
 
         # -----------------------------------------------------------------------------------------------------------
 
-        #   Labels:
+        #   Get the labels
 
         labels_raw_table = pd.read_excel(labels_filepath)
 
@@ -95,9 +95,36 @@ def run_experiment(experiment_name: str, config: dict):
         # Add channel dimension (required for loss function)
         y = y.unsqueeze(1)
 
+        #   Convert Torch tensors to float type
+
+        X = X.float()
+        y = y.float()
+
         # -----------------------------------------------------------------------------------------------------------
 
-        return X.float(), y.float()
+        #   Splitting the data
+
+        #   1. train-test split (stratify to ensure equal distribution)
+        #   -> stratify has made ENORMOUS improve in convergence
+        X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                            test_size=config['data']['test_to_train_split_size_percent'],
+                                                            random_state=RANDOM_SEED,
+                                                            shuffle=True,
+                                                            stratify=y)
+
+        #  2. test-validation split (stratify to ensure equal distribution)
+        X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
+                                                                      test_size=config['data'][
+                                                                          'valid_to_test_split_size_percent'],
+                                                                      random_state=RANDOM_SEED,
+                                                                      shuffle=True,
+                                                                      stratify=y_test)
+
+        #  Normalize all splits
+
+        X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
+
+        return X_train, y_train, X_validation, y_validation, X_test, y_test
 
     def normalize_data_splits(X_train, X_test, X_validation):
         #  Calculate mean and std along all train examples and along all pixels (-> scalar)
@@ -169,9 +196,9 @@ def run_experiment(experiment_name: str, config: dict):
                   f"Train loss: {round(train_loss, 4)}, "
                   f"Valid loss: {round(validation_loss, 4)}")
 
-        results_path = f'results/{experiment_name}/training/best_weights.pth'
-        os.makedirs(os.path.dirname(results_path), exist_ok=True)
-        torch.save(best_weights, results_path)
+        best_weights_path = f'results/{experiment_name}/training/best_weights.pth'
+        os.makedirs(os.path.dirname(best_weights_path), exist_ok=True)
+        torch.save(best_weights, best_weights_path)
 
         #   plot loss curves
         plt.figure()
@@ -184,12 +211,12 @@ def run_experiment(experiment_name: str, config: dict):
 
         plt.savefig(f'results/{experiment_name}/training/training_curves.png', dpi=300)
 
-        return model, best_epoch
+        return model, best_epoch, best_weights_path
 
-    def evaluate_on_test_data(model, best_epoch, test_loader):
+    def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_loader):
 
         # Load weights
-        model.load_state_dict(torch.load(f'results/{experiment_name}/training/best_weights.pth'))
+        model.load_state_dict(torch.load(best_epoch_weights_path))
 
         #   Evaluation mode
         model.eval()
@@ -242,37 +269,24 @@ def run_experiment(experiment_name: str, config: dict):
         plt.savefig(f'results/{experiment_name}/testing/conf_matrix_test_split.png')
 
     # ---------------------------------------------------------------------------------------------------------
+
     print(f'\nExperiment "{experiment_name}": \n')
 
-    #   Run experiment
+    #   Run experiment:
 
     (input_height, input_width) = config['data']['preprocessing']['target_img_size']
-
-    X, y = get_data(target_input_height=input_height, target_input_width=input_width)
-
-    #   train-test split (use stratify to ensure equal distribution)
-    #   -> stratify has made ENORMOUS improve in convergence
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=config['data']['test_to_train_split_size_percent'],
-                                                        random_state=RANDOM_SEED,
-                                                        shuffle=True,
-                                                        stratify=y)
-
-    #  test-validation split (use stratify to ensure equal distribution)
-    X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
-                                                                  test_size=config['data'][
-                                                                      'valid_to_test_split_size_percent'],
-                                                                  random_state=RANDOM_SEED,
-                                                                  shuffle=True,
-                                                                  stratify=y_test)
-
-    #  Normalize all splits
-    X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
-
-    # --------------------------------------------------------
-    #   Model training part:
-
     batch_size = config['model']['training_params']['batch_size']
+    lr = config['model']['training_params']['lr']
+    num_epochs = config['model']['training_params']['epochs']
+
+    #   Create data splits
+
+    data_splits = get_data_splits(target_input_height=input_height,
+                                  target_input_width=input_width)
+
+    X_train, y_train, X_validation, y_validation, X_test, y_test = data_splits
+
+    #   Create data loaders
 
     train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
                                   batch_size=batch_size,
@@ -284,30 +298,31 @@ def run_experiment(experiment_name: str, config: dict):
                                        shuffle=False,
                                        generator=generator)
 
-    model = BaselineModel2d(input_height=input_height, input_width=input_height)
-    model.initialize_weights()
-
-    loss_fn = nn.BCELoss()
-    lr = config['model']['training_params']['lr']
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-
-    num_epochs = config['model']['training_params']['epochs']
-
-    model, best_epoch = train_model(model,
-                                    num_epochs,
-                                    train_dataloader,
-                                    validation_dataloader,
-                                    optimizer,
-                                    loss_fn)
-
     test_loader = DataLoader(TensorDataset(X_test, y_test),
                              batch_size=batch_size,
                              shuffle=False,
                              generator=generator)
 
-    evaluate_on_test_data(model, best_epoch, test_loader)
+    #   Initialize and train model
 
-    print('---------------------------------------------------------------------------------------------------------')
+    model = BaselineModel2d(input_height=input_height, input_width=input_height)
+    model.initialize_weights()
+
+    loss_fn = nn.BCELoss()
+    optimizer = optim.Adam(params=model.parameters(), lr=lr)
+
+    model, best_epoch, best_epoch_weights_path = train_model(model,
+                                                            num_epochs,
+                                                            train_dataloader,
+                                                            validation_dataloader,
+                                                            optimizer,
+                                                            loss_fn)
+
+    #   Evaluate model on test data
+
+    evaluate_on_test_data(model, best_epoch_weights_path, best_epoch, test_loader)
+
+    print('-----------------------------------------------------------------------------------------')
 
 
 def main():
