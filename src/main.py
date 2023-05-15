@@ -1,9 +1,14 @@
+import os
 import glob
 import json
-import os
+import sys
+
 import yaml
-from pathlib import Path
 import pandas as pd
+
+import matplotlib.pyplot as plt
+
+import nibabel as nib
 
 import torch
 import torch.nn as nn
@@ -17,16 +22,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
     ConfusionMatrixDisplay
 
-import nibabel as nib
-
 from src.model.model_2d import BaselineModel2d
 
-import matplotlib.pyplot as plt
-
-config_file = 'config.yaml'
-
-with open(config_file, 'r') as f:
-    config = yaml.safe_load(f)
 
 RANDOM_SEED = 1234
 
@@ -43,7 +40,11 @@ generator.manual_seed(RANDOM_SEED)
 sklearn.utils.check_random_state(RANDOM_SEED)
 
 
-def run_experiment(experiment_name: str, images_dirpath: Path, labels_filepath: Path):
+def run_experiment(experiment_name: str, config: dict):
+
+    images_dirpath = config['paths']['images']
+    labels_filepath = config['paths']['labels_file']
+
     def get_data(target_input_height, target_input_width):
         # -----------------------------------------------------------------------------------------------------------
         #   Features:
@@ -60,7 +61,7 @@ def run_experiment(experiment_name: str, images_dirpath: Path, labels_filepath: 
             # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
         ])
 
-        file_paths = sorted(glob.glob(f'{str(images_dirpath)}/*.{config["data"]["file_format"]}'))
+        file_paths = sorted(glob.glob(f'{images_dirpath}/*.{config["data"]["file_format"]}'))
 
         X = []
 
@@ -311,23 +312,25 @@ def run_experiment(experiment_name: str, images_dirpath: Path, labels_filepath: 
 
 def main():
 
-    labels_path = Path(config['paths']['labels_file'])
+    #   Run experiment for rigid case and 2D images:
 
-    #   Run experiment for rigid case and 2D images
+    config_rigid_2d_path = 'configs/config_rigid_2d.yaml'
 
-    img_2_d_rigid_path = Path(config['paths']['images']['rigid']['2d'])
+    with open(config_rigid_2d_path, 'r') as f:
+        config_rigid_2d = yaml.safe_load(f)
 
     run_experiment(experiment_name='rigid_2d',
-                   images_dirpath=img_2_d_rigid_path,
-                   labels_filepath=labels_path)
+                   config=config_rigid_2d)
 
-    #   Run experiment for affine case and 2D images
+    #   Run experiment for affine case and 2D images:
 
-    img_2_d_affine_path = Path(config['paths']['images']['affine']['2d'])
+    config_affine_2d_path = 'configs/config_affine_2d.yaml'
+
+    with open(config_affine_2d_path, 'r') as f:
+        config_affine_2d = yaml.safe_load(f)
 
     run_experiment(experiment_name='affine_2d',
-                   images_dirpath=img_2_d_affine_path,
-                   labels_filepath=labels_path)
+                   config=config_affine_2d)
 
 
 if __name__ == '__main__':

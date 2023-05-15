@@ -1,12 +1,6 @@
 
 paths:
-  images:
-    affine:
-      2d: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/2d
-      3d: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/3d
-    rigid:
-      2d: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/rigid/2d
-      3d: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/rigid/3d
+  images: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/3d
   labels_file: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx
 
 data:
