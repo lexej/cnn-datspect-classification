@@ -8,54 +8,38 @@ class BaselineModel2d(nn.Module):
         #   Convolution layers
         #       - Stride and padding of Conv layers chosen so that spatial dimensions are preserved
 
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1)
+        #   ReLU used as activation function
 
-        #   Activation function
+        #   Pooling layers for dimensionality reduction (each layer divides size by 2)
 
-        self.relu = nn.ReLU()
-
-        #   Pooling for dimensionality reduction
-
-        self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.layers = nn.ModuleList([
+            nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            #   Flatten Conv layer
+            nn.Flatten(),
+            #   Dense layers
+            nn.Linear(128 * (input_height // (2*2*2)) * (input_width // (2*2*2)), 512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 1),
+            # nn.Dropout(0.1)   # -> leads to worse performance on test set in rigid case
+            nn.Sigmoid()
+        ])
 
         # BatchNorm ?? TODO
 
-        self.flatten = nn.Flatten()
-
-        #   Dense layers
-
-        # Dimensionality reduction only through the application of 3 MaxPool2d layers (each divides size by 2)
-        self.linear1 = nn.Linear(128 * (input_height // (2*2*2)) * (input_width // (2*2*2)), 512)
-        self.linear2 = nn.Linear(512, 256)
-        self.linear3 = nn.Linear(256, 1)
-
-        self.dropout = nn.Dropout(0.1)
-
-        self.sigmoid = nn.Sigmoid()
-
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
-        x = self.conv2(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
-        x = self.conv3(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
 
-        x = self.flatten(x)
-
-        x = self.linear1(x)
-        # x = self.dropout(x)  # -> leads to worse performance on test set in rigid case
-        x = self.relu(x)
-        x = self.linear2(x)
-        x = self.relu(x)
-        x = self.linear3(x)
-
-        x = self.sigmoid(x)
+        for layer in self.layers:
+            x = layer(x)
 
         return x
 
