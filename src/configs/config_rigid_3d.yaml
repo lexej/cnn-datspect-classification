@@ -6,7 +6,11 @@ paths:
 data:
   file_format: 'nii'
   preprocessing:
-    target_img_size: [64,64]
+    resize:
+      target_img_size: [ 64,64 ]
+      interpolation_method: 'bicubic'
+      # options for interpolation_method:
+      #     'nearest', 'nearest-exact', 'bilinear', 'bicubic', 'box', 'hamming', and 'lanczos'
   test_to_train_split_size_percent: 0.4  # ratio of test+validation splits to train split
   valid_to_test_split_size_percent: 0.5  # ratio of validation split to train split
 

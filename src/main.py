@@ -45,7 +45,7 @@ def run_experiment(experiment_name: str, config: dict):
     images_dirpath = config['paths']['images']
     labels_filepath = config['paths']['labels_file']
 
-    def get_data_splits(target_input_height, target_input_width):
+    def get_data_splits(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
         #   Get the features
 
@@ -56,7 +56,7 @@ def run_experiment(experiment_name: str, config: dict):
         img_transforms = transforms.Compose([
             transforms.ToTensor(),
             transforms.Resize(size=(target_input_height, target_input_width),
-                              interpolation=InterpolationMode.BICUBIC,
+                              interpolation=getattr(InterpolationMode, interpolation_method.upper()),
                               antialias=True),
             # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
         ])
@@ -274,7 +274,8 @@ def run_experiment(experiment_name: str, config: dict):
 
     #   Run experiment:
 
-    (input_height, input_width) = config['data']['preprocessing']['target_img_size']
+    (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
+    interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
     batch_size = config['model']['training_params']['batch_size']
     lr = config['model']['training_params']['lr']
     num_epochs = config['model']['training_params']['epochs']
@@ -282,7 +283,8 @@ def run_experiment(experiment_name: str, config: dict):
     #   Create data splits
 
     data_splits = get_data_splits(target_input_height=input_height,
-                                  target_input_width=input_width)
+                                  target_input_width=input_width,
+                                  interpolation_method=interpolation_method)
 
     X_train, y_train, X_validation, y_validation, X_test, y_test = data_splits
 
