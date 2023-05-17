@@ -28,8 +28,8 @@ class BaselineModel2d(nn.Module):
 
         # Dimensionality reduction only through the application of 3 MaxPool2d layers (each divides size by 2)
         self.linear1 = nn.Linear(128 * (input_height // (2*2*2)) * (input_width // (2*2*2)), 512)
-        self.linear2 = nn.Linear(512, 128)
-        self.linear3 = nn.Linear(128, 1)
+        self.linear2 = nn.Linear(512, 256)
+        self.linear3 = nn.Linear(256, 1)
 
         self.dropout = nn.Dropout(0.1)
 
@@ -49,7 +49,7 @@ class BaselineModel2d(nn.Module):
         x = self.flatten(x)
 
         x = self.linear1(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)  # -> leads to worse performance on test set in rigid case
         x = self.relu(x)
         x = self.linear2(x)
         x = self.relu(x)
