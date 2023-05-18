@@ -265,13 +265,13 @@ def run_experiment(experiment_name: str, config: dict):
 
         cm_display = ConfusionMatrixDisplay(conf_matrix, display_labels=[0, 1])
         cm_display.plot()
-        plt.savefig(f'results/{experiment_name}/testing/conf_matrix_test_split.png')
+        plt.savefig(f'results/{experiment_name}/testing/conf_matrix_test_split.png', dpi=300)
 
     # ---------------------------------------------------------------------------------------------------------
 
     print(f'\nExperiment "{experiment_name}": \n')
 
-    #   Run experiment:
+    #   Extract hyperparameters from yaml config
 
     (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
     interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
@@ -279,7 +279,7 @@ def run_experiment(experiment_name: str, config: dict):
     lr = config['model']['training_params']['lr']
     num_epochs = config['model']['training_params']['epochs']
 
-    #   Create data splits
+    #   Split data into train, validation and test set
 
     data_splits = get_data_splits(target_input_height=input_height,
                                   target_input_width=input_width,
@@ -287,7 +287,7 @@ def run_experiment(experiment_name: str, config: dict):
 
     X_train, y_train, X_validation, y_validation, X_test, y_test = data_splits
 
-    #   Create data loaders
+    #   Create data loaders for the data splits
 
     train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
                                   batch_size=batch_size,
@@ -304,7 +304,7 @@ def run_experiment(experiment_name: str, config: dict):
                                  shuffle=False,
                                  generator=generator)
 
-    #   Initialize and train model
+    #   Initialize model params and train model params with optimizer and loss function
 
     model = BaselineModel2d(input_height=input_height, input_width=input_height)
     model.initialize_weights()
@@ -319,7 +319,7 @@ def run_experiment(experiment_name: str, config: dict):
                                                              optimizer,
                                                              loss_fn)
 
-    #   Evaluate model on test data
+    #   Evaluate trained model (best epoch wrt. validation loss) on test data
 
     evaluate_on_test_data(model, best_epoch_weights_path, best_epoch, test_dataloader)
 
