@@ -1,6 +1,7 @@
 import os
 import glob
 import json
+import yaml
 import sys
 
 import pandas as pd
@@ -39,10 +40,39 @@ generator.manual_seed(RANDOM_SEED)
 sklearn.utils.check_random_state(RANDOM_SEED)
 
 
-def run_experiment(experiment_name: str, config: dict):
+def run_experiment(config: dict):
+
+    # ---------------------------------------------------------------------------------------------------------
+
+    #   Extract parameters from yaml config
+
+    experiment_name = config['experiment_name']
 
     images_dirpath = config['paths']['images']
     labels_filepath = config['paths']['labels_file']
+
+    (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
+    interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
+
+    batch_size = config['model']['training_params']['batch_size']
+    lr = config['model']['training_params']['lr']
+    num_epochs = config['model']['training_params']['epochs']
+
+    # ---------------------------------------------------------------------------------------------------------
+
+    #   Create results path
+
+    results_path = os.path.join(os.getcwd(), 'results', experiment_name)
+    os.makedirs(results_path, exist_ok=True)
+
+    #   Log the config file used for the experiment to results
+
+    with open(os.path.join(results_path, 'config_used.yaml'), 'w') as f:
+        yaml.dump(config, f)
+
+    # ---------------------------------------------------------------------------------------------------------
+
+    #   Functions
 
     def get_data_splits(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
@@ -195,7 +225,7 @@ def run_experiment(experiment_name: str, config: dict):
                   f"Train loss: {round(train_loss, 4)}, "
                   f"Valid loss: {round(validation_loss, 4)}")
 
-        best_weights_path = f'results/{experiment_name}/training/best_weights.pth'
+        best_weights_path = f'{results_path}/training/best_weights.pth'
         os.makedirs(os.path.dirname(best_weights_path), exist_ok=True)
         torch.save(best_weights, best_weights_path)
 
@@ -208,7 +238,7 @@ def run_experiment(experiment_name: str, config: dict):
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'results/{experiment_name}/training/training_curves.png', dpi=300)
+        plt.savefig(f'{results_path}/training/training_curves.png', dpi=300)
 
         return model, best_epoch, best_weights_path
 
@@ -256,7 +286,7 @@ def run_experiment(experiment_name: str, config: dict):
             'f1-score': f1
         }
 
-        subdir = f'results/{experiment_name}/testing'
+        subdir = f'{results_path}/testing'
         if not os.path.exists(subdir):
             os.makedirs(subdir)
 
@@ -265,19 +295,11 @@ def run_experiment(experiment_name: str, config: dict):
 
         cm_display = ConfusionMatrixDisplay(conf_matrix, display_labels=[0, 1])
         cm_display.plot()
-        plt.savefig(f'results/{experiment_name}/testing/conf_matrix_test_split.png', dpi=300)
+        plt.savefig(f'{results_path}/testing/conf_matrix_test_split.png', dpi=300)
 
     # ---------------------------------------------------------------------------------------------------------
 
     print(f'\nExperiment "{experiment_name}": \n')
-
-    #   Extract hyperparameters from yaml config
-
-    (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
-    interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
-    batch_size = config['model']['training_params']['batch_size']
-    lr = config['model']['training_params']['lr']
-    num_epochs = config['model']['training_params']['epochs']
 
     #   Split data into train, validation and test set
 

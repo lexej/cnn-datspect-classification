@@ -1,3 +1,4 @@
+experiment_name: affine_2d
 
 paths:
   images: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/2d
