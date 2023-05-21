@@ -30,9 +30,9 @@ if __name__ == '__main__':
 
     start = time.time()
 
-    run_experiment(config=config_affine_2d_config)
-
     run_experiment(config=config_rigid_2d_config)
+
+    run_experiment(config=config_affine_2d_config)
 
     end = time.time()
 

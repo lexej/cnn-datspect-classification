@@ -225,8 +225,10 @@ def run_experiment(config: dict):
                   f"Train loss: {round(train_loss, 4)}, "
                   f"Valid loss: {round(validation_loss, 4)}")
 
-        best_weights_path = f'{results_path}/training/best_weights.pth'
-        os.makedirs(os.path.dirname(best_weights_path), exist_ok=True)
+        results_training_path = os.path.join(results_path, 'training')
+        os.makedirs(results_training_path, exist_ok=True)
+
+        best_weights_path = os.path.join(results_training_path, 'best_weights.pth')
         torch.save(best_weights, best_weights_path)
 
         #   plot loss curves
@@ -238,7 +240,7 @@ def run_experiment(config: dict):
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'{results_path}/training/training_curves.png', dpi=300)
+        plt.savefig(os.path.join(results_training_path, 'training_curves.png'), dpi=300)
 
         return model, best_epoch, best_weights_path
 
@@ -286,16 +288,15 @@ def run_experiment(config: dict):
             'f1-score': f1
         }
 
-        subdir = f'{results_path}/testing'
-        if not os.path.exists(subdir):
-            os.makedirs(subdir)
+        results_testing_path = os.path.join(results_path, 'testing')
+        os.makedirs(results_testing_path, exist_ok=True)
 
-        with open(os.path.join(subdir, 'results_test_split.json'), 'w') as file:
-            json.dump(results_test_split, file, indent=4)
+        with open(os.path.join(results_testing_path, 'results_test_split.json'), 'w') as f:
+            json.dump(results_test_split, f, indent=4)
 
         cm_display = ConfusionMatrixDisplay(conf_matrix, display_labels=[0, 1])
         cm_display.plot()
-        plt.savefig(f'{results_path}/testing/conf_matrix_test_split.png', dpi=300)
+        plt.savefig(os.path.join(results_testing_path, 'conf_matrix_test_split.png'), dpi=300)
 
     # ---------------------------------------------------------------------------------------------------------
 
