@@ -22,7 +22,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
     ConfusionMatrixDisplay
 
-from src.model.model_2d import BaselineModel2d
+from src.model.custom_model_2d import CustomModel2d
 
 
 RANDOM_SEED = 1327
@@ -329,7 +329,9 @@ def run_experiment(config: dict):
 
     #   Initialize model params and train model params with optimizer and loss function
 
-    model = BaselineModel2d(input_height=input_height, input_width=input_height)
+    #   TODO -> ResNet18 ??
+
+    model = CustomModel2d(input_height=input_height, input_width=input_height)
     model.initialize_weights()
 
     loss_fn = nn.BCELoss()
