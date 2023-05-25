@@ -133,23 +133,23 @@ def run_experiment(config: dict):
 
         #   Splitting the data
 
-        #   1. train-test split (stratify to ensure equal distribution)
-        #   -> stratify has made ENORMOUS improve in convergence
+        #   1. train-test split  (no stratify used)
+
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=config['data']['test_to_train_split_size_percent'],
                                                             random_state=RANDOM_SEED,
-                                                            shuffle=True,
-                                                            stratify=y)
+                                                            shuffle=True)
 
-        #  2. test-validation split (stratify to ensure equal distribution)
-        X_test, X_validation, y_test, y_validation = train_test_split(X_test, y_test,
-                                                                      test_size=config['data'][
-                                                                          'valid_to_test_split_size_percent'],
-                                                                      random_state=RANDOM_SEED,
-                                                                      shuffle=True,
-                                                                      stratify=y_test)
+        #  2. test-validation split  (no stratify used)
+        X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train,
+                                                                        test_size=config['data'][
+                                                                            'valid_to_train_split_size_percent'],
+                                                                        random_state=RANDOM_SEED,
+                                                                        shuffle=True)
 
         #  Normalize all splits
+
+        #   TODO : Experiment -> normalize ja/nein
 
         X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
 
