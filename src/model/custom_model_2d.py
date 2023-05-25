@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-class BaselineModel2d(nn.Module):
+class CustomModel2d(nn.Module):
     def __init__(self, input_height: int, input_width: int):
-        super(BaselineModel2d, self).__init__()
+        super(CustomModel2d, self).__init__()
 
         #   Convolution layers
         #       - Stride and padding of Conv layers chosen so that spatial dimensions are preserved
