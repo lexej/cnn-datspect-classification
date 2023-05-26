@@ -54,9 +54,15 @@ def run_experiment(config: dict):
     (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
     interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
 
+    model_name = config['model']['name']
+
     batch_size = config['model']['training_params']['batch_size']
     lr = config['model']['training_params']['lr']
     num_epochs = config['model']['training_params']['epochs']
+
+    test_to_train_split_size_percent = config['data']['test_to_train_split_size_percent']
+
+    valid_to_train_split_size_percent = config['data']['valid_to_train_split_size_percent']
 
     # ---------------------------------------------------------------------------------------------------------
 
@@ -151,7 +157,7 @@ def run_experiment(config: dict):
         #   1. train-test split  (no stratify used)
 
         train_indices, test_indices = train_test_split(range(len(spect_dataset)),
-                                                       test_size=config['data']['test_to_train_split_size_percent'],
+                                                       test_size=test_to_train_split_size_percent,
                                                        random_state=RANDOM_SEED,
                                                        shuffle=True)
 
@@ -161,7 +167,7 @@ def run_experiment(config: dict):
         #  2. test-validation split  (no stratify used)
 
         train_indices, val_indices = train_test_split(range(len(train_subset)),
-                                                      test_size=config['data']['valid_to_train_split_size_percent'],
+                                                      test_size=valid_to_train_split_size_percent,
                                                       random_state=RANDOM_SEED,
                                                       shuffle=True)
 
@@ -264,9 +270,9 @@ def run_experiment(config: dict):
 
             # 3. Print epoch results
 
-            print(f"Epoch [{epoch + 1}/{num_epochs}], "
-                  f"Train loss: {round(train_loss, 4)}, "
-                  f"Valid loss: {round(validation_loss, 4)}")
+            print(f"Epoch [{epoch + 1}/{num_epochs}] - "
+                  f"train loss: {round(train_loss, 5)}, "
+                  f"valid loss: {round(validation_loss, 5)}")
 
         results_training_path = os.path.join(results_path, 'training')
         os.makedirs(results_training_path, exist_ok=True)
@@ -315,10 +321,13 @@ def run_experiment(config: dict):
         conf_matrix = confusion_matrix(trues, preds, labels=[0, 1])
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
-        print(f"Accuracy: {acc_score}")
-        print(f"Precision: {precision}")
-        print(f"Recall: {recall}")
-        print(f"F1-score: {f1}")
+
+        relevant_digits = 5
+
+        print(f"Accuracy: {round(acc_score, relevant_digits)}")
+        print(f"Precision: {round(precision, relevant_digits)}")
+        print(f"Recall: {round(recall, relevant_digits)}")
+        print(f"F1-score: {round(f1, relevant_digits)}")
         print('\nConfusion matrix:')
         print(conf_matrix)
 
@@ -355,8 +364,12 @@ def run_experiment(config: dict):
 
     #   TODO -> ResNet18 ??
 
-    model = CustomModel2d(input_height=input_height, input_width=input_height)
-    model.initialize_weights()
+    if model_name == 'custom':
+        model = CustomModel2d(input_height=input_height, input_width=input_height)
+        model.initialize_weights()
+    else:
+        #   TODO
+        pass
 
     loss_fn = nn.BCELoss()
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
