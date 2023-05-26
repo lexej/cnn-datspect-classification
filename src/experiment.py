@@ -13,7 +13,7 @@ import nibabel as nib
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import Dataset, Subset, DataLoader
 import torchvision.transforms as transforms
 from torchvision.transforms import InterpolationMode
 
@@ -74,7 +74,7 @@ def run_experiment(config: dict):
 
     #   Functions
 
-    def get_data_splits(target_input_height, target_input_width, interpolation_method: str):
+    def get_dataloaders(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
         #   Get the features
 
@@ -90,44 +90,59 @@ def run_experiment(config: dict):
             # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
         ])
 
-        file_paths = sorted(glob.glob(f'{images_dirpath}/*.{config["data"]["file_format"]}'))
+        class SpectDataset(Dataset):
+            def __init__(self, features_dirpath, labels_filepath, transform):
+                self.features_dirpath = features_dirpath
+                self.labels_filepath = labels_filepath
+                self.transform = transform
 
-        X = []
+                self.labels = pd.read_excel(labels_filepath)
 
-        for fp in file_paths:
-            data_nifti = nib.load(fp)
+                #   Sort filenames by name
+                self.image_filenames = sorted(os.listdir(features_dirpath))
 
-            img_nifti = data_nifti.get_fdata()
+            def __len__(self):
+                return len(self.image_filenames)
 
-            img_tensor = img_transforms(img_nifti)
+            def __getitem__(self, idx):
 
-            X.append(img_tensor)
+                #   Images:
 
-        X = torch.stack(X)
-        # print(features.size())
-        # plt.imshow(features[0][0], cmap='hot')
-        # plt.show()
+                image_filename = self.image_filenames[idx]
 
-        # -----------------------------------------------------------------------------------------------------------
+                image_path = os.path.join(self.features_dirpath, image_filename)
 
-        #   Get the labels
+                data_nifti = nib.load(image_path)
 
-        labels_raw_table = pd.read_excel(labels_filepath)
+                img_nifti = data_nifti.get_fdata()
 
-        #   For now: Compute column with majority values among each rater labels
-        labels_raw_table['y'] = labels_raw_table[['R1', 'R2', 'R3']].mode(axis=1)[0]
+                img = self.transform(img_nifti)
 
-        labels = labels_raw_table[['ID', 'y']].sort_values(by=['ID'])
+                img = img.float()
 
-        y = torch.from_numpy(labels['y'].to_numpy())
+                #   Labels:
 
-        # Add channel dimension (required for loss function)
-        y = y.unsqueeze(1)
+                label_row = self.labels.loc[self.labels['ID'].astype(int) == idx+1]
 
-        #   Convert Torch tensors to float type
+                #   Convert pandas DataFrame row to pandas Series of labels of interest
+                label_row = label_row[['R1', 'R2', 'R3']].reset_index(drop=True).squeeze()
 
-        X = X.float()
-        y = y.float()
+                #   Majority value of the pandas Series
+
+                label = int(label_row.mode()[0])
+
+                #   To torch tensor with additional dimension
+                label = torch.tensor(label).unsqueeze(0)
+
+                label = label.float()
+
+                return img, label
+
+        #   Create dataset
+
+        spect_dataset = SpectDataset(features_dirpath=images_dirpath,
+                                     labels_filepath=labels_filepath,
+                                     transform=img_transforms)
 
         # -----------------------------------------------------------------------------------------------------------
 
@@ -135,25 +150,53 @@ def run_experiment(config: dict):
 
         #   1. train-test split  (no stratify used)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            test_size=config['data']['test_to_train_split_size_percent'],
-                                                            random_state=RANDOM_SEED,
-                                                            shuffle=True)
+        train_indices, test_indices = train_test_split(range(len(spect_dataset)),
+                                                       test_size=config['data']['test_to_train_split_size_percent'],
+                                                       random_state=RANDOM_SEED,
+                                                       shuffle=True)
+
+        train_subset = Subset(dataset=spect_dataset, indices=train_indices)
+        test_subset = Subset(dataset=spect_dataset, indices=test_indices)
 
         #  2. test-validation split  (no stratify used)
-        X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train,
-                                                                        test_size=config['data'][
-                                                                            'valid_to_train_split_size_percent'],
-                                                                        random_state=RANDOM_SEED,
-                                                                        shuffle=True)
+
+        train_indices, val_indices = train_test_split(range(len(train_subset)),
+                                                      test_size=config['data']['valid_to_train_split_size_percent'],
+                                                      random_state=RANDOM_SEED,
+                                                      shuffle=True)
+
+        #   First create validation subset, then reassign train subset !
+
+        val_subset = Subset(dataset=train_subset, indices=val_indices)
+
+        train_subset = Subset(dataset=train_subset, indices=train_indices)
+
+        # -----------------------------------------------------------------------------------------------------------
+
+        #   TODO : Anpassen normalize function ; auch: normalize ja/nein?
 
         #  Normalize all splits
 
-        #   TODO : Experiment -> normalize ja/nein
+        #   X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
 
-        X_train, X_test, X_validation = normalize_data_splits(X_train, X_test, X_validation)
+        # -----------------------------------------------------------------------------------------------------------
 
-        return X_train, y_train, X_validation, y_validation, X_test, y_test
+        #   Create data loaders for the data subsets
+
+        train_dataloader = DataLoader(dataset=train_subset,
+                                      batch_size=batch_size,
+                                      shuffle=True,  # True in order to shuffle train data before each new epoch
+                                      generator=generator)
+
+        valid_dataloader = DataLoader(dataset=val_subset,
+                                      batch_size=batch_size,
+                                      shuffle=False)  # Already randomly shuffled
+
+        test_dataloader = DataLoader(dataset=test_subset,
+                                     batch_size=batch_size,
+                                     shuffle=False)  # Already randomly shuffled
+
+        return train_dataloader, valid_dataloader, test_dataloader
 
     def normalize_data_splits(X_train, X_test, X_validation):
         #  Calculate mean and std along all train examples and along all pixels (-> scalar)
@@ -302,30 +345,11 @@ def run_experiment(config: dict):
 
     print(f'\nExperiment "{experiment_name}": \n')
 
-    #   Split data into train, validation and test set
+    #   Create data loader for train, validation and test subset
 
-    data_splits = get_data_splits(target_input_height=input_height,
-                                  target_input_width=input_width,
-                                  interpolation_method=interpolation_method)
-
-    X_train, y_train, X_validation, y_validation, X_test, y_test = data_splits
-
-    #   Create data loaders for the data splits
-
-    train_dataloader = DataLoader(dataset=TensorDataset(X_train, y_train),
-                                  batch_size=batch_size,
-                                  shuffle=True,
-                                  generator=generator)
-
-    valid_dataloader = DataLoader(TensorDataset(X_validation, y_validation),
-                                  batch_size=batch_size,
-                                  shuffle=False,
-                                  generator=generator)
-
-    test_dataloader = DataLoader(TensorDataset(X_test, y_test),
-                                 batch_size=batch_size,
-                                 shuffle=False,
-                                 generator=generator)
+    train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(target_input_height=input_height,
+                                                                          target_input_width=input_width,
+                                                                          interpolation_method=interpolation_method)
 
     #   Initialize model params and train model params with optimizer and loss function
 
