@@ -1,8 +1,9 @@
 import os
-import glob
 import json
+import numpy as np
 import yaml
 import sys
+from typing import List
 
 import pandas as pd
 
@@ -204,6 +205,7 @@ def run_experiment(config: dict):
 
         return train_dataloader, valid_dataloader, test_dataloader
 
+    """
     def normalize_data_splits(X_train, X_test, X_validation):
         #  Calculate mean and std along all train examples and along all pixels (-> scalar)
         X_train_mean = torch.mean(X_train, dim=(0, 2, 3))
@@ -216,6 +218,7 @@ def run_experiment(config: dict):
         X_validation_normalized = (X_validation - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
 
         return X_train_normalized, X_test_normalized, X_validation_normalized
+    """
 
     def train_model(model, num_epochs, train_dataloader, valid_dataloader, optimizer, loss_fn):
         best_loss = float('inf')
