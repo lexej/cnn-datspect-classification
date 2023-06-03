@@ -24,6 +24,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
     ConfusionMatrixDisplay
 
 from src.model.custom_model_2d import CustomModel2d
+from src.model.resnet_2d import ResNet2d
 
 
 RANDOM_SEED = 1327
@@ -365,11 +366,13 @@ def run_experiment(config: dict):
 
     #   Initialize model params and train model params with optimizer and loss function
 
-    #   TODO -> ResNet18 ??
+    #   TODO -> Finetune ResNet
 
     if model_name == 'custom':
         model = CustomModel2d(input_height=input_height, input_width=input_height)
         model.initialize_weights()
+    elif model_name == 'resnet':
+        model = ResNet2d()
     else:
         #   TODO
         pass
