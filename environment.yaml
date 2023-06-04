@@ -17,6 +17,7 @@ dependencies:
   - torchvision
   - nibabel
   - pyyaml
+  - tqdm
   - pip
   - pip:
     - nbimporter

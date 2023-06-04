@@ -4,6 +4,7 @@ import numpy as np
 import yaml
 import sys
 from typing import List
+from tqdm import tqdm
 
 import pandas as pd
 
@@ -235,7 +236,8 @@ def run_experiment(config: dict):
             model.train()
             train_loss = 0.0
 
-            for batch_features, batch_labels in train_dataloader:
+            #   tqdm() activates progress bar
+            for batch_features, batch_labels in tqdm(train_dataloader, desc=f"Epoch [{epoch + 1}/{num_epochs}] "):
                 # Forward pass
                 outputs = model(batch_features)
                 loss = loss_fn(outputs, batch_labels)
@@ -274,7 +276,7 @@ def run_experiment(config: dict):
 
             # 3. Print epoch results
 
-            print(f"Epoch [{epoch + 1}/{num_epochs}] - "
+            print(f" Results for epoch {epoch + 1} - "
                   f"train loss: {round(train_loss, 5)}, "
                   f"valid loss: {round(validation_loss, 5)}")
 
