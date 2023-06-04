@@ -1,6 +1,8 @@
+
+#   Syntax rules for custom config file:
+#   required keys are: 'experiment_name', 'images_dir', 'labels_filepath'
+
 experiment_name: affine_2d
 
-paths:
-  images: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/2d
-  labels_file: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx
-
+images_dir: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/affine_p75_withACSC_multipleTemplates_woCerebellum/2d
+labels_filepath: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx

@@ -50,21 +50,21 @@ def run_experiment(config: dict):
 
     experiment_name = config['experiment_name']
 
-    images_dirpath = config['paths']['images']
-    labels_filepath = config['paths']['labels_file']
+    images_dirpath = config['images_dir']
+    labels_filepath = config['labels_filepath']
 
-    (input_height, input_width) = config['data']['preprocessing']['resize']['target_img_size']
-    interpolation_method = config['data']['preprocessing']['resize']['interpolation_method']
+    (input_height, input_width) = config['target_img_size']
+    interpolation_method = config['interpolation_method']
 
-    model_name = config['model']['name']
+    model_name = config['model_name']
 
-    batch_size = config['model']['training_params']['batch_size']
-    lr = config['model']['training_params']['lr']
-    num_epochs = config['model']['training_params']['epochs']
+    batch_size = config['batch_size']
+    lr = config['lr']
+    num_epochs = config['epochs']
 
-    test_to_train_split_size_percent = config['data']['test_to_train_split_size_percent']
+    test_to_train_split_size_percent = config['test_to_train_split_size_percent']
 
-    valid_to_train_split_size_percent = config['data']['valid_to_train_split_size_percent']
+    valid_to_train_split_size_percent = config['valid_to_train_split_size_percent']
 
     # ---------------------------------------------------------------------------------------------------------
 

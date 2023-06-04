@@ -1,22 +1,33 @@
 
-data:
-  file_format: 'nii'
-  preprocessing:
-    resize:
-      target_img_size: [ 224,224 ] # for Resnet
-      interpolation_method: 'bicubic'
-      # options for interpolation_method:
-      #     'nearest', 'nearest-exact', 'bilinear', 'bicubic', 'box', 'hamming', and 'lanczos'
-  test_to_train_split_size_percent: 0.3  # ratio of test split to train split
-  valid_to_train_split_size_percent: 0.15  # ratio of validation split to train split
+#   Syntax rules for this file; required keys are:
+#       'file_format', 'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
+#       'valid_to_train_split_size_percent', 'model_name', 'lr', 'epochs', 'batch_size'
 
-model:
-  name: 'resnet'
-  training_params:
-    lr: 0.0001
-    epochs: 30
-    batch_size: 64 # better performance than for 32
+#   ATTENTION: Don't use nested keys; otherwise -> entire root key subtree can be OVERRIDEN in custom config files
 
-# ATTENTION: When overriding values from base_config.yaml in custom yaml files,
-#             provide the ENTIRE subtree of the affected root key
-#   -> base_config root key subtrees are updated by REPLACING with custom config subtree
+# ---------------------------------------------------------------------------------------------
+
+#   Data-related
+
+file_format: 'nii'
+
+target_img_size: [ 224,224 ] # for Resnet
+
+# interpolation_method can be: 'nearest', 'nearest-exact', 'bilinear',
+#                               'bicubic', 'box', 'hamming', and 'lanczos'
+interpolation_method: 'bicubic'
+
+test_to_train_split_size_percent: 0.3  # ratio of test split to train split
+valid_to_train_split_size_percent: 0.15  # ratio of validation split to train split
+
+# ---------------------------------------------------------------------------------------------
+
+#   Model-related
+
+model_name: 'resnet'
+
+lr: 0.0001
+epochs: 30
+batch_size: 64  # better performance than for 32
+
+# ---------------------------------------------------------------------------------------------
