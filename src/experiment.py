@@ -6,18 +6,12 @@ import sys
 from typing import List
 from tqdm import tqdm
 
-import pandas as pd
-
 import matplotlib.pyplot as plt
-
-import nibabel as nib
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import Dataset, Subset, DataLoader
-import torchvision.transforms as transforms
-from torchvision.transforms import InterpolationMode
+from torch.utils.data import Subset, DataLoader
 
 import sklearn
 from sklearn.model_selection import train_test_split
@@ -26,7 +20,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from src.model.custom_model_2d import CustomModel2d
 from src.model.resnet_2d import ResNet2d
-
+from src.preprocessing.data import SpectDataset
 
 RANDOM_SEED = 1327
 
@@ -85,85 +79,13 @@ def run_experiment(config: dict):
 
     def get_dataloaders(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
-        #   Data preprocessing
-
-        class SpectDataset(Dataset):
-            def __init__(self, features_dirpath, labels_filepath):
-                self.features_dirpath = features_dirpath
-                self.labels_filepath = labels_filepath
-
-                self.labels = pd.read_excel(labels_filepath)
-
-                #   Sort filenames by name
-                self.image_filenames = sorted(os.listdir(features_dirpath))
-
-            def __len__(self):
-                return len(self.image_filenames)
-
-            def __getitem__(self, idx):
-
-                #   Images:
-
-                image_filename = self.image_filenames[idx]
-
-                image_path = os.path.join(self.features_dirpath, image_filename)
-
-                data_nifti = nib.load(image_path)
-
-                img = data_nifti.get_fdata()
-
-                img = self.apply_transforms(img)
-
-                #   Labels:
-
-                label_row = self.labels.loc[self.labels['ID'].astype(int) == idx+1]
-
-                #   Convert pandas DataFrame row to pandas Series of labels of interest
-                label_row = label_row[['R1', 'R2', 'R3']].reset_index(drop=True).squeeze()
-
-                #   Majority value of the pandas Series
-
-                label = int(label_row.mode()[0])
-
-                #   To torch tensor with additional dimension
-                label = torch.tensor(label).unsqueeze(0)
-
-                label = label.float()
-
-                return img, label
-
-            @staticmethod
-            def apply_transforms(img: np.ndarray) -> torch.Tensor:
-
-                #   1. Crop image of size (91, 109) to region of interest (91, 91)
-                #       policy: select all rows and 10th to 100th column
-
-                transformed_img = img[:, 9:100]
-
-                #   2. Convert to torch tensor
-                #   3. Resize images from (91, 91) to target size (input_height, input_width)
-                #           using certain interpolation method
-                #       - Attention: Interpolation method has impact on model performance !
-
-                img_transforms = transforms.Compose([
-                    transforms.ToTensor(),
-                    transforms.Resize(size=(target_input_height, target_input_width),
-                                      interpolation=getattr(InterpolationMode, interpolation_method.upper()),
-                                      antialias=True)
-                ])
-
-                transformed_img = img_transforms(transformed_img)
-
-                #   4. Convert to float type
-
-                transformed_img = transformed_img.float()
-
-                return transformed_img
-
         #   Create dataset
 
         spect_dataset = SpectDataset(features_dirpath=images_dirpath,
-                                     labels_filepath=labels_filepath)
+                                     labels_filepath=labels_filepath,
+                                     target_input_height=target_input_height,
+                                     target_input_width=target_input_width,
+                                     interpolation_method=interpolation_method)
 
         # -----------------------------------------------------------------------------------------------------------
 
