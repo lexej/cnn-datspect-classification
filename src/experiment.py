@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import yaml
+import argparse
 import sys
 from typing import List
 from tqdm import tqdm
@@ -26,6 +27,19 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from src.model.custom_model_2d import CustomModel2d
 from src.model.resnet_2d import ResNet2d
+
+
+#   Parse arguments
+
+parser = argparse.ArgumentParser(description='Script for running experiments using a yaml config.')
+
+parser.add_argument('-c', '--config', type=str, required=True, help='Path to the YAML config file')
+
+args = parser.parse_args()
+
+with open(args.config, 'r') as f:
+    config = yaml.safe_load(f)
+
 
 RANDOM_SEED = 1327
 
@@ -434,3 +448,6 @@ def run_experiment(config: dict):
 
     print('-----------------------------------------------------------------------------------------')
 
+
+if __name__ == '__main__':
+    run_experiment(config=config)

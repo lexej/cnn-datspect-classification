@@ -1,6 +1,36 @@
 
-#   Syntax rules for custom config file:
-#   required keys are: 'experiment_name', 'images_dir', 'labels_filepath'
+#   Syntax rules for this file; required keys are:
+#       'file_format', 'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
+#       'valid_to_train_split_size_percent', 'model_name', 'lr', 'epochs', 'batch_size',
+#       'experiment_name', 'images_dir', 'labels_filepath'
+
+# ---------------------------------------------------------------------------------------------
+
+#   Data-related
+
+file_format: 'nii'
+
+target_img_size: [ 224,224 ] # for Resnet
+
+# interpolation_method can be: 'nearest', 'nearest-exact', 'bilinear',
+#                               'bicubic', 'box', 'hamming', and 'lanczos'
+interpolation_method: 'bicubic'
+
+test_to_train_split_size_percent: 0.3  # ratio of test split to train split
+valid_to_train_split_size_percent: 0.15  # ratio of validation split to train split
+
+# ---------------------------------------------------------------------------------------------
+
+#   Model-related
+
+model_name: 'resnet'
+
+lr: 0.0001
+epochs: 30
+batch_size: 64  # better performance than for 32
+
+# ---------------------------------------------------------------------------------------------
+
 
 experiment_name: rigid_3d
 
