@@ -85,25 +85,12 @@ def run_experiment(config: dict):
 
     def get_dataloaders(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
-        #   Get the features
-
-        #  Resize images from (91, 109) to size (input_height, input_width) using bicubic interpolation
-        # -> Idea: Generalize to future cases where image size may change
-        #  Interpolation method has impact on Precision and Recall !!!
-        #        -> Bilinear for better Precision; Bicubic for better Recall, NEAREST_EXACT makes trade-off
-        img_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize(size=(target_input_height, target_input_width),
-                              interpolation=getattr(InterpolationMode, interpolation_method.upper()),
-                              antialias=True),
-            # transforms.Normalize(mean=[0.485], std=[0.229])  # Normalize image
-        ])
+        #   Data preprocessing
 
         class SpectDataset(Dataset):
-            def __init__(self, features_dirpath, labels_filepath, transform):
+            def __init__(self, features_dirpath, labels_filepath):
                 self.features_dirpath = features_dirpath
                 self.labels_filepath = labels_filepath
-                self.transform = transform
 
                 self.labels = pd.read_excel(labels_filepath)
 
@@ -123,11 +110,9 @@ def run_experiment(config: dict):
 
                 data_nifti = nib.load(image_path)
 
-                img_nifti = data_nifti.get_fdata()
+                img = data_nifti.get_fdata()
 
-                img = self.transform(img_nifti)
-
-                img = img.float()
+                img = self.apply_transforms(img)
 
                 #   Labels:
 
@@ -147,11 +132,38 @@ def run_experiment(config: dict):
 
                 return img, label
 
+            @staticmethod
+            def apply_transforms(img: np.ndarray) -> torch.Tensor:
+
+                #   1. Crop image of size (91, 109) to region of interest (91, 91)
+                #       policy: select all rows and 10th to 100th column
+
+                transformed_img = img[:, 9:100]
+
+                #   2. Convert to torch tensor
+                #   3. Resize images from (91, 91) to target size (input_height, input_width)
+                #           using certain interpolation method
+                #       - Attention: Interpolation method has impact on model performance !
+
+                img_transforms = transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Resize(size=(target_input_height, target_input_width),
+                                      interpolation=getattr(InterpolationMode, interpolation_method.upper()),
+                                      antialias=True)
+                ])
+
+                transformed_img = img_transforms(transformed_img)
+
+                #   4. Convert to float type
+
+                transformed_img = transformed_img.float()
+
+                return transformed_img
+
         #   Create dataset
 
         spect_dataset = SpectDataset(features_dirpath=images_dirpath,
-                                     labels_filepath=labels_filepath,
-                                     transform=img_transforms)
+                                     labels_filepath=labels_filepath)
 
         # -----------------------------------------------------------------------------------------------------------
 
