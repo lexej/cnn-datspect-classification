@@ -1,15 +1,17 @@
 import os
 import json
-import numpy as np
+import shutil
 import yaml
 import argparse
 import sys
+
 from typing import List
 from tqdm import tqdm
 
-import nibabel as nib
-
+import numpy as np
 import pandas as pd
+
+import nibabel as nib
 
 import matplotlib.pyplot as plt
 
@@ -25,8 +27,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
     ConfusionMatrixDisplay
 
-from src.model.custom_model_2d import CustomModel2d
-from src.model.resnet_2d import ResNet2d
+from model.custom_model_2d import CustomModel2d
+from model.resnet_2d import ResNet2d
 
 
 #   Parse arguments
@@ -40,6 +42,7 @@ args = parser.parse_args()
 with open(args.config, 'r') as f:
     config = yaml.safe_load(f)
 
+config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
 RANDOM_SEED = 1327
 
@@ -159,7 +162,18 @@ def run_experiment(config: dict):
 
     #   Extract parameters from yaml config
 
-    experiment_name = config['experiment_name']
+    #   Create experiment results directory
+
+    results_dir = os.path.join(os.getcwd(), 'results')
+
+    os.makedirs(results_dir, exist_ok=True)
+
+    results_path = os.path.join(results_dir, config_filename)
+
+    if os.path.exists(results_path):
+        shutil.rmtree(results_path)
+
+    os.makedirs(results_path)
 
     images_dirpath = config['images_dir']
     labels_filepath = config['labels_filepath']
@@ -178,11 +192,6 @@ def run_experiment(config: dict):
     valid_to_train_split_size_percent = config['valid_to_train_split_size_percent']
 
     # ---------------------------------------------------------------------------------------------------------
-
-    #   Create results path
-
-    results_path = os.path.join(os.getcwd(), 'results', experiment_name)
-    os.makedirs(results_path, exist_ok=True)
 
     #   Log the config file used for the experiment to results
 
@@ -408,7 +417,7 @@ def run_experiment(config: dict):
 
     # ---------------------------------------------------------------------------------------------------------
 
-    print(f'\nExperiment "{experiment_name}": \n')
+    print(f'\nExperiment "{config_filename}": \n')
 
     #   Create data loader for train, validation and test subset
 

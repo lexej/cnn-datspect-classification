@@ -1,8 +1,7 @@
 
 #   Syntax rules for this file; required keys are:
-#       'file_format', 'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
-#       'valid_to_train_split_size_percent', 'model_name', 'lr', 'epochs', 'batch_size',
-#       'experiment_name', 'images_dir', 'labels_filepath'
+#      'file_format', 'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
+#      'valid_to_train_split_size_percent', 'model_name', 'lr', 'epochs', 'batch_size', 'images_dir', 'labels_filepath'
 
 # ---------------------------------------------------------------------------------------------
 
@@ -30,9 +29,6 @@ epochs: 30
 batch_size: 64  # better performance than for 32
 
 # ---------------------------------------------------------------------------------------------
-
-
-experiment_name: rigid_3d
 
 images_dir: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/rigid/3d
 labels_filepath: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx
