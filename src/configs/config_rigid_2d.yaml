@@ -1,13 +1,18 @@
 
 #   Syntax rules for this file; required keys are:
-#      'file_format', 'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
+#      'target_img_size', 'interpolation_method', 'test_to_train_split_size_percent',
 #      'valid_to_train_split_size_percent', 'model_name', 'lr', 'epochs', 'batch_size', 'images_dir', 'labels_filepath'
 
 # ---------------------------------------------------------------------------------------------
 
-#   Data-related
+#   Paths
 
-file_format: 'nii'
+images_dir: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/rigid/2d
+labels_filepath: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx
+
+# ---------------------------------------------------------------------------------------------
+
+#   Data-related
 
 target_img_size: [ 224,224 ] # for Resnet
 
@@ -29,6 +34,3 @@ epochs: 30
 batch_size: 64  # better performance than for 32
 
 # ---------------------------------------------------------------------------------------------
-
-images_dir: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/rigid/2d
-labels_filepath: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/UKE_SPECT/scans_20230424.xlsx
