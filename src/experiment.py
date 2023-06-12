@@ -46,8 +46,6 @@ config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
 RANDOM_SEED = 1327
 
-dtype = torch.float
-
 torch.manual_seed(RANDOM_SEED)
 
 #   Set device based on availability
@@ -77,15 +75,189 @@ generator.manual_seed(RANDOM_SEED)
 sklearn.utils.check_random_state(RANDOM_SEED)
 
 
+class Encoder:
+
+    def __init__(self, strategy: int):
+        self.strategy = strategy
+
+    def get_label_using_strategy(self, final_labels_occurrences: pd.Series,
+                                 session_labels_occurrences: pd.Series):
+
+        count_of_0_in_final_labels = final_labels_occurrences.get(0, default=0)
+        count_of_0_in_session_labels = session_labels_occurrences.get(0, default=0)
+        count_of_1_in_session_labels = session_labels_occurrences.get(1, default=0)
+
+        if self.strategy == 1:
+            #   3 classes: "normal", "uncertain", "reduced"
+
+            #   Only consider final labels
+
+            if count_of_0_in_final_labels == 3:
+                #   all raters agree on label "0"
+                label = 0
+            elif count_of_0_in_final_labels == 2 or count_of_0_in_final_labels == 1:
+                #   rater do not agree on label
+                label = 1
+            elif count_of_0_in_final_labels == 0:
+                #   all raters agree on label "1"
+                label = 2
+        elif self.strategy == 2:
+            #   7 classes; ordinal classification problem assumed
+
+            #   0: "most likely normal"               <-> [1, 0, 0, 0, 0, 0, 0]
+            #   1: "probably normal"                  <-> [1, 1, 0, 0, 0, 0, 0]
+            #   2: "more likely normal than reduced"  <-> [1, 1, 1, 0, 0, 0, 0]
+            #   3: "uncertain"                        <-> [1, 1, 1, 1, 0, 0, 0]
+            #   4: "more likely reduced than normal"  <-> [1, 1, 1, 1, 1, 0, 0]
+            #   5: "probably reduced"                 <-> [1, 1, 1, 1, 1, 1, 0]
+            #   6: "most likely reduced"              <-> [1, 1, 1, 1, 1, 1, 1]
+
+            #   Consider both final and session labels
+
+            if count_of_0_in_final_labels == 3:
+                if count_of_0_in_session_labels > 3:
+                    #   most likely normal
+                    label = 0
+                else:
+                    #   probably normal
+                    label = 1
+            elif count_of_0_in_final_labels == 2:
+                if count_of_0_in_session_labels > 3:
+                    #   more likely normal than reduced
+                    label = 2
+                else:
+                    #   uncertain
+                    label = 3
+            elif count_of_0_in_final_labels == 1:
+                if count_of_1_in_session_labels > 3:
+                    #   more likely reduced than normal
+                    label = 4
+                else:
+                    #   uncertain
+                    label = 3
+            else:
+                #   Case where: count_of_0_in_final_labels = 0 <=> count_of_1_in_final_labels = 3
+                if count_of_1_in_session_labels > 3:
+                    label = 6
+                else:
+                    label = 5
+
+        label = self.__encode_integer_label(label)
+
+        return label
+
+    def __encode_integer_label(self, label: int) -> torch.Tensor:
+
+        if self.strategy == 1:
+            #   vanilla multi-class classification; nn.CrossEntropyLoss() expects integer ground truths
+            encoded_label = label
+        elif self.strategy == 2:
+            if label == 0:
+                encoded_label = [1, 0, 0, 0, 0, 0, 0]
+            elif label == 1:
+                encoded_label = [1, 1, 0, 0, 0, 0, 0]
+            elif label == 2:
+                encoded_label = [1, 1, 1, 0, 0, 0, 0]
+            elif label == 3:
+                encoded_label = [1, 1, 1, 1, 0, 0, 0]
+            elif label == 4:
+                encoded_label = [1, 1, 1, 1, 1, 0, 0]
+            elif label == 5:
+                encoded_label = [1, 1, 1, 1, 1, 1, 0]
+            elif label == 6:
+                encoded_label = [1, 1, 1, 1, 1, 1, 1]
+            else:
+                encoded_label = None
+
+        encoded_label = torch.tensor(encoded_label, dtype=torch.int32, device=device)
+
+        return encoded_label
+
+    @staticmethod
+    def decode_labels(labels: torch.Tensor):
+        #   Function used only for strategy = 2
+
+        #   labels should have shape (batch_size, num_classes)
+
+        labels_decoded = torch.zeros((labels.shape[0], 1))
+
+        for i, val in enumerate(labels):
+            encoded_val = list(val)
+            if encoded_val == [1, 0, 0, 0, 0, 0, 0]:
+                labels_decoded[i][0] = 0
+            elif encoded_val == [1, 1, 0, 0, 0, 0, 0]:
+                labels_decoded[i][0] = 1
+            elif encoded_val == [1, 1, 1, 0, 0, 0, 0]:
+                labels_decoded[i][0] = 2
+            elif encoded_val == [1, 1, 1, 1, 0, 0, 0]:
+                labels_decoded[i][0] = 3
+            elif encoded_val == [1, 1, 1, 1, 1, 0, 0]:
+                labels_decoded[i][0] = 4
+            elif encoded_val == [1, 1, 1, 1, 1, 1, 0]:
+                labels_decoded[i][0] = 5
+            elif encoded_val == [1, 1, 1, 1, 1, 1, 1]:
+                labels_decoded[i][0] = 6
+
+        return labels_decoded
+
+    @staticmethod
+    def decode_preds(preds: torch.Tensor):
+        #   Function used only for strategy = 2
+
+        preds_decoded = torch.zeros((preds.shape[0], 1))
+
+        #   threshold for each predicted output neuron
+        threshold = 0.5
+
+        for i, pred in enumerate(preds):
+            for j, val in enumerate(pred):
+                if j == 0:
+                    if val > threshold:
+                        #   Do nothing since preds_decoded is initialized with zeros
+                        continue
+                    else:
+                        raise Exception("something went wrong")
+
+                if val > threshold:
+                    preds_decoded[i][0] += 1
+                else:
+                    break
+
+        return preds_decoded
+
+
+def custom_loss_fn(predictions: torch.Tensor, targets: torch.Tensor):
+    #   Loss function used only for strategy = 2
+
+    #   predictions have shape (batch_size, num_classes)
+    #   targets have shape (batch_size, num_classes)
+
+    #   Apply MSELoss function
+
+    loss = nn.MSELoss(reduction='none')(predictions, targets)
+
+    #   Loss for each batch sample:
+
+    loss = loss.sum(axis=1)
+
+    #   Average loss over all batch samples:
+
+    loss = loss.mean()
+
+    return loss
+
+
 class SpectDataset(Dataset):
     def __init__(self, features_dirpath, labels_filepath, target_input_height,
-                 target_input_width, interpolation_method):
+                 target_input_width, interpolation_method, enc: Encoder):
         self.features_dirpath = features_dirpath
         self.labels_filepath = labels_filepath
 
         self.target_input_height = target_input_height
         self.target_input_width = target_input_width
         self.interpolation_method = interpolation_method
+
+        self.enc = enc
 
         self.labels = pd.read_excel(labels_filepath)
 
@@ -116,15 +288,20 @@ class SpectDataset(Dataset):
         label_row = self.labels.loc[self.labels['ID'].astype(int) == idx+1]
 
         #   Convert pandas DataFrame row to pandas Series of labels of interest
-        label_row = label_row[['R1', 'R2', 'R3']].reset_index(drop=True).squeeze()
 
-        #   Majority value of the pandas Series
+        labels_full = label_row[['R1', 'R2', 'R3',
+                                 'R1S1', 'R1S2', 'R2S1',
+                                 'R2S2', 'R3S1', 'R3S2']].reset_index(drop=True).squeeze()
 
-        label = int(label_row.mode()[0])
+        final_labels = labels_full[['R1', 'R2', 'R3']]
 
-        #   To torch tensor (with additional dimension)
+        final_labels_occurrences = final_labels.value_counts()
 
-        label = torch.tensor(label, dtype=dtype, device=device).unsqueeze(0)
+        session_labels = labels_full[['R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2']]
+
+        session_labels_occurrences = session_labels.value_counts()
+
+        label = self.enc.get_label_using_strategy(final_labels_occurrences, session_labels_occurrences)
 
         return img, label
 
@@ -151,7 +328,7 @@ class SpectDataset(Dataset):
 
         #   4. Convert to float type and move to device
 
-        transformed_img = transformed_img.to(device=device, dtype=dtype)
+        transformed_img = transformed_img.to(device=device, dtype=torch.float)
 
         return transformed_img
 
@@ -202,7 +379,7 @@ def run_experiment(config: dict):
 
     #   Functions
 
-    def get_dataloaders(target_input_height, target_input_width, interpolation_method: str):
+    def get_dataloaders(target_input_height, target_input_width, interpolation_method: str, enc: Encoder):
         # -----------------------------------------------------------------------------------------------------------
         #   Create dataset
 
@@ -210,7 +387,8 @@ def run_experiment(config: dict):
                                      labels_filepath=labels_filepath,
                                      target_input_height=target_input_height,
                                      target_input_width=target_input_width,
-                                     interpolation_method=interpolation_method)
+                                     interpolation_method=interpolation_method,
+                                     enc=enc)
 
         # -----------------------------------------------------------------------------------------------------------
 
@@ -373,17 +551,35 @@ def run_experiment(config: dict):
             for batch_features, batch_labels in test_dataloader:
                 outputs = model(batch_features)
 
-                # Probabilities -> predicted labels (for now: 0.5 decision boundary)
-                predicted_labels = torch.round(outputs)
+                #   outputs has shape (batch_size, num_classes)
+                #   batch_labels has shape (batch_size, num_classes) for strategy=2
+                #   batch_labels has shape (batch_size) for strategy=1
 
-                preds.extend(predicted_labels.tolist())
+                if strategy == 1:
+                    #   Decode predictions by taking argmax (vanilla multi-class..)
+                    outputs = torch.argmax(outputs, dim=1)
+                elif strategy == 2:
+                    #   1. Manually decode labels
+
+                    batch_labels = enc.decode_labels(batch_labels)
+
+                    #   2. Manually decode predictions
+
+                    outputs = enc.decode_preds(outputs)
+
+                preds.extend(outputs.tolist())
                 trues.extend(batch_labels.tolist())
 
+        #   accuracy_score expects two List instances of equal length
         acc_score = accuracy_score(trues, preds)
-        precision = precision_score(trues, preds)
-        recall = recall_score(trues, preds)
-        f1 = f1_score(trues, preds)
-        conf_matrix = confusion_matrix(trues, preds, labels=[0, 1])
+
+        #   TODO: average parameter depends on strategy:
+
+        precision = precision_score(trues, preds, average='macro')
+        recall = recall_score(trues, preds, average='macro')
+        f1 = f1_score(trues, preds, average='macro')
+
+        conf_matrix = confusion_matrix(trues, preds)
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
 
@@ -411,7 +607,7 @@ def run_experiment(config: dict):
         with open(os.path.join(results_testing_path, 'results_test_split.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
-        cm_display = ConfusionMatrixDisplay(conf_matrix, display_labels=[0, 1])
+        cm_display = ConfusionMatrixDisplay(conf_matrix)
         cm_display.plot()
         plt.savefig(os.path.join(results_testing_path, 'conf_matrix_test_split.png'), dpi=300)
 
@@ -419,11 +615,18 @@ def run_experiment(config: dict):
 
     print(f'\nExperiment "{config_filename}": \n')
 
+    #   Create Encoder instance
+
+    strategy = 1
+
+    enc = Encoder(strategy)
+
     #   Create data loader for train, validation and test subset
 
     train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(target_input_height=input_height,
                                                                           target_input_width=input_width,
-                                                                          interpolation_method=interpolation_method)
+                                                                          interpolation_method=interpolation_method,
+                                                                          enc=enc)
 
     #   Initialize model params and train model params with optimizer and loss function
 
@@ -433,16 +636,23 @@ def run_experiment(config: dict):
         model = CustomModel2d(input_height=input_height, input_width=input_height)
         model.initialize_weights()
     elif model_name == 'resnet':
-        model = ResNet2d()
+        if strategy == 1:
+            model = ResNet2d(num_out_features=3, outputs_function="softmax")
+        elif strategy == 2:
+            model = ResNet2d(num_out_features=7, outputs_function="sigmoid")
     else:
         #   TODO
         pass
 
     #   Move model to device and set data type
-    model = model.to(device=device, dtype=dtype)
+    model = model.to(device=device, dtype=torch.float)
 
-    loss_fn = nn.BCELoss()
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
+
+    if strategy == 1:
+        loss_fn = nn.CrossEntropyLoss()
+    elif strategy == 2:
+        loss_fn = custom_loss_fn
 
     model, best_epoch, best_epoch_weights_path = train_model(model,
                                                              num_epochs,
