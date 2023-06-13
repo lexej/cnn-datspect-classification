@@ -157,13 +157,13 @@ class Encoder:
         if self.strategy == 0:
             #   vanilla binary classification; nn.BCELoss() expects integer ground truths
             encoded_label = [label]
-            data_type = torch.float32
+            dtype = torch.float32
         elif self.strategy == 1:
-            #   vanilla multi-class classification; nn.CrossEntropyLoss() expects integer ground truths
+            #   vanilla multi-class classification; nn.CrossEntropyLoss() expects ground truths with type integer
             encoded_label = label
-            data_type = torch.int32
+            dtype = torch.int32
         elif self.strategy == 2:
-            data_type = torch.int32
+            dtype = torch.float32
             if label == 0:
                 encoded_label = [1, 0, 0, 0, 0, 0, 0]
             elif label == 1:
@@ -181,7 +181,7 @@ class Encoder:
             else:
                 encoded_label = None
 
-        encoded_label = torch.tensor(encoded_label, dtype=data_type, device=device)
+        encoded_label = torch.tensor(encoded_label, dtype=dtype, device=device)
 
         return encoded_label
 
@@ -236,27 +236,6 @@ class Encoder:
                     break
 
         return preds_decoded
-
-
-def custom_loss_fn(predictions: torch.Tensor, targets: torch.Tensor):
-    #   Loss function used only for strategy = 2
-
-    #   predictions have shape (batch_size, num_classes)
-    #   targets have shape (batch_size, num_classes)
-
-    #   Apply MSELoss function
-
-    loss = nn.MSELoss(reduction='none')(predictions, targets)
-
-    #   Loss for each batch sample:
-
-    loss = loss.sum(axis=1)
-
-    #   Average loss over all batch samples:
-
-    loss = loss.mean()
-
-    return loss
 
 
 class SpectDataset(Dataset):
@@ -677,7 +656,7 @@ def run_experiment(config: dict):
     elif strategy == 1:
         loss_fn = nn.CrossEntropyLoss()
     elif strategy == 2:
-        loss_fn = custom_loss_fn
+        loss_fn = nn.MSELoss(reduction='sum')
 
     model, best_epoch, best_epoch_weights_path = train_model(model,
                                                              num_epochs,
