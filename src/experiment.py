@@ -87,7 +87,13 @@ class Encoder:
         count_of_0_in_session_labels = session_labels_occurrences.get(0, default=0)
         count_of_1_in_session_labels = session_labels_occurrences.get(1, default=0)
 
-        if self.strategy == 1:
+        if self.strategy == 0:
+            #   Binary classification
+            if count_of_0_in_final_labels >= 2:
+                label = 0
+            else:
+                label = 1
+        elif self.strategy == 1:
             #   3 classes: "normal", "uncertain", "reduced"
 
             #   Only consider final labels
@@ -148,10 +154,16 @@ class Encoder:
 
     def __encode_integer_label(self, label: int) -> torch.Tensor:
 
-        if self.strategy == 1:
+        if self.strategy == 0:
+            #   vanilla binary classification; nn.BCELoss() expects integer ground truths
+            encoded_label = [label]
+            data_type = torch.float32
+        elif self.strategy == 1:
             #   vanilla multi-class classification; nn.CrossEntropyLoss() expects integer ground truths
             encoded_label = label
+            data_type = torch.int32
         elif self.strategy == 2:
+            data_type = torch.int32
             if label == 0:
                 encoded_label = [1, 0, 0, 0, 0, 0, 0]
             elif label == 1:
@@ -169,7 +181,7 @@ class Encoder:
             else:
                 encoded_label = None
 
-        encoded_label = torch.tensor(encoded_label, dtype=torch.int32, device=device)
+        encoded_label = torch.tensor(encoded_label, dtype=data_type, device=device)
 
         return encoded_label
 
@@ -549,6 +561,9 @@ def run_experiment(config: dict):
         preds = []
         trues = []
 
+        #   TODO -> maybe increase?
+        threshold_value = 0.5
+
         with torch.no_grad():
             for batch_features, batch_labels in test_dataloader:
                 outputs = model(batch_features)
@@ -557,7 +572,9 @@ def run_experiment(config: dict):
                 #   batch_labels has shape (batch_size, num_classes) for strategy=2
                 #   batch_labels has shape (batch_size) for strategy=1
 
-                if strategy == 1:
+                if strategy == 0:
+                    outputs = (outputs > threshold_value).float()
+                elif strategy == 1:
                     #   Decode predictions by taking argmax (vanilla multi-class..)
                     outputs = torch.argmax(outputs, dim=1)
                 elif strategy == 2:
@@ -576,10 +593,14 @@ def run_experiment(config: dict):
         acc_score = accuracy_score(trues, preds)
 
         #   TODO: average parameter depends on strategy:
+        if strategy == 0:
+            average = 'binary'
+        else:
+            average = 'macro'
 
-        precision = precision_score(trues, preds, average='macro')
-        recall = recall_score(trues, preds, average='macro')
-        f1 = f1_score(trues, preds, average='macro')
+        precision = precision_score(trues, preds, average=average)
+        recall = recall_score(trues, preds, average=average)
+        f1 = f1_score(trues, preds, average=average)
 
         conf_matrix = confusion_matrix(trues, preds)
 
@@ -636,7 +657,9 @@ def run_experiment(config: dict):
         model = CustomModel2d(input_height=input_height, input_width=input_height)
         model.initialize_weights()
     elif model_name == 'resnet':
-        if strategy == 1:
+        if strategy == 0:
+            model = ResNet2d(num_out_features=1, outputs_function="sigmoid", pretrained=pretrained)
+        elif strategy == 1:
             model = ResNet2d(num_out_features=3, outputs_function="softmax", pretrained=pretrained)
         elif strategy == 2:
             model = ResNet2d(num_out_features=7, outputs_function="sigmoid", pretrained=pretrained)
@@ -649,7 +672,9 @@ def run_experiment(config: dict):
 
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
 
-    if strategy == 1:
+    if strategy == 0:
+        loss_fn = nn.BCELoss()
+    elif strategy == 1:
         loss_fn = nn.CrossEntropyLoss()
     elif strategy == 2:
         loss_fn = custom_loss_fn
