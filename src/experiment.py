@@ -360,6 +360,7 @@ def run_experiment(config: dict):
 
     model_name = config['model_name']
     pretrained = config['pretrained']
+    strategy = config['strategy']
 
     batch_size = config['batch_size']
     lr = config['lr']
@@ -617,8 +618,6 @@ def run_experiment(config: dict):
     print(f'\nExperiment "{config_filename}": \n')
 
     #   Create Encoder instance
-
-    strategy = 1
 
     enc = Encoder(strategy)
 
