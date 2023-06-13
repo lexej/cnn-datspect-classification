@@ -27,7 +27,8 @@ valid_to_train_split_size_percent: 0.15  # ratio of validation split to train sp
 
 #   Model-related
 
-model_name: 'resnet'
+model_name: 'resnet' # 'custom', 'resnet'
+pretrained: False
 
 lr: 0.0001
 epochs: 30

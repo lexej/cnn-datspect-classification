@@ -4,14 +4,18 @@ from torchvision.models import resnet18, ResNet18_Weights
 
 
 class ResNet2d(nn.Module):
-    def __init__(self, num_out_features: int, outputs_function: str):
+    def __init__(self, num_out_features: int, outputs_function: str, pretrained: bool):
         super(ResNet2d, self).__init__()
 
         self.outputs_function = outputs_function
 
         #   Vanilla ResNet-18 expects input tensors of size (3, 224, 224)
         #   and has Linear layer with 1000 neurons as output layer
-        self.resnet = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+        if pretrained:
+            weights = ResNet18_Weights.IMAGENET1K_V1
+        else:
+            weights = None
+        self.resnet = resnet18(weights=weights)
 
         #   Change first layer to expect 1 channel tensor
         #   first conv layer was: Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)

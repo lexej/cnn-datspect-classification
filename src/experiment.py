@@ -359,6 +359,7 @@ def run_experiment(config: dict):
     interpolation_method = config['interpolation_method']
 
     model_name = config['model_name']
+    pretrained = config['pretrained']
 
     batch_size = config['batch_size']
     lr = config['lr']
@@ -637,9 +638,9 @@ def run_experiment(config: dict):
         model.initialize_weights()
     elif model_name == 'resnet':
         if strategy == 1:
-            model = ResNet2d(num_out_features=3, outputs_function="softmax")
+            model = ResNet2d(num_out_features=3, outputs_function="softmax", pretrained=pretrained)
         elif strategy == 2:
-            model = ResNet2d(num_out_features=7, outputs_function="sigmoid")
+            model = ResNet2d(num_out_features=7, outputs_function="sigmoid", pretrained=pretrained)
     else:
         #   TODO
         pass
