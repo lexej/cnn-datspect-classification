@@ -27,7 +27,7 @@ valid_to_train_split_size_percent: 0.15  # ratio of validation split to train sp
 
 #   Model-related
 
-model_name: 'resnet' # options: 'custom', 'resnet'
+model_name: 'resnet18' # options: 'custom', 'resnet18', 'resnet34'
 pretrained: False
 strategy: 0 # options:
             #   0 -> 1 output class; binary classification

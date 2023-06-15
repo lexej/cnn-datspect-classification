@@ -28,7 +28,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
     ConfusionMatrixDisplay
 
 from model.custom_model_2d import CustomModel2d
-from model.resnet_2d import ResNet2d
+from model.resnet18_2d import ResNet18
+from model.resnet34_2d import ResNet34
 
 
 #   Parse arguments
@@ -632,31 +633,39 @@ def run_experiment(config: dict):
 
     #   TODO -> Finetune ResNet
 
+    if strategy == 0:
+        num_out_features = 1
+        outputs_function = "sigmoid"
+        loss_fn = nn.BCELoss()
+    elif strategy == 1:
+        num_out_features = 3
+        outputs_function = "softmax"
+        loss_fn = nn.CrossEntropyLoss()
+    elif strategy == 2:
+        num_out_features = 7
+        outputs_function = "sigmoid"
+        loss_fn = nn.MSELoss(reduction='sum')
+    else:
+        raise Exception("Invalid strategy passed.")
+
     if model_name == 'custom':
         model = CustomModel2d(input_height=input_height, input_width=input_height)
         model.initialize_weights()
-    elif model_name == 'resnet':
-        if strategy == 0:
-            model = ResNet2d(num_out_features=1, outputs_function="sigmoid", pretrained=pretrained)
-        elif strategy == 1:
-            model = ResNet2d(num_out_features=3, outputs_function="softmax", pretrained=pretrained)
-        elif strategy == 2:
-            model = ResNet2d(num_out_features=7, outputs_function="sigmoid", pretrained=pretrained)
+    elif model_name == 'resnet18':
+        model = ResNet18(num_out_features=num_out_features,
+                         outputs_function=outputs_function,
+                         pretrained=pretrained)
+    elif model_name == 'resnet34':
+        model = ResNet34(num_out_features=num_out_features,
+                         outputs_function=outputs_function,
+                         pretrained=pretrained)
     else:
-        #   TODO
-        pass
+        raise Exception("Invalid model name passed.")
 
     #   Move model to device and set data type
     model = model.to(device=device, dtype=torch.float)
 
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
-
-    if strategy == 0:
-        loss_fn = nn.BCELoss()
-    elif strategy == 1:
-        loss_fn = nn.CrossEntropyLoss()
-    elif strategy == 2:
-        loss_fn = nn.MSELoss(reduction='sum')
 
     model, best_epoch, best_epoch_weights_path = train_model(model,
                                                              num_epochs,
