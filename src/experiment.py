@@ -25,7 +25,7 @@ from torchvision.transforms import InterpolationMode
 import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
-    ConfusionMatrixDisplay
+    ConfusionMatrixDisplay, roc_curve, auc
 
 from model.custom_model_2d import CustomModel2d
 from model.resnet18_2d import ResNet18
@@ -45,7 +45,7 @@ with open(args.config, 'r') as f:
 
 config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
-RANDOM_SEED = 1327
+RANDOM_SEED = 1327  # 72328191
 
 torch.manual_seed(RANDOM_SEED)
 
@@ -81,19 +81,19 @@ class Encoder:
     def __init__(self, strategy: int):
         self.strategy = strategy
 
-    def get_label_using_strategy(self, final_labels_occurrences: pd.Series,
-                                 session_labels_occurrences: pd.Series):
+    def get_label_using_strategy(self, final_labels: pd.Series, session_labels: pd.Series):
+
+        final_labels_occurrences = final_labels.value_counts()
+        session_labels_occurrences = session_labels.value_counts()
 
         count_of_0_in_final_labels = final_labels_occurrences.get(0, default=0)
         count_of_0_in_session_labels = session_labels_occurrences.get(0, default=0)
         count_of_1_in_session_labels = session_labels_occurrences.get(1, default=0)
 
         if self.strategy == 0:
-            #   Binary classification
-            if count_of_0_in_final_labels >= 2:
-                label = 0
-            else:
-                label = 1
+            #   Binary classification case
+            #   Pick random label from the 3 final labels
+            label = np.random.choice(list(final_labels.values))
         elif self.strategy == 1:
             #   3 classes: "normal", "uncertain", "reduced"
 
@@ -287,13 +287,9 @@ class SpectDataset(Dataset):
 
         final_labels = labels_full[['R1', 'R2', 'R3']]
 
-        final_labels_occurrences = final_labels.value_counts()
-
         session_labels = labels_full[['R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2']]
 
-        session_labels_occurrences = session_labels.value_counts()
-
-        label = self.enc.get_label_using_strategy(final_labels_occurrences, session_labels_occurrences)
+        label = self.enc.get_label_using_strategy(final_labels, session_labels)
 
         return img, label
 
@@ -532,7 +528,12 @@ def run_experiment(config: dict):
 
     def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_dataloader):
 
-        # Load weights
+        results_testing_path = os.path.join(results_path, 'testing')
+        os.makedirs(results_testing_path, exist_ok=True)
+
+        relevant_digits = 5
+
+        # Load weights into model
         model.load_state_dict(torch.load(best_epoch_weights_path))
 
         #   Evaluation mode
@@ -541,43 +542,102 @@ def run_experiment(config: dict):
         preds = []
         trues = []
 
-        #   TODO -> maybe increase?
-        threshold_value = 0.5
+        #   Create numpy array for predictions and ground truths
 
         with torch.no_grad():
-            for batch_features, batch_labels in test_dataloader:
+            for batch in test_dataloader:
+                batch_features, batch_labels = batch
+
                 outputs = model(batch_features)
-
-                #   outputs has shape (batch_size, num_classes)
-                #   batch_labels has shape (batch_size, num_classes) for strategy=2
-                #   batch_labels has shape (batch_size) for strategy=1
-
-                if strategy == 0:
-                    outputs = (outputs > threshold_value).float()
-                elif strategy == 1:
-                    #   Decode predictions by taking argmax (vanilla multi-class..)
-                    outputs = torch.argmax(outputs, dim=1)
-                elif strategy == 2:
-                    #   1. Manually decode labels
-
-                    batch_labels = enc.decode_labels(batch_labels)
-
-                    #   2. Manually decode predictions
-
-                    outputs = enc.decode_preds(outputs)
 
                 preds.extend(outputs.tolist())
                 trues.extend(batch_labels.tolist())
 
-        #   accuracy_score expects two List instances of equal length
-        acc_score = accuracy_score(trues, preds)
+        preds = np.array(preds)
+        trues = np.array(trues)
 
-        #   TODO: average parameter depends on strategy:
+        #   Shape of preds and trues: (num_test_examples, num_classes)
+
+        #   For binary classification: Compute ROC curve and AUC
+
+        if strategy == 0:
+            fpr, tpr, thresholds = roc_curve(trues, preds)
+
+            roc_auc = auc(fpr, tpr)
+
+            negative_preds = preds[trues == 0]
+            negative_trues = trues[trues == 0]
+            positive_preds = preds[trues == 1]
+            positive_trues = trues[trues == 1]
+
+            #   Visualize ROC curve and save
+
+            plt.figure(figsize=(12, 6))
+            plt.plot(fpr, tpr, label=f'ROC curve; AUC = {round(roc_auc, relevant_digits)}')
+            plt.plot([0, 1], [0, 1], 'k--')
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            plt.legend(loc='lower right')
+
+            plt.savefig(os.path.join(results_testing_path, 'roc_curve.png'), dpi=300)
+
+            #   Scatter Plot with points representing the test samples (color: label) and x-axis is predicted prob
+
+            plt.figure(figsize=(12, 6))
+            plt.scatter(x=negative_preds, y=negative_trues, c='red', label='Negative Ground Truth')
+            plt.scatter(x=positive_preds, y=positive_trues, c='blue', label='Positive Ground Truth')
+            # Add vertical dotted lines
+            for x in np.arange(min(negative_preds), max(negative_preds), 0.1):
+                plt.axvline(x=x, linestyle='dotted', color='green')
+            plt.xlabel('Predicted Probabilities')
+            plt.ylabel('True Labels')
+            plt.legend()
+            plt.title('Scatter Plot - Evaluation on test data')
+
+            plt.savefig(os.path.join(results_testing_path, 'scatter_plot.png'), dpi=300)
+
+            #   Histogram
+
+            plt.figure(figsize=(12, 6))
+            num_bins = 50
+            plt.hist(negative_preds, bins=num_bins, alpha=0.7, color='red', label='Negative Ground Truth')
+            plt.hist(positive_preds, bins=num_bins, alpha=0.7, color='blue', label='Positive Ground Truth')
+            plt.xlabel('Predicted Probabilities')
+            plt.ylabel('Frequency')
+            plt.title('Histogram - Evaluation on test data')
+            plt.legend()
+
+            plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
+
+            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues
+
+        #   TODO: choose threshold_value appropriately
+        threshold_value = 0.5
+
+        if strategy == 0:
+            preds = (preds > threshold_value).astype(float)
+        elif strategy == 1:
+            #   Decode predictions by taking argmax (vanilla multi-class..)
+            preds = np.argmax(preds, axis=1)
+        elif strategy == 2:
+            #   TODO: convert torch tensor expectations for numpy
+
+            #   1. Manually decode labels
+            trues = enc.decode_labels(trues)
+
+            #   2. Manually decode predictions
+            preds = enc.decode_preds(preds)
+
+        #   Calculate other metrics
+
+        #   TODO: average parameter depends on strategy
         if strategy == 0:
             average = 'binary'
         else:
             average = 'macro'
 
+        acc_score = accuracy_score(trues, preds)
         precision = precision_score(trues, preds, average=average)
         recall = recall_score(trues, preds, average=average)
         f1 = f1_score(trues, preds, average=average)
@@ -586,8 +646,6 @@ def run_experiment(config: dict):
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
 
-        relevant_digits = 5
-
         print(f"Accuracy: {round(acc_score, relevant_digits)}")
         print(f"Precision: {round(precision, relevant_digits)}")
         print(f"Recall: {round(recall, relevant_digits)}")
@@ -595,19 +653,17 @@ def run_experiment(config: dict):
         print('\nConfusion matrix:')
         print(conf_matrix)
 
-        # Save results
+        # Save calculated metrics
 
         results_test_split = {
+            'threshold_chosen': threshold_value,
             'accuracy': acc_score,
             'precision': precision,
             'recall': recall,
             'f1-score': f1
         }
 
-        results_testing_path = os.path.join(results_path, 'testing')
-        os.makedirs(results_testing_path, exist_ok=True)
-
-        with open(os.path.join(results_testing_path, 'results_test_split.json'), 'w') as f:
+        with open(os.path.join(results_testing_path, 'metrics.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
         cm_display = ConfusionMatrixDisplay(conf_matrix)
