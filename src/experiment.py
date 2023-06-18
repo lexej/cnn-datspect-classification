@@ -47,6 +47,8 @@ config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
 RANDOM_SEED = 1327  # 72328191
 
+np.random.seed(RANDOM_SEED)
+
 torch.manual_seed(RANDOM_SEED)
 
 #   Set device based on availability
@@ -277,7 +279,12 @@ class SpectDataset(Dataset):
         #   ---------------------------------------------------------------------------
         #   Get label
 
-        label_row = self.labels.loc[self.labels['ID'].astype(int) == idx+1]
+        #   TODO: Frage an Ralph: Sind die Bezeichnungen der .nii files die IDs wie in der Excel ???
+        #    Ich habs angenommen!!
+
+        id_ = idx + 1
+
+        label_row = self.labels.loc[self.labels['ID'].astype(int) == id_]
 
         #   Convert pandas DataFrame row to pandas Series of labels of interest
 
@@ -291,7 +298,12 @@ class SpectDataset(Dataset):
 
         label = self.enc.get_label_using_strategy(final_labels, session_labels)
 
-        return img, label
+        metadata = {
+            'id': id_,
+            'labels_original': labels_full.to_dict()
+        }
+
+        return img, label, metadata
 
     def apply_transforms(self, img: np.ndarray) -> torch.Tensor:
 
@@ -464,7 +476,8 @@ def run_experiment(config: dict):
             train_loss = 0.0
 
             #   tqdm() activates progress bar
-            for batch_features, batch_labels in tqdm(train_dataloader, desc=f"Epoch [{epoch + 1}/{num_epochs}] "):
+            for batch_features, batch_labels, _ in tqdm(train_dataloader, desc=f"Epoch [{epoch + 1}/{num_epochs}] "):
+
                 # Forward pass
                 outputs = model(batch_features)
                 loss = loss_fn(outputs, batch_labels)
@@ -486,7 +499,7 @@ def run_experiment(config: dict):
             validation_loss = 0.0
 
             with torch.no_grad():
-                for val_features, val_labels in valid_dataloader:
+                for val_features, val_labels, _ in valid_dataloader:
                     val_outputs = model(val_features)
                     val_loss = loss_fn(val_outputs, val_labels)
                     validation_loss += val_loss.item()
@@ -541,20 +554,35 @@ def run_experiment(config: dict):
 
         preds = []
         trues = []
+        ids = []
+        labels_original = []
 
         #   Create numpy array for predictions and ground truths
 
         with torch.no_grad():
             for batch in test_dataloader:
-                batch_features, batch_labels = batch
+                batch_features, batch_labels, batch_metadata = batch
 
                 outputs = model(batch_features)
 
                 preds.extend(outputs.tolist())
                 trues.extend(batch_labels.tolist())
+                ids.extend(batch_metadata['id'].tolist())
+
+                #   Here only use R1, R2 and R3 (for now)
+                labels_r_1 = batch_metadata['labels_original']['R1']
+                labels_r_2 = batch_metadata['labels_original']['R2']
+                labels_r_3 = batch_metadata['labels_original']['R3']
+
+                labels_original.extend(list(zip(labels_r_1, labels_r_2, labels_r_3)))
 
         preds = np.array(preds)
         trues = np.array(trues)
+        ids = np.array(ids)
+        labels_original = np.array(labels_original)
+
+        #   TODO: choose threshold_value appropriately
+        threshold_value = 0.5
 
         #   Shape of preds and trues: (num_test_examples, num_classes)
 
@@ -570,6 +598,7 @@ def run_experiment(config: dict):
             positive_preds = preds[trues == 1]
             positive_trues = trues[trues == 1]
 
+            #   ---------------------------------------------------------------------------------------------
             #   Visualize ROC curve and save
 
             plt.figure(figsize=(12, 6))
@@ -582,6 +611,7 @@ def run_experiment(config: dict):
 
             plt.savefig(os.path.join(results_testing_path, 'roc_curve.png'), dpi=300)
 
+            #   ---------------------------------------------------------------------------------------------
             #   Scatter Plot with points representing the test samples (color: label) and x-axis is predicted prob
 
             plt.figure(figsize=(12, 6))
@@ -597,6 +627,7 @@ def run_experiment(config: dict):
 
             plt.savefig(os.path.join(results_testing_path, 'scatter_plot.png'), dpi=300)
 
+            #   ---------------------------------------------------------------------------------------------
             #   Histogram
 
             plt.figure(figsize=(12, 6))
@@ -610,10 +641,33 @@ def run_experiment(config: dict):
 
             plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
 
-            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues
+            #   ---------------------------------------------------------------------------------------------
 
-        #   TODO: choose threshold_value appropriately
-        threshold_value = 0.5
+            #   Get fp and fn indices given threshold
+
+            false_positive_indices = np.where((preds > threshold_value) & (trues == 0))[0]
+
+            false_negative_indices = np.where((preds < threshold_value) & (trues == 1))[0]
+
+            #   Save ids of fp and fn given the threshold
+
+            #   test validity of false positives
+
+            misclassified_samples = f"""
+            \n Ids of samples classified as False Positives: {ids[false_positive_indices]}
+            \n Original labels (R1, R2, R3) of samples classified as False Positives: 
+            {labels_original[false_positive_indices]}
+            \n Ids of samples classified as False Negatives: {ids[false_negative_indices]}
+            \n Original labels (R1, R2, R3) of samples classified as False Negatives: 
+            {labels_original[false_negative_indices]}
+            """
+
+            with open(os.path.join(results_testing_path, 'misclassified_samples.txt'), 'w') as file:
+                file.write(misclassified_samples)
+
+            #   ---------------------------------------------------------------------------------------------
+
+            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues
 
         if strategy == 0:
             preds = (preds > threshold_value).astype(float)
