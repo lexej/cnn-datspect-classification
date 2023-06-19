@@ -45,7 +45,7 @@ with open(args.config, 'r') as f:
 
 config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
-RANDOM_SEED = 1327  # 72328191
+RANDOM_SEED = 42  # 72328191
 
 np.random.seed(RANDOM_SEED)
 
@@ -68,8 +68,7 @@ elif torch.backends.mps.is_available():
     torch.backends.mps.deterministic = True
     torch.backends.mps.benchmark = False
 else:
-    #   TODO: Throw error
-    pass
+    raise Exception("something went wrong")
 
 
 generator = torch.Generator()
@@ -606,7 +605,7 @@ def run_experiment(config: dict):
             plt.plot([0, 1], [0, 1], 'k--')
             plt.xlabel('False Positive Rate')
             plt.ylabel('True Positive Rate')
-            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            plt.title('ROC Curve - Evaluation on test data')
             plt.legend(loc='lower right')
 
             plt.savefig(os.path.join(results_testing_path, 'roc_curve.png'), dpi=300)
@@ -617,9 +616,9 @@ def run_experiment(config: dict):
             plt.figure(figsize=(12, 6))
             plt.scatter(x=negative_preds, y=negative_trues, c='red', label='Negative Ground Truth')
             plt.scatter(x=positive_preds, y=positive_trues, c='blue', label='Positive Ground Truth')
-            # Add vertical dotted lines
-            for x in np.arange(min(negative_preds), max(negative_preds), 0.1):
-                plt.axvline(x=x, linestyle='dotted', color='green')
+            # Vertical threshold lines
+            for x in np.arange(0, 1.1, 0.1):
+                plt.axvline(x=x, linestyle='dotted', color='grey')
             plt.xlabel('Predicted Probabilities')
             plt.ylabel('True Labels')
             plt.legend()
@@ -634,6 +633,9 @@ def run_experiment(config: dict):
             num_bins = 50
             plt.hist(negative_preds, bins=num_bins, alpha=0.7, color='red', label='Negative Ground Truth')
             plt.hist(positive_preds, bins=num_bins, alpha=0.7, color='blue', label='Positive Ground Truth')
+            # Vertical threshold lines
+            for x in np.arange(0, 1.1, 0.1):
+                plt.axvline(x=x, linestyle='dotted', color='grey')
             plt.xlabel('Predicted Probabilities')
             plt.ylabel('Frequency')
             plt.title('Histogram - Evaluation on test data')
@@ -643,27 +645,37 @@ def run_experiment(config: dict):
 
             #   ---------------------------------------------------------------------------------------------
 
-            #   Get fp and fn indices given threshold
+            #   Get information about ID's and original labels of misclassified cases (given thresholds)
+
+            #   fp cases
 
             false_positive_indices = np.where((preds > threshold_value) & (trues == 0))[0]
 
+            fp_samples_dict = {
+                'id': ids[false_positive_indices].tolist(),
+                'prediction': preds[false_positive_indices].tolist(),
+                'label_chosen': trues[false_positive_indices].tolist(),
+                'labels_original_r1_r2_r3': labels_original[false_positive_indices].tolist(),
+                'threshold_used': threshold_value
+            }
+
+            fp_samples = pd.DataFrame(fp_samples_dict)
+            fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples.csv'), index=False)
+
+            #   fn cases
+
             false_negative_indices = np.where((preds < threshold_value) & (trues == 1))[0]
 
-            #   Save ids of fp and fn given the threshold
+            fn_samples_dict = {
+                'id': ids[false_negative_indices].tolist(),
+                'prediction': preds[false_negative_indices].tolist(),
+                'label_chosen': trues[false_negative_indices].tolist(),
+                'labels_original_r1_r2_r3': labels_original[false_negative_indices].tolist(),
+                'threshold_used': threshold_value
+            }
 
-            #   test validity of false positives
-
-            misclassified_samples = f"""
-            \n Ids of samples classified as False Positives: {ids[false_positive_indices]}
-            \n Original labels (R1, R2, R3) of samples classified as False Positives: 
-            {labels_original[false_positive_indices]}
-            \n Ids of samples classified as False Negatives: {ids[false_negative_indices]}
-            \n Original labels (R1, R2, R3) of samples classified as False Negatives: 
-            {labels_original[false_negative_indices]}
-            """
-
-            with open(os.path.join(results_testing_path, 'misclassified_samples.txt'), 'w') as file:
-                file.write(misclassified_samples)
+            fn_samples = pd.DataFrame(fn_samples_dict)
+            fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples.csv'), index=False)
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -721,8 +733,10 @@ def run_experiment(config: dict):
             json.dump(results_test_split, f, indent=4)
 
         cm_display = ConfusionMatrixDisplay(conf_matrix)
-        cm_display.plot()
-        plt.savefig(os.path.join(results_testing_path, 'conf_matrix_test_split.png'), dpi=300)
+        fig, ax = plt.subplots(figsize=(8, 8))
+        cm_display.plot(ax=ax)
+        ax.set_title(f"Confusion Matrix (threshold = {threshold_value}) - Evaluation on test data")
+        plt.savefig(os.path.join(results_testing_path, 'confusion_matrix.png'), dpi=300)
 
     # ---------------------------------------------------------------------------------------------------------
 
