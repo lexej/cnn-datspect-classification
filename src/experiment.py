@@ -465,14 +465,18 @@ def run_experiment(config: dict):
         best_weights = None
         best_epoch = None
 
-        train_losses = []
-        valid_losses = []
+        train_losses_per_epoch = []
+        valid_losses_per_epoch = []
 
         for epoch in range(num_epochs):
-            # 1. Epoch training
+
+            #   --------------------------------------------------------------------------------------------------
+
+            #   1. Epoch training
 
             model.train()
-            train_loss = 0.0
+
+            train_losses_per_batch = []
 
             #   tqdm() activates progress bar
             for batch_features, batch_labels, _ in tqdm(train_dataloader, desc=f"Epoch [{epoch + 1}/{num_epochs}] "):
@@ -486,38 +490,42 @@ def run_experiment(config: dict):
                 loss.backward()
                 optimizer.step()
 
-                train_loss += loss.item()
+                train_losses_per_batch.append(loss.item())
 
-            # Average epoch loss
-            train_loss /= len(train_dataloader)
-            train_losses.append(train_loss)
+            # Calculate mean epoch loss
+            train_losses_per_batch_mean = float(np.mean(train_losses_per_batch))
+            train_losses_per_epoch.append(train_losses_per_batch_mean)
 
-            # 2. Epoch validation
+            #   --------------------------------------------------------------------------------------------------
+
+            #   2. Epoch validation
 
             model.eval()
-            validation_loss = 0.0
+
+            valid_losses_per_batch = []
 
             with torch.no_grad():
                 for val_features, val_labels, _ in valid_dataloader:
                     val_outputs = model(val_features)
                     val_loss = loss_fn(val_outputs, val_labels)
-                    validation_loss += val_loss.item()
 
-            # Average epoch loss
-            validation_loss /= len(valid_dataloader)
-            valid_losses.append(validation_loss)
+                    valid_losses_per_batch.append(val_loss.item())
+
+            # Calculate mean epoch loss
+            valid_losses_per_batch_mean = float(np.mean(valid_losses_per_batch))
+            valid_losses_per_epoch.append(valid_losses_per_batch_mean)
 
             # Save weights if best
-            if validation_loss < best_loss:
-                best_loss = validation_loss
+            if valid_losses_per_batch_mean < best_loss:
+                best_loss = valid_losses_per_batch_mean
                 best_weights = model.state_dict()
                 best_epoch = epoch + 1
 
             # 3. Print epoch results
 
             print(f" Results for epoch {epoch + 1} - "
-                  f"train loss: {round(train_loss, 5)}, "
-                  f"valid loss: {round(validation_loss, 5)}")
+                  f"train loss: {round(train_losses_per_batch_mean, 5)}, "
+                  f"valid loss: {round(valid_losses_per_batch_mean, 5)}")
 
         results_training_path = os.path.join(results_path, 'training')
         os.makedirs(results_training_path, exist_ok=True)
@@ -527,8 +535,8 @@ def run_experiment(config: dict):
 
         #   plot loss curves
         plt.figure()
-        plt.plot(range(1, num_epochs + 1), train_losses, label='train loss')
-        plt.plot(range(1, num_epochs + 1), valid_losses, label='valid loss')
+        plt.plot(range(1, num_epochs + 1), train_losses_per_epoch, label='train loss')
+        plt.plot(range(1, num_epochs + 1), valid_losses_per_epoch, label='valid loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
