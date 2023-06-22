@@ -588,12 +588,9 @@ def run_experiment(config: dict):
         ids = np.array(ids)
         labels_original = np.array(labels_original)
 
-        #   TODO: choose threshold_value appropriately
-        threshold_value = 0.5
-
         #   Shape of preds and trues: (num_test_examples, num_classes)
 
-        #   For binary classification: Compute ROC curve and AUC
+        #   For binary classification: Compute multiple metrics
 
         if strategy == 0:
             fpr, tpr, thresholds = roc_curve(trues, preds)
@@ -622,8 +619,8 @@ def run_experiment(config: dict):
             #   Scatter Plot with points representing the test samples (color: label) and x-axis is predicted prob
 
             plt.figure(figsize=(12, 6))
-            plt.scatter(x=negative_preds, y=negative_trues, c='red', label='Negative Ground Truth')
-            plt.scatter(x=positive_preds, y=positive_trues, c='blue', label='Positive Ground Truth')
+            plt.scatter(x=negative_preds, y=negative_trues, c='red', label='Label 0 (chosen)')
+            plt.scatter(x=positive_preds, y=positive_trues, c='blue', label='Label 1 (chosen)')
             # Vertical threshold lines
             for x in np.arange(0, 1.1, 0.1):
                 plt.axvline(x=x, linestyle='dotted', color='grey')
@@ -638,12 +635,29 @@ def run_experiment(config: dict):
             #   Histogram
 
             plt.figure(figsize=(12, 6))
+
             num_bins = 50
-            plt.hist(negative_preds, bins=num_bins, alpha=0.7, color='red', label='Negative Ground Truth')
-            plt.hist(positive_preds, bins=num_bins, alpha=0.7, color='blue', label='Positive Ground Truth')
+            log = True
+            alpha = 0.7
+
+            plt.hist(x=negative_preds,
+                     bins=num_bins,
+                     log=log,
+                     alpha=alpha,
+                     color='red',
+                     label='Label 0 (chosen)')
+
+            plt.hist(x=positive_preds,
+                     bins=num_bins,
+                     log=log,
+                     alpha=alpha,
+                     color='blue',
+                     label='Label 1 (chosen)')
+
             # Vertical threshold lines
             for x in np.arange(0, 1.1, 0.1):
                 plt.axvline(x=x, linestyle='dotted', color='grey')
+
             plt.xlabel('Predicted Probabilities')
             plt.ylabel('Frequency')
             plt.title('Histogram - Evaluation on test data')
@@ -657,14 +671,17 @@ def run_experiment(config: dict):
 
             #   fp cases
 
-            false_positive_indices = np.where((preds > threshold_value) & (trues == 0))[0]
+            #   TODO: Find optimum !!!
+            fp_threshold = 0.1
+
+            false_positive_indices = np.where((preds > fp_threshold) & (trues == 0))[0]
 
             fp_samples_dict = {
                 'id': ids[false_positive_indices].tolist(),
                 'prediction': preds[false_positive_indices].tolist(),
                 'label_chosen': trues[false_positive_indices].tolist(),
                 'labels_original_r1_r2_r3': labels_original[false_positive_indices].tolist(),
-                'threshold_used': threshold_value
+                'fp_threshold': fp_threshold
             }
 
             fp_samples = pd.DataFrame(fp_samples_dict)
@@ -672,14 +689,17 @@ def run_experiment(config: dict):
 
             #   fn cases
 
-            false_negative_indices = np.where((preds < threshold_value) & (trues == 1))[0]
+            #   TODO: Find optimum !!!
+            fn_threshold = 0.9
+
+            false_negative_indices = np.where((preds < fn_threshold) & (trues == 1))[0]
 
             fn_samples_dict = {
                 'id': ids[false_negative_indices].tolist(),
                 'prediction': preds[false_negative_indices].tolist(),
                 'label_chosen': trues[false_negative_indices].tolist(),
                 'labels_original_r1_r2_r3': labels_original[false_negative_indices].tolist(),
-                'threshold_used': threshold_value
+                'fn_threshold': fn_threshold
             }
 
             fn_samples = pd.DataFrame(fn_samples_dict)
@@ -688,6 +708,9 @@ def run_experiment(config: dict):
             #   ---------------------------------------------------------------------------------------------
 
             #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues
+
+        #   TODO: choose threshold_value appropriately
+        threshold_value = 0.5
 
         if strategy == 0:
             preds = (preds > threshold_value).astype(float)
