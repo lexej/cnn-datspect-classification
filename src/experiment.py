@@ -76,6 +76,7 @@ generator.manual_seed(RANDOM_SEED)
 
 sklearn.utils.check_random_state(RANDOM_SEED)
 
+"""
 
 class Encoder:
 
@@ -91,11 +92,7 @@ class Encoder:
         count_of_0_in_session_labels = session_labels_occurrences.get(0, default=0)
         count_of_1_in_session_labels = session_labels_occurrences.get(1, default=0)
 
-        if self.strategy == 0:
-            #   Binary classification case
-            #   Pick random label from the 3 final labels
-            label = np.random.choice(list(final_labels.values))
-        elif self.strategy == 1:
+        if self.strategy == 1:
             #   3 classes: "normal", "uncertain", "reduced"
 
             #   Only consider final labels
@@ -156,11 +153,7 @@ class Encoder:
 
     def __encode_integer_label(self, label: int) -> torch.Tensor:
 
-        if self.strategy == 0:
-            #   vanilla binary classification; nn.BCELoss() expects integer ground truths
-            encoded_label = [label]
-            dtype = torch.float32
-        elif self.strategy == 1:
+        if self.strategy == 1:
             #   vanilla multi-class classification; nn.CrossEntropyLoss() expects ground truths with type integer
             encoded_label = label
             dtype = torch.int32
@@ -239,18 +232,54 @@ class Encoder:
 
         return preds_decoded
 
+"""
+
+
+def choose_label_from_available_labels(label: dict, label_selection_strategy: str) -> torch.Tensor:
+
+    intra_rater_consensus_labels = {key: label[key] for key in ['R1', 'R2', 'R3']}
+
+    available_labels = list(intra_rater_consensus_labels.values())
+
+    if label_selection_strategy == 'random':
+        chosen_label = np.random.choice(available_labels)
+    elif label_selection_strategy == 'majority':
+        chosen_label = np.bincount(available_labels).argmax()
+    else:
+        raise Exception("Invalid label_selection_strategy passed.")
+
+    #   Wrap as torch tensor
+    chosen_label = torch.tensor(data=[int(chosen_label)],
+                                dtype=torch.float32,
+                                device=device)
+
+    return chosen_label
+
+
+class LabelFunctionWrapper(Dataset):
+    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str):
+        self.original_dataset = original_dataset
+        self.label_function = label_function
+        self.label_selection_strategy = label_selection_strategy
+
+    def __getitem__(self, index):
+        img, label, metadata = self.original_dataset[index]
+        modified_label = self.label_function(label, self.label_selection_strategy)
+        return img, modified_label, metadata
+
+    def __len__(self):
+        return len(self.original_dataset)
+
 
 class SpectDataset(Dataset):
     def __init__(self, features_dirpath, labels_filepath, target_input_height,
-                 target_input_width, interpolation_method, enc: Encoder):
+                 target_input_width, interpolation_method):
         self.features_dirpath = features_dirpath
         self.labels_filepath = labels_filepath
 
         self.target_input_height = target_input_height
         self.target_input_width = target_input_width
         self.interpolation_method = interpolation_method
-
-        self.enc = enc
 
         self.labels = pd.read_excel(labels_filepath)
 
@@ -291,15 +320,14 @@ class SpectDataset(Dataset):
                                  'R1S1', 'R1S2', 'R2S1',
                                  'R2S2', 'R3S1', 'R3S2']].reset_index(drop=True).squeeze()
 
-        final_labels = labels_full[['R1', 'R2', 'R3']]
+        #   Attention: For the general Dataset the label is a dictionary containing all available labels;
+        #              the decision for the label is performed within Dataset classes wrapping train and valid Subset's
+        #              of the current Dataset
 
-        session_labels = labels_full[['R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2']]
-
-        label = self.enc.get_label_using_strategy(final_labels, session_labels)
+        label = labels_full.to_dict()
 
         metadata = {
-            'id': id_,
-            'labels_original': labels_full.to_dict()
+            'id': id_
         }
 
         return img, label, metadata
@@ -380,7 +408,7 @@ def run_experiment(config: dict):
 
     #   Functions
 
-    def get_dataloaders(target_input_height, target_input_width, interpolation_method: str, enc: Encoder):
+    def get_dataloaders(target_input_height, target_input_width, interpolation_method: str):
         # -----------------------------------------------------------------------------------------------------------
         #   Create dataset
 
@@ -388,8 +416,7 @@ def run_experiment(config: dict):
                                      labels_filepath=labels_filepath,
                                      target_input_height=target_input_height,
                                      target_input_width=target_input_width,
-                                     interpolation_method=interpolation_method,
-                                     enc=enc)
+                                     interpolation_method=interpolation_method)
 
         # -----------------------------------------------------------------------------------------------------------
 
@@ -417,6 +444,22 @@ def run_experiment(config: dict):
         val_subset = Subset(dataset=train_subset, indices=val_indices)
 
         train_subset = Subset(dataset=train_subset, indices=train_indices)
+
+        #   TODO -> Wrap train and valid Subset into Dataset class which defines the label picking strategy
+        #           use "label = self.enc.get_label_using_strategy(labels_full)"; ATTENTION: labels_full is dict
+        #           (test split is not wrapped into a label-modifying function since all original labels are required
+        #           for testing purposes)
+
+        #   options: "random", "majority"
+        label_selection_strategy = "random"
+
+        train_subset = LabelFunctionWrapper(original_dataset=train_subset,
+                                            label_function=choose_label_from_available_labels,
+                                            label_selection_strategy=label_selection_strategy)
+
+        val_subset = LabelFunctionWrapper(original_dataset=val_subset,
+                                          label_function=choose_label_from_available_labels,
+                                          label_selection_strategy=label_selection_strategy)
 
         # -----------------------------------------------------------------------------------------------------------
 
@@ -546,7 +589,7 @@ def run_experiment(config: dict):
 
         return model, best_epoch, best_weights_path
 
-    def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_dataloader):
+    def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_dataloader: DataLoader):
 
         results_testing_path = os.path.join(results_path, 'testing')
         os.makedirs(results_testing_path, exist_ok=True)
@@ -560,7 +603,6 @@ def run_experiment(config: dict):
         model.eval()
 
         preds = []
-        trues = []
         ids = []
         labels_original = []
 
@@ -573,34 +615,49 @@ def run_experiment(config: dict):
                 outputs = model(batch_features)
 
                 preds.extend(outputs.tolist())
-                trues.extend(batch_labels.tolist())
+
+                #   batch_labels shape: dict with keys
+                #   'R1', 'R2', 'R3', 'R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2'
+                #   and values are torch tensors containing the <batch_size>-labels
+
+                for i in range(len(batch_labels['R1'])):
+                    labels_sample = {}
+
+                    for key, value in batch_labels.items():
+                        labels_sample[key] = int(value[i])
+
+                    labels_original.append(labels_sample)
+
                 ids.extend(batch_metadata['id'].tolist())
 
-                #   Here only use R1, R2 and R3 (for now)
-                labels_r_1 = batch_metadata['labels_original']['R1']
-                labels_r_2 = batch_metadata['labels_original']['R2']
-                labels_r_3 = batch_metadata['labels_original']['R3']
-
-                labels_original.extend(list(zip(labels_r_1, labels_r_2, labels_r_3)))
-
-        preds = np.array(preds)
-        trues = np.array(trues)
+        preds = np.array(preds).squeeze()
         ids = np.array(ids)
         labels_original = np.array(labels_original)
 
-        #   Shape of preds and trues: (num_test_examples, num_classes)
+        #   labels for testing have to be inferred from original labels using a selection strategy
+
+        trues_chosen = []
+
+        for labels_available in labels_original:
+            label_chosen = choose_label_from_available_labels(label=labels_available,
+                                                              label_selection_strategy='majority')
+            trues_chosen.append(int(label_chosen.cpu()))
+
+        trues_chosen = np.array(trues_chosen)
+
+        #   Shape of preds and trues_chosen: (num_test_examples, num_classes)
 
         #   For binary classification: Compute multiple metrics
 
         if strategy == 0:
-            fpr, tpr, thresholds = roc_curve(trues, preds)
+            fpr, tpr, thresholds = roc_curve(trues_chosen, preds)
 
             roc_auc = auc(fpr, tpr)
 
-            negative_preds = preds[trues == 0]
-            negative_trues = trues[trues == 0]
-            positive_preds = preds[trues == 1]
-            positive_trues = trues[trues == 1]
+            negative_preds = preds[trues_chosen == 0]
+            negative_trues = trues_chosen[trues_chosen == 0]
+            positive_preds = preds[trues_chosen == 1]
+            positive_trues = trues_chosen[trues_chosen == 1]
 
             #   ---------------------------------------------------------------------------------------------
             #   Visualize ROC curve and save
@@ -625,7 +682,7 @@ def run_experiment(config: dict):
             for x in np.arange(0, 1.1, 0.1):
                 plt.axvline(x=x, linestyle='dotted', color='grey')
             plt.xlabel('Predicted Probabilities')
-            plt.ylabel('True Labels')
+            plt.ylabel('True Labels (chosen)')
             plt.legend()
             plt.title('Scatter Plot - Evaluation on test data')
 
@@ -674,13 +731,13 @@ def run_experiment(config: dict):
             #   TODO: Find optimum !!!
             fp_threshold = 0.1
 
-            false_positive_indices = np.where((preds > fp_threshold) & (trues == 0))[0]
+            false_positive_indices = np.where((preds > fp_threshold) & (trues_chosen == 0))[0]
 
             fp_samples_dict = {
                 'id': ids[false_positive_indices].tolist(),
                 'prediction': preds[false_positive_indices].tolist(),
-                'label_chosen': trues[false_positive_indices].tolist(),
-                'labels_original_r1_r2_r3': labels_original[false_positive_indices].tolist(),
+                'label_chosen': trues_chosen[false_positive_indices].tolist(),
+                'labels_original': labels_original[false_positive_indices].tolist(),
                 'fp_threshold': fp_threshold
             }
 
@@ -692,13 +749,13 @@ def run_experiment(config: dict):
             #   TODO: Find optimum !!!
             fn_threshold = 0.9
 
-            false_negative_indices = np.where((preds < fn_threshold) & (trues == 1))[0]
+            false_negative_indices = np.where((preds < fn_threshold) & (trues_chosen == 1))[0]
 
             fn_samples_dict = {
                 'id': ids[false_negative_indices].tolist(),
                 'prediction': preds[false_negative_indices].tolist(),
-                'label_chosen': trues[false_negative_indices].tolist(),
-                'labels_original_r1_r2_r3': labels_original[false_negative_indices].tolist(),
+                'label_chosen': trues_chosen[false_negative_indices].tolist(),
+                'labels_original': labels_original[false_negative_indices].tolist(),
                 'fn_threshold': fn_threshold
             }
 
@@ -707,16 +764,21 @@ def run_experiment(config: dict):
 
             #   ---------------------------------------------------------------------------------------------
 
-            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues
+            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen
 
         #   TODO: choose threshold_value appropriately
         threshold_value = 0.5
 
         if strategy == 0:
             preds = (preds > threshold_value).astype(float)
+            average = 'binary'
+
+        #   TODO -> Anpassen an strategy 1 und 2
+        """
         elif strategy == 1:
             #   Decode predictions by taking argmax (vanilla multi-class..)
             preds = np.argmax(preds, axis=1)
+            average = 'macro'
         elif strategy == 2:
             #   TODO: convert torch tensor expectations for numpy
 
@@ -725,21 +787,18 @@ def run_experiment(config: dict):
 
             #   2. Manually decode predictions
             preds = enc.decode_preds(preds)
+            
+            average = 'macro'
+        """
 
         #   Calculate other metrics
 
-        #   TODO: average parameter depends on strategy
-        if strategy == 0:
-            average = 'binary'
-        else:
-            average = 'macro'
+        acc_score = accuracy_score(trues_chosen, preds)
+        precision = precision_score(trues_chosen, preds, average=average)
+        recall = recall_score(trues_chosen, preds, average=average)
+        f1 = f1_score(trues_chosen, preds, average=average)
 
-        acc_score = accuracy_score(trues, preds)
-        precision = precision_score(trues, preds, average=average)
-        recall = recall_score(trues, preds, average=average)
-        f1 = f1_score(trues, preds, average=average)
-
-        conf_matrix = confusion_matrix(trues, preds)
+        conf_matrix = confusion_matrix(trues_chosen, preds)
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
 
@@ -773,16 +832,11 @@ def run_experiment(config: dict):
 
     print(f'\nExperiment "{config_filename}": \n')
 
-    #   Create Encoder instance
-
-    enc = Encoder(strategy)
-
     #   Create data loader for train, validation and test subset
 
     train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(target_input_height=input_height,
                                                                           target_input_width=input_width,
-                                                                          interpolation_method=interpolation_method,
-                                                                          enc=enc)
+                                                                          interpolation_method=interpolation_method)
 
     #   Initialize model params and train model params with optimizer and loss function
 
