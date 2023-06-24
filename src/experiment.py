@@ -389,6 +389,9 @@ def run_experiment(config: dict):
     pretrained = config['pretrained']
     strategy = config['strategy']
 
+    label_selection_strategy_train = config['label_selection_strategy_train']
+    label_selection_strategy_valid = config['label_selection_strategy_valid']
+
     batch_size = config['batch_size']
     lr = config['lr']
     num_epochs = config['epochs']
@@ -445,21 +448,16 @@ def run_experiment(config: dict):
 
         train_subset = Subset(dataset=train_subset, indices=train_indices)
 
-        #   TODO -> Wrap train and valid Subset into Dataset class which defines the label picking strategy
-        #           use "label = self.enc.get_label_using_strategy(labels_full)"; ATTENTION: labels_full is dict
-        #           (test split is not wrapped into a label-modifying function since all original labels are required
-        #           for testing purposes)
-
-        #   options: "random", "majority"
-        label_selection_strategy = "random"
+        #   train and valid Subsets are wrapped into a Dataset
+        #   which applies a mapping function to the labels using a certain label selection strategy
 
         train_subset = LabelFunctionWrapper(original_dataset=train_subset,
                                             label_function=choose_label_from_available_labels,
-                                            label_selection_strategy=label_selection_strategy)
+                                            label_selection_strategy=label_selection_strategy_train)
 
         val_subset = LabelFunctionWrapper(original_dataset=val_subset,
                                           label_function=choose_label_from_available_labels,
-                                          label_selection_strategy=label_selection_strategy)
+                                          label_selection_strategy=label_selection_strategy_valid)
 
         # -----------------------------------------------------------------------------------------------------------
 
