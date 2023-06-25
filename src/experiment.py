@@ -651,14 +651,10 @@ def run_experiment(config: dict):
         #   For binary classification: Compute multiple metrics
 
         if strategy == 0:
-            negative_preds = preds[trues_chosen_majority == 0]
-            negative_trues = trues_chosen_majority[trues_chosen_majority == 0]
-            positive_preds = preds[trues_chosen_majority == 1]
-            positive_trues = trues_chosen_majority[trues_chosen_majority == 1]
 
             #   ---------------------------------------------------------------------------------------------
             #   ROC curve
-            #   TODO: One ROC curve for consensus labels and one for all labels using majority vote
+            #   TODO: One ROC curve for all labels using majority vote and one for consensus labels
 
             fpr, tpr, thresholds = roc_curve(trues_chosen_majority, preds)
 
@@ -727,22 +723,16 @@ def run_experiment(config: dict):
             plt.figure(figsize=(12, 6))
 
             num_bins = 50
-            log = True
-            alpha = 0.7
+            log_scale = (False, True)
 
-            plt.hist(x=negative_preds,
-                     bins=num_bins,
-                     log=log,
-                     alpha=alpha,
-                     color='red',
-                     label='Label 0 (chosen)')
+            hue_for_histplot = [y_for_scatter_plot[i] + '; ' + hue_for_scatter_plot[i]
+                                for i in range(len(hue_for_scatter_plot))]
 
-            plt.hist(x=positive_preds,
-                     bins=num_bins,
-                     log=log,
-                     alpha=alpha,
-                     color='blue',
-                     label='Label 1 (chosen)')
+            sns.histplot(x=preds,
+                         hue=hue_for_histplot,
+                         bins=num_bins,
+                         multiple='stack',
+                         log_scale=log_scale)
 
             # Vertical threshold lines
             for x in np.arange(0, 1.1, 0.1):
@@ -751,7 +741,6 @@ def run_experiment(config: dict):
             plt.xlabel('Predicted Probabilities')
             plt.ylabel('Frequency')
             plt.title('Histogram - Evaluation on test data')
-            plt.legend()
 
             plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
 
