@@ -14,6 +14,7 @@ import pandas as pd
 import nibabel as nib
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import torch
 import torch.nn as nn
@@ -634,57 +635,91 @@ def run_experiment(config: dict):
 
         #   labels for testing have to be inferred from original labels using a selection strategy
 
-        trues_chosen = []
+        label_selection_strategy_test = 'majority'
+
+        trues_chosen_majority = []
 
         for labels_available in labels_original:
             label_chosen = choose_label_from_available_labels(label=labels_available,
-                                                              label_selection_strategy='majority')
-            trues_chosen.append(int(label_chosen.cpu()))
+                                                              label_selection_strategy=label_selection_strategy_test)
+            trues_chosen_majority.append(int(label_chosen.cpu()))
 
-        trues_chosen = np.array(trues_chosen)
+        trues_chosen_majority = np.array(trues_chosen_majority)
 
-        #   Shape of preds and trues_chosen: (num_test_examples, num_classes)
+        #   Shape of preds and trues_chosen_majority: (num_test_examples, num_classes)
 
         #   For binary classification: Compute multiple metrics
 
         if strategy == 0:
-            fpr, tpr, thresholds = roc_curve(trues_chosen, preds)
-
-            roc_auc = auc(fpr, tpr)
-
-            negative_preds = preds[trues_chosen == 0]
-            negative_trues = trues_chosen[trues_chosen == 0]
-            positive_preds = preds[trues_chosen == 1]
-            positive_trues = trues_chosen[trues_chosen == 1]
+            negative_preds = preds[trues_chosen_majority == 0]
+            negative_trues = trues_chosen_majority[trues_chosen_majority == 0]
+            positive_preds = preds[trues_chosen_majority == 1]
+            positive_trues = trues_chosen_majority[trues_chosen_majority == 1]
 
             #   ---------------------------------------------------------------------------------------------
-            #   Visualize ROC curve and save
+            #   ROC curve
+            #   TODO: One ROC curve for consensus labels and one for all labels using majority vote
+
+            fpr, tpr, thresholds = roc_curve(trues_chosen_majority, preds)
+
+            roc_auc = auc(fpr, tpr)
 
             plt.figure(figsize=(12, 6))
             plt.plot(fpr, tpr, label=f'ROC curve; AUC = {round(roc_auc, relevant_digits)}')
             plt.plot([0, 1], [0, 1], 'k--')
             plt.xlabel('False Positive Rate')
             plt.ylabel('True Positive Rate')
-            plt.title('ROC Curve - Evaluation on test data')
+            plt.title(f'ROC Curve (label selection strategy: {label_selection_strategy_test})')
             plt.legend(loc='lower right')
 
             plt.savefig(os.path.join(results_testing_path, 'roc_curve.png'), dpi=300)
 
             #   ---------------------------------------------------------------------------------------------
-            #   Scatter Plot with points representing the test samples (color: label) and x-axis is predicted prob
+            #   Strip Plot with points representing the test samples and x-axis is predicted prob
 
-            plt.figure(figsize=(12, 6))
-            plt.scatter(x=negative_preds, y=negative_trues, c='red', label='Label 0 (chosen)')
-            plt.scatter(x=positive_preds, y=positive_trues, c='blue', label='Label 1 (chosen)')
+            plt.figure(figsize=(16, 8))
+
+            y_for_scatter_plot = []
+            hue_for_scatter_plot = []
+
+            for i in labels_original:
+                final_labels = [i[key] for key in ['R1', 'R2', 'R3']]
+
+                if len(set(final_labels)) == 1:
+                    #   consensus in final labels
+                    if final_labels[0] == 0:
+                        y_for_scatter_plot.append('consensus for label')
+                        hue_for_scatter_plot.append('label 0')
+                    elif final_labels[0] == 1:
+                        y_for_scatter_plot.append('consensus for label')
+                        hue_for_scatter_plot.append('label 1')
+                    else:
+                        raise Exception("Something went wrong.")
+                else:
+                    majority_val = np.argmax(np.bincount(final_labels))
+
+                    if majority_val == 0:
+                        y_for_scatter_plot.append('majority for label')
+                        hue_for_scatter_plot.append('label 0')
+                    elif majority_val == 1:
+                        y_for_scatter_plot.append('majority for label')
+                        hue_for_scatter_plot.append('label 1')
+                    else:
+                        raise Exception("Something went wrong.")
+
+            sns.stripplot(x=preds,
+                          y=y_for_scatter_plot,
+                          hue=hue_for_scatter_plot,
+                          palette={'label 0': 'blue', 'label 1': 'red'})
+
+            plt.xlabel('Predicted Probabilities')
+            plt.title('Strip Plot - Evaluation on test data')
+
             # Vertical threshold lines
             for x in np.arange(0, 1.1, 0.1):
                 plt.axvline(x=x, linestyle='dotted', color='grey')
-            plt.xlabel('Predicted Probabilities')
-            plt.ylabel('True Labels (chosen)')
-            plt.legend()
-            plt.title('Scatter Plot - Evaluation on test data')
 
-            plt.savefig(os.path.join(results_testing_path, 'scatter_plot.png'), dpi=300)
+            plt.savefig(os.path.join(results_testing_path, 'strip_plot.png'), dpi=300)
 
             #   ---------------------------------------------------------------------------------------------
             #   Histogram
@@ -729,12 +764,12 @@ def run_experiment(config: dict):
             #   TODO: Find optimum !!!
             fp_threshold = 0.1
 
-            false_positive_indices = np.where((preds > fp_threshold) & (trues_chosen == 0))[0]
+            false_positive_indices = np.where((preds > fp_threshold) & (trues_chosen_majority == 0))[0]
 
             fp_samples_dict = {
                 'id': ids[false_positive_indices].tolist(),
                 'prediction': preds[false_positive_indices].tolist(),
-                'label_chosen': trues_chosen[false_positive_indices].tolist(),
+                'label_chosen': trues_chosen_majority[false_positive_indices].tolist(),
                 'labels_original': labels_original[false_positive_indices].tolist(),
                 'fp_threshold': fp_threshold
             }
@@ -747,12 +782,12 @@ def run_experiment(config: dict):
             #   TODO: Find optimum !!!
             fn_threshold = 0.9
 
-            false_negative_indices = np.where((preds < fn_threshold) & (trues_chosen == 1))[0]
+            false_negative_indices = np.where((preds < fn_threshold) & (trues_chosen_majority == 1))[0]
 
             fn_samples_dict = {
                 'id': ids[false_negative_indices].tolist(),
                 'prediction': preds[false_negative_indices].tolist(),
-                'label_chosen': trues_chosen[false_negative_indices].tolist(),
+                'label_chosen': trues_chosen_majority[false_negative_indices].tolist(),
                 'labels_original': labels_original[false_negative_indices].tolist(),
                 'fn_threshold': fn_threshold
             }
@@ -762,7 +797,7 @@ def run_experiment(config: dict):
 
             #   ---------------------------------------------------------------------------------------------
 
-            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen
+            #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
 
         #   TODO: choose threshold_value appropriately
         threshold_value = 0.5
@@ -791,12 +826,12 @@ def run_experiment(config: dict):
 
         #   Calculate other metrics
 
-        acc_score = accuracy_score(trues_chosen, preds)
-        precision = precision_score(trues_chosen, preds, average=average)
-        recall = recall_score(trues_chosen, preds, average=average)
-        f1 = f1_score(trues_chosen, preds, average=average)
+        acc_score = accuracy_score(trues_chosen_majority, preds)
+        precision = precision_score(trues_chosen_majority, preds, average=average)
+        recall = recall_score(trues_chosen_majority, preds, average=average)
+        f1 = f1_score(trues_chosen_majority, preds, average=average)
 
-        conf_matrix = confusion_matrix(trues_chosen, preds)
+        conf_matrix = confusion_matrix(trues_chosen_majority, preds)
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
 
