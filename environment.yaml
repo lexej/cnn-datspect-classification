@@ -13,6 +13,7 @@ dependencies:
   - openpyxl
   - scikit-learn
   - matplotlib
+  - seaborn
   - pytorch
   - torchvision
   - nibabel
