@@ -308,9 +308,6 @@ class SpectDataset(Dataset):
         #   ---------------------------------------------------------------------------
         #   Get label
 
-        #   TODO: Frage an Ralph: Sind die Bezeichnungen der .nii files die IDs wie in der Excel ???
-        #    Ich habs angenommen!!
-
         id_ = idx + 1
 
         label_row = self.labels.loc[self.labels['ID'].astype(int) == id_]
@@ -646,74 +643,94 @@ def run_experiment(config: dict):
 
         trues_chosen_majority = np.array(trues_chosen_majority)
 
-        #   Shape of preds and trues_chosen_majority: (num_test_examples, num_classes)
+        labels_original_list = [[i[key] for key in ['R1', 'R2', 'R3']] for i in labels_original]
+
+        labels_original_list = np.array(labels_original_list)
+
+        #   Calculate indices of consensus cases
+
+        consensus_condition = (labels_original_list == 1).all(axis=1) | (labels_original_list == 0).all(axis=1)
+
+        consensus_indices = np.where(consensus_condition)[0]
+        no_consensus_indices = np.where(~consensus_condition)[0]
+
+        #   Calculate trues and preds for consensus test cases
+
+        trues_consensus = labels_original_list[consensus_indices][:, 0:1].squeeze()
+
+        preds_consensus = preds[consensus_indices]
+
+        #   Calculate trues and preds for no consensus test cases
+
+        trues_no_consensus = labels_original_list[no_consensus_indices]
+
+        #   Select majority value as label
+        trues_no_consensus = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
+                                                 axis=1,
+                                                 arr=trues_no_consensus)
+
+        preds_no_consensus = preds[no_consensus_indices]
 
         #   For binary classification: Compute multiple metrics
 
         if strategy == 0:
 
             #   ---------------------------------------------------------------------------------------------
-            #   ROC curve
-            #   TODO: One ROC curve for all labels using majority vote and one for consensus labels
+            #   ROC curves
 
-            fpr, tpr, thresholds = roc_curve(trues_chosen_majority, preds)
+            def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
+                plt.figure(figsize=(12, 6))
+                plt.plot(fpr, tpr, label=label)
+                plt.plot([0, 1], [0, 1], 'k--')
+                plt.xlabel('False Positive Rate')
+                plt.ylabel('True Positive Rate')
+                plt.title(title)
+                plt.legend(loc='lower right')
 
-            roc_auc = auc(fpr, tpr)
+                plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
 
-            plt.figure(figsize=(12, 6))
-            plt.plot(fpr, tpr, label=f'ROC curve; AUC = {round(roc_auc, relevant_digits)}')
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(f'ROC Curve (label selection strategy: {label_selection_strategy_test})')
-            plt.legend(loc='lower right')
+            #   ROC curve for test data with label consensus
 
-            plt.savefig(os.path.join(results_testing_path, 'roc_curve.png'), dpi=300)
+            fpr, tpr, _ = roc_curve(trues_consensus, preds_consensus)
+
+            roc_auc_consensus_labels = auc(fpr, tpr)
+
+            create_roc_curve(fpr=fpr,
+                             tpr=tpr,
+                             title=f'ROC Curve (only test data with label consensus)',
+                             label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
+                             file_name_save='roc_curve_consensus_labels')
+
+            #   ROC curve for all test data; if no consensus in labels: majority vote
+
+            fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
+
+            roc_auc_all_labels = auc(fpr, tpr)
+
+            create_roc_curve(fpr=fpr,
+                             tpr=tpr,
+                             title=f'ROC Curve (all test data; if no label consensus: {label_selection_strategy_test})',
+                             label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
+                             file_name_save='roc_curve_all_labels')
 
             #   ---------------------------------------------------------------------------------------------
             #   Strip Plot with points representing the test samples and x-axis is predicted prob
 
             plt.figure(figsize=(16, 8))
 
-            y_for_scatter_plot = []
-            hue_for_scatter_plot = []
+            x_stripplot = np.concatenate((preds_consensus, preds_no_consensus))
+            y_stripplot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
+                                          np.full_like(preds_no_consensus, 'majority', dtype=np.object_)))
+            hue_stripplot = np.concatenate((trues_consensus.astype(str), trues_no_consensus.astype(str)))
 
-            for i in labels_original:
-                final_labels = [i[key] for key in ['R1', 'R2', 'R3']]
-
-                if len(set(final_labels)) == 1:
-                    #   consensus in final labels
-                    if final_labels[0] == 0:
-                        y_for_scatter_plot.append('consensus for label')
-                        hue_for_scatter_plot.append('label 0')
-                    elif final_labels[0] == 1:
-                        y_for_scatter_plot.append('consensus for label')
-                        hue_for_scatter_plot.append('label 1')
-                    else:
-                        raise Exception("Something went wrong.")
-                else:
-                    majority_val = np.argmax(np.bincount(final_labels))
-
-                    if majority_val == 0:
-                        y_for_scatter_plot.append('majority for label')
-                        hue_for_scatter_plot.append('label 0')
-                    elif majority_val == 1:
-                        y_for_scatter_plot.append('majority for label')
-                        hue_for_scatter_plot.append('label 1')
-                    else:
-                        raise Exception("Something went wrong.")
-
-            sns.stripplot(x=preds,
-                          y=y_for_scatter_plot,
-                          hue=hue_for_scatter_plot,
-                          palette={'label 0': 'blue', 'label 1': 'red'})
+            sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot, palette={'0': 'blue', '1': 'red'})
 
             plt.xlabel('Predicted Probabilities')
             plt.title('Strip Plot - Evaluation on test data')
 
             # Vertical threshold lines
-            for x in np.arange(0, 1.1, 0.1):
-                plt.axvline(x=x, linestyle='dotted', color='grey')
+            for i in np.arange(0, 1.1, 0.1):
+                plt.axvline(x=i, linestyle='dotted', color='grey')
 
             plt.savefig(os.path.join(results_testing_path, 'strip_plot.png'), dpi=300)
 
@@ -725,18 +742,18 @@ def run_experiment(config: dict):
             num_bins = 50
             log_scale = (False, True)
 
-            hue_for_histplot = [y_for_scatter_plot[i] + '; ' + hue_for_scatter_plot[i]
-                                for i in range(len(hue_for_scatter_plot))]
+            x_histplot = x_stripplot
+            hue_histplot = [y_stripplot[i] + '; ' + hue_stripplot[i] for i in range(len(hue_stripplot))]
 
-            sns.histplot(x=preds,
-                         hue=hue_for_histplot,
+            sns.histplot(x=x_histplot,
+                         hue=hue_histplot,
                          bins=num_bins,
                          multiple='stack',
                          log_scale=log_scale)
 
             # Vertical threshold lines
-            for x in np.arange(0, 1.1, 0.1):
-                plt.axvline(x=x, linestyle='dotted', color='grey')
+            for i in np.arange(0, 1.1, 0.1):
+                plt.axvline(x=i, linestyle='dotted', color='grey')
 
             plt.xlabel('Predicted Probabilities')
             plt.ylabel('Frequency')
