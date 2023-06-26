@@ -648,18 +648,22 @@ def run_experiment(config: dict):
 
         #   Calculate trues and preds for consensus test cases
 
-        trues_consensus = labels_original_list[consensus_indices][:, 0:1].squeeze()
+        ids_consensus = ids[consensus_indices]
+
+        trues_consensus_full = labels_original_list[consensus_indices]
+
+        trues_consensus_reduced = trues_consensus_full[:, 0:1].squeeze()
 
         preds_consensus = preds[consensus_indices]
 
         #   Calculate trues and preds for no consensus test cases
 
-        trues_no_consensus = labels_original_list[no_consensus_indices]
+        trues_no_consensus_full = labels_original_list[no_consensus_indices]
 
         #   Select majority value as label
-        trues_no_consensus = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
-                                                 axis=1,
-                                                 arr=trues_no_consensus)
+        trues_no_consensus_reduced = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
+                                                         axis=1,
+                                                         arr=trues_no_consensus_full)
 
         preds_no_consensus = preds[no_consensus_indices]
 
@@ -683,7 +687,7 @@ def run_experiment(config: dict):
 
             #   ROC curve for test data with label consensus
 
-            fpr, tpr, _ = roc_curve(trues_consensus, preds_consensus)
+            fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
 
             roc_auc_consensus_labels = auc(fpr, tpr)
 
@@ -713,12 +717,15 @@ def run_experiment(config: dict):
             x_stripplot = np.concatenate((preds_consensus, preds_no_consensus))
             y_stripplot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
                                           np.full_like(preds_no_consensus, 'majority', dtype=np.object_)))
-            hue_stripplot = np.concatenate((trues_consensus.astype(str), trues_no_consensus.astype(str)))
+            hue_stripplot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}',
+                                                                axis=1, arr=trues_consensus_full),
+                                            np.apply_along_axis(lambda a: f'label {a}',
+                                                                axis=1, arr=trues_no_consensus_full)))
 
-            sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot, palette={'0': 'blue', '1': 'red'})
+            sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot)
 
             plt.xlabel('Predicted Probabilities')
-            plt.title('Strip Plot - Evaluation on test data')
+            plt.title('Predictions for certain and uncertain test cases - Evaluation on test data')
 
             # Vertical threshold lines
             for i in np.arange(0, 1.1, 0.1):
@@ -757,41 +764,42 @@ def run_experiment(config: dict):
 
             #   Get information about ID's and original labels of misclassified cases (given thresholds)
 
-            #   fp cases
+            #   False positives and false negatives are calculated only for label consensus test cases
+            #   (not for uncertain test cases)
+
+            #   fp consensus test cases
 
             #   TODO: Find optimum !!!
             fp_threshold = 0.1
 
-            false_positive_indices = np.where((preds > fp_threshold) & (trues_chosen_majority == 0))[0]
+            false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
 
             fp_samples_dict = {
-                'id': ids[false_positive_indices].tolist(),
-                'prediction': preds[false_positive_indices].tolist(),
-                'label_chosen': trues_chosen_majority[false_positive_indices].tolist(),
-                'labels_original': labels_original[false_positive_indices].tolist(),
+                'id': ids_consensus[false_positive_indices].tolist(),
+                'prediction': preds_consensus[false_positive_indices].tolist(),
+                'labels_original': trues_consensus_full[false_positive_indices].tolist(),
                 'fp_threshold': fp_threshold
             }
 
             fp_samples = pd.DataFrame(fp_samples_dict)
-            fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples.csv'), index=False)
+            fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
 
-            #   fn cases
+            #   fn consensus test cases
 
             #   TODO: Find optimum !!!
             fn_threshold = 0.9
 
-            false_negative_indices = np.where((preds < fn_threshold) & (trues_chosen_majority == 1))[0]
+            false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
 
             fn_samples_dict = {
-                'id': ids[false_negative_indices].tolist(),
-                'prediction': preds[false_negative_indices].tolist(),
-                'label_chosen': trues_chosen_majority[false_negative_indices].tolist(),
-                'labels_original': labels_original[false_negative_indices].tolist(),
+                'id': ids_consensus[false_negative_indices].tolist(),
+                'prediction': preds_consensus[false_negative_indices].tolist(),
+                'labels_original': trues_consensus_full[false_negative_indices].tolist(),
                 'fn_threshold': fn_threshold
             }
 
             fn_samples = pd.DataFrame(fn_samples_dict)
-            fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples.csv'), index=False)
+            fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -800,8 +808,10 @@ def run_experiment(config: dict):
         #   TODO: choose threshold_value appropriately
         threshold_value = 0.5
 
+        #   Calculate metrics acc_score, precision, recall, f1-score, conf_matrix for label consensus test cases!
+
         if strategy == 0:
-            preds = (preds > threshold_value).astype(float)
+            preds_consensus = (preds_consensus > threshold_value).astype(float)
             average = 'binary'
 
         #   TODO -> Anpassen an strategy 1 und 2
@@ -822,14 +832,12 @@ def run_experiment(config: dict):
             average = 'macro'
         """
 
-        #   Calculate other metrics
+        acc_score = accuracy_score(trues_consensus_reduced, preds_consensus)
+        precision = precision_score(trues_consensus_reduced, preds_consensus, average=average)
+        recall = recall_score(trues_consensus_reduced, preds_consensus, average=average)
+        f1 = f1_score(trues_consensus_reduced, preds_consensus, average=average)
 
-        acc_score = accuracy_score(trues_chosen_majority, preds)
-        precision = precision_score(trues_chosen_majority, preds, average=average)
-        recall = recall_score(trues_chosen_majority, preds, average=average)
-        f1 = f1_score(trues_chosen_majority, preds, average=average)
-
-        conf_matrix = confusion_matrix(trues_chosen_majority, preds)
+        conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus)
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
 
@@ -840,7 +848,7 @@ def run_experiment(config: dict):
         print('\nConfusion matrix:')
         print(conf_matrix)
 
-        # Save calculated metrics
+        #   Save performance metrics
 
         results_test_split = {
             'threshold_chosen': threshold_value,
@@ -850,14 +858,14 @@ def run_experiment(config: dict):
             'f1-score': f1
         }
 
-        with open(os.path.join(results_testing_path, 'metrics.json'), 'w') as f:
+        with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
         cm_display = ConfusionMatrixDisplay(conf_matrix)
         fig, ax = plt.subplots(figsize=(8, 8))
         cm_display.plot(ax=ax)
-        ax.set_title(f"Confusion Matrix (threshold = {threshold_value}) - Evaluation on test data")
-        plt.savefig(os.path.join(results_testing_path, 'confusion_matrix.png'), dpi=300)
+        ax.set_title(f"Confusion Matrix for label consensus test cases (threshold = {threshold_value})")
+        plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
 
     # ---------------------------------------------------------------------------------------------------------
 
