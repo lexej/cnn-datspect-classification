@@ -630,22 +630,14 @@ def run_experiment(config: dict):
         ids = np.array(ids)
         labels_original = np.array(labels_original)
 
-        #   labels for testing have to be inferred from original labels using a selection strategy
+        labels_original_list = np.vectorize(lambda d: np.array([d[k] for k in ['R1', 'R2', 'R3']]),
+                                            signature='()->(m)')(labels_original)
 
-        label_selection_strategy_test = 'majority'
+        #   labels for testing have to be inferred from original labels using a majority vote
 
-        trues_chosen_majority = []
-
-        for labels_available in labels_original:
-            label_chosen = choose_label_from_available_labels(label=labels_available,
-                                                              label_selection_strategy=label_selection_strategy_test)
-            trues_chosen_majority.append(int(label_chosen.cpu()))
-
-        trues_chosen_majority = np.array(trues_chosen_majority)
-
-        labels_original_list = [[i[key] for key in ['R1', 'R2', 'R3']] for i in labels_original]
-
-        labels_original_list = np.array(labels_original_list)
+        trues_chosen_majority = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
+                                                    axis=1,
+                                                    arr=labels_original_list)
 
         #   Calculate indices of consensus cases
 
@@ -709,7 +701,7 @@ def run_experiment(config: dict):
 
             create_roc_curve(fpr=fpr,
                              tpr=tpr,
-                             title=f'ROC Curve (all test data; if no label consensus: {label_selection_strategy_test})',
+                             title=f'ROC Curve (all test data; if no label consensus: majority)',
                              label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
                              file_name_save='roc_curve_all_labels')
 
