@@ -6,6 +6,7 @@ import argparse
 import sys
 
 from typing import List
+
 from tqdm import tqdm
 
 import numpy as np
@@ -17,11 +18,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 import torch
+from torch import sigmoid, softmax
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, Subset, DataLoader
 import torchvision.transforms as transforms
 from torchvision.transforms import InterpolationMode
+from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet34, ResNet34_Weights
 
 import sklearn
 from sklearn.model_selection import train_test_split

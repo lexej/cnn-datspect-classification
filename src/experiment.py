@@ -2,9 +2,9 @@ from common import os, yaml, argparse, shutil
 from common import torch, nn, optim
 from common import device
 
-from model.custom_model_2d import CustomModel2d
-from model.resnet18_2d import ResNet18
-from model.resnet34_2d import ResNet34
+from model import CustomModel2d
+from model import ResNet18
+from model import ResNet34
 
 from data import get_dataloaders
 
