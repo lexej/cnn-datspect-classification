@@ -12,177 +12,6 @@ from train import train_model
 
 from evaluation import evaluate_on_test_data
 
-#   Parse arguments
-
-parser = argparse.ArgumentParser(description='Script for running experiments using a yaml config.')
-
-parser.add_argument('-c', '--config', type=str, required=True, help='Path to the YAML config file')
-
-args = parser.parse_args()
-
-with open(args.config, 'r') as f:
-    config = yaml.safe_load(f)
-
-config_filename = os.path.basename(args.config).removesuffix('.yaml')
-
-"""
-
-class Encoder:
-
-    def __init__(self, strategy: int):
-        self.strategy = strategy
-
-    def get_label_using_strategy(self, final_labels: pd.Series, session_labels: pd.Series):
-
-        final_labels_occurrences = final_labels.value_counts()
-        session_labels_occurrences = session_labels.value_counts()
-
-        count_of_0_in_final_labels = final_labels_occurrences.get(0, default=0)
-        count_of_0_in_session_labels = session_labels_occurrences.get(0, default=0)
-        count_of_1_in_session_labels = session_labels_occurrences.get(1, default=0)
-
-        if self.strategy == 1:
-            #   3 classes: "normal", "uncertain", "reduced"
-
-            #   Only consider final labels
-
-            if count_of_0_in_final_labels == 3:
-                #   all raters agree on label "0"
-                label = 0
-            elif count_of_0_in_final_labels == 2 or count_of_0_in_final_labels == 1:
-                #   rater do not agree on label
-                label = 1
-            elif count_of_0_in_final_labels == 0:
-                #   all raters agree on label "1"
-                label = 2
-        elif self.strategy == 2:
-            #   7 classes; ordinal classification problem assumed
-
-            #   0: "most likely normal"               <-> [1, 0, 0, 0, 0, 0, 0]
-            #   1: "probably normal"                  <-> [1, 1, 0, 0, 0, 0, 0]
-            #   2: "more likely normal than reduced"  <-> [1, 1, 1, 0, 0, 0, 0]
-            #   3: "uncertain"                        <-> [1, 1, 1, 1, 0, 0, 0]
-            #   4: "more likely reduced than normal"  <-> [1, 1, 1, 1, 1, 0, 0]
-            #   5: "probably reduced"                 <-> [1, 1, 1, 1, 1, 1, 0]
-            #   6: "most likely reduced"              <-> [1, 1, 1, 1, 1, 1, 1]
-
-            #   Consider both final and session labels
-
-            if count_of_0_in_final_labels == 3:
-                if count_of_0_in_session_labels > 3:
-                    #   most likely normal
-                    label = 0
-                else:
-                    #   probably normal
-                    label = 1
-            elif count_of_0_in_final_labels == 2:
-                if count_of_0_in_session_labels > 3:
-                    #   more likely normal than reduced
-                    label = 2
-                else:
-                    #   uncertain
-                    label = 3
-            elif count_of_0_in_final_labels == 1:
-                if count_of_1_in_session_labels > 3:
-                    #   more likely reduced than normal
-                    label = 4
-                else:
-                    #   uncertain
-                    label = 3
-            else:
-                #   Case where: count_of_0_in_final_labels = 0 <=> count_of_1_in_final_labels = 3
-                if count_of_1_in_session_labels > 3:
-                    label = 6
-                else:
-                    label = 5
-
-        label = self.__encode_integer_label(label)
-
-        return label
-
-    def __encode_integer_label(self, label: int) -> torch.Tensor:
-
-        if self.strategy == 1:
-            #   vanilla multi-class classification; nn.CrossEntropyLoss() expects ground truths with type integer
-            encoded_label = label
-            dtype = torch.int32
-        elif self.strategy == 2:
-            dtype = torch.float32
-            if label == 0:
-                encoded_label = [1, 0, 0, 0, 0, 0, 0]
-            elif label == 1:
-                encoded_label = [1, 1, 0, 0, 0, 0, 0]
-            elif label == 2:
-                encoded_label = [1, 1, 1, 0, 0, 0, 0]
-            elif label == 3:
-                encoded_label = [1, 1, 1, 1, 0, 0, 0]
-            elif label == 4:
-                encoded_label = [1, 1, 1, 1, 1, 0, 0]
-            elif label == 5:
-                encoded_label = [1, 1, 1, 1, 1, 1, 0]
-            elif label == 6:
-                encoded_label = [1, 1, 1, 1, 1, 1, 1]
-            else:
-                encoded_label = None
-
-        encoded_label = torch.tensor(encoded_label, dtype=dtype, device=device)
-
-        return encoded_label
-
-    @staticmethod
-    def decode_labels(labels: torch.Tensor):
-        #   Function used only for strategy = 2
-
-        #   labels should have shape (batch_size, num_classes)
-
-        labels_decoded = torch.zeros((labels.shape[0], 1))
-
-        for i, val in enumerate(labels):
-            encoded_val = list(val)
-            if encoded_val == [1, 0, 0, 0, 0, 0, 0]:
-                labels_decoded[i][0] = 0
-            elif encoded_val == [1, 1, 0, 0, 0, 0, 0]:
-                labels_decoded[i][0] = 1
-            elif encoded_val == [1, 1, 1, 0, 0, 0, 0]:
-                labels_decoded[i][0] = 2
-            elif encoded_val == [1, 1, 1, 1, 0, 0, 0]:
-                labels_decoded[i][0] = 3
-            elif encoded_val == [1, 1, 1, 1, 1, 0, 0]:
-                labels_decoded[i][0] = 4
-            elif encoded_val == [1, 1, 1, 1, 1, 1, 0]:
-                labels_decoded[i][0] = 5
-            elif encoded_val == [1, 1, 1, 1, 1, 1, 1]:
-                labels_decoded[i][0] = 6
-
-        return labels_decoded
-
-    @staticmethod
-    def decode_preds(preds: torch.Tensor):
-        #   Function used only for strategy = 2
-
-        preds_decoded = torch.zeros((preds.shape[0], 1))
-
-        #   threshold for each predicted output neuron
-        threshold = 0.5
-
-        for i, pred in enumerate(preds):
-            for j, val in enumerate(pred):
-                if j == 0:
-                    if val > threshold:
-                        #   Do nothing since preds_decoded is initialized with zeros
-                        continue
-                    else:
-                        raise Exception("something went wrong")
-
-                if val > threshold:
-                    preds_decoded[i][0] += 1
-                else:
-                    break
-
-        return preds_decoded
-
-"""
-
 
 def run_experiment(config: dict):
 
@@ -230,25 +59,6 @@ def run_experiment(config: dict):
 
     with open(os.path.join(results_path, 'config_used.yaml'), 'w') as f:
         yaml.dump(config, f)
-
-    # ---------------------------------------------------------------------------------------------------------
-
-    #   Functions
-
-    """
-    def normalize_data_splits(X_train, X_test, X_validation):
-        #  Calculate mean and std along all train examples and along all pixels (-> scalar)
-        X_train_mean = torch.mean(X_train, dim=(0, 2, 3))
-        X_train_std = torch.std(X_train, dim=(0, 2, 3))
-
-        #  Normalization of all splits
-
-        X_train_normalized = (X_train - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
-        X_test_normalized = (X_test - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
-        X_validation_normalized = (X_validation - X_train_mean.reshape(1, 1, 1, 1)) / X_train_std.reshape(1, 1, 1, 1)
-
-        return X_train_normalized, X_test_normalized, X_validation_normalized
-    """
 
     # ---------------------------------------------------------------------------------------------------------
 
@@ -323,4 +133,19 @@ def run_experiment(config: dict):
 
 
 if __name__ == '__main__':
+    #   Parse command line arguments
+
+    parser = argparse.ArgumentParser(description='Script for running experiments using a YAML configuration file.')
+
+    parser.add_argument('-c', '--config', type=str, required=True, help='Path to the YAML configuration file')
+
+    args = parser.parse_args()
+
+    #   Load configuration yaml file into config dictionary
+
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
+
+    config_filename = os.path.basename(args.config).removesuffix('.yaml')
+
     run_experiment(config=config)
