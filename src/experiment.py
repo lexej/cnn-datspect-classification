@@ -1,37 +1,10 @@
-import os
-import json
-import shutil
-import yaml
-import argparse
-import sys
-
-from typing import List
-from tqdm import tqdm
-
-import numpy as np
-import pandas as pd
-
-import nibabel as nib
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, Subset, DataLoader
-import torchvision.transforms as transforms
-from torchvision.transforms import InterpolationMode
-
-import sklearn
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, \
-    ConfusionMatrixDisplay, roc_curve, auc
+from common import *
 
 from model.custom_model_2d import CustomModel2d
 from model.resnet18_2d import ResNet18
 from model.resnet34_2d import ResNet34
 
+from data import SpectDataset, LabelFunctionWrapper
 
 #   Parse arguments
 
@@ -45,37 +18,6 @@ with open(args.config, 'r') as f:
     config = yaml.safe_load(f)
 
 config_filename = os.path.basename(args.config).removesuffix('.yaml')
-
-RANDOM_SEED = 42  # 72328191
-
-np.random.seed(RANDOM_SEED)
-
-torch.manual_seed(RANDOM_SEED)
-
-#   Set device based on availability
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-
-    # Set seeds
-    torch.cuda.manual_seed(RANDOM_SEED)
-    torch.cuda.manual_seed_all(RANDOM_SEED)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-elif torch.backends.mps.is_available():
-    device = torch.device("mps")
-
-    #   Set seeds
-    torch.mps.manual_seed(RANDOM_SEED)
-    torch.backends.mps.deterministic = True
-    torch.backends.mps.benchmark = False
-else:
-    raise Exception("something went wrong")
-
-
-generator = torch.Generator()
-generator.manual_seed(RANDOM_SEED)
-
-sklearn.utils.check_random_state(RANDOM_SEED)
 
 """
 
@@ -255,107 +197,6 @@ def choose_label_from_available_labels(label: dict, label_selection_strategy: st
                                 device=device)
 
     return chosen_label
-
-
-class LabelFunctionWrapper(Dataset):
-    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str):
-        self.original_dataset = original_dataset
-        self.label_function = label_function
-        self.label_selection_strategy = label_selection_strategy
-
-    def __getitem__(self, index):
-        img, label, metadata = self.original_dataset[index]
-        modified_label = self.label_function(label, self.label_selection_strategy)
-        return img, modified_label, metadata
-
-    def __len__(self):
-        return len(self.original_dataset)
-
-
-class SpectDataset(Dataset):
-    def __init__(self, features_dirpath, labels_filepath, target_input_height,
-                 target_input_width, interpolation_method):
-        self.features_dirpath = features_dirpath
-        self.labels_filepath = labels_filepath
-
-        self.target_input_height = target_input_height
-        self.target_input_width = target_input_width
-        self.interpolation_method = interpolation_method
-
-        self.labels = pd.read_excel(labels_filepath)
-
-        #   Sort filenames by name
-        self.image_filenames = sorted(os.listdir(features_dirpath))
-
-    def __len__(self):
-        return len(self.image_filenames)
-
-    def __getitem__(self, idx):
-
-        #   ---------------------------------------------------------------------------
-        #   Get image
-
-        image_filename = self.image_filenames[idx]
-
-        image_path = os.path.join(self.features_dirpath, image_filename)
-
-        data_nifti = nib.load(image_path)
-
-        img = data_nifti.get_fdata()
-
-        img = self.apply_transforms(img)
-
-        #   ---------------------------------------------------------------------------
-        #   Get label
-
-        id_ = idx + 1
-
-        label_row = self.labels.loc[self.labels['ID'].astype(int) == id_]
-
-        #   Convert pandas DataFrame row to pandas Series of labels of interest
-
-        labels_full = label_row[['R1', 'R2', 'R3',
-                                 'R1S1', 'R1S2', 'R2S1',
-                                 'R2S2', 'R3S1', 'R3S2']].reset_index(drop=True).squeeze()
-
-        #   Attention: For the general Dataset the label is a dictionary containing all available labels;
-        #              the decision for the label is performed within Dataset classes wrapping train and valid Subset's
-        #              of the current Dataset
-
-        label = labels_full.to_dict()
-
-        metadata = {
-            'id': id_
-        }
-
-        return img, label, metadata
-
-    def apply_transforms(self, img: np.ndarray) -> torch.Tensor:
-
-        #   1. Crop image of size (91, 109) to region of interest (91, 91)
-        #       policy: select all rows and 10th to 100th column
-
-        transformed_img = img[:, 9:100]
-
-        #   2. Convert to torch tensor
-        #   3. Resize images from (91, 91) to target size (input_height, input_width)
-        #           using certain interpolation method
-        #       - Attention: Interpolation method has impact on model performance !
-
-        img_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize(size=(self.target_input_height, self.target_input_width),
-                              interpolation=getattr(InterpolationMode, self.interpolation_method.upper()),
-                              antialias=True)
-        ])
-
-        transformed_img = img_transforms(transformed_img)
-
-        #   4. Convert to float type and move to device
-
-        transformed_img = transformed_img.to(device=device, dtype=torch.float)
-
-        return transformed_img
 
 
 def run_experiment(config: dict):
