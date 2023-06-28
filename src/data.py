@@ -106,7 +106,7 @@ class LabelFunctionWrapper(Dataset):
         return len(self.original_dataset)
 
 
-def choose_label_from_available_labels(label: dict, label_selection_strategy: str) -> torch.Tensor:
+def _choose_label_from_available_labels(label: dict, label_selection_strategy: str) -> torch.Tensor:
 
     intra_rater_consensus_labels = {key: label[key] for key in ['R1', 'R2', 'R3']}
 
@@ -127,39 +127,26 @@ def choose_label_from_available_labels(label: dict, label_selection_strategy: st
     return chosen_label
 
 
-def get_dataloaders(images_dirpath,
-                    labels_filepath,
+def get_dataloaders(dataset: Dataset,
                     batch_size,
                     test_to_train_split_size_percent,
                     valid_to_train_split_size_percent,
-                    target_input_height,
-                    target_input_width,
                     label_selection_strategy_train,
-                    label_selection_strategy_valid,
-                    interpolation_method: str):
-
-    # -----------------------------------------------------------------------------------------------------------
-    #   Create dataset
-
-    spect_dataset = SpectDataset(features_dirpath=images_dirpath,
-                                 labels_filepath=labels_filepath,
-                                 target_input_height=target_input_height,
-                                 target_input_width=target_input_width,
-                                 interpolation_method=interpolation_method)
+                    label_selection_strategy_valid):
 
     # -----------------------------------------------------------------------------------------------------------
 
-    #   Splitting the data
+    #   Create data split for training, validation and testing
 
     #   1. train-test split  (no stratify used)
 
-    train_indices, test_indices = train_test_split(range(len(spect_dataset)),
+    train_indices, test_indices = train_test_split(range(len(dataset)),
                                                    test_size=test_to_train_split_size_percent,
                                                    random_state=RANDOM_SEED,
                                                    shuffle=True)
 
-    train_subset = Subset(dataset=spect_dataset, indices=train_indices)
-    test_subset = Subset(dataset=spect_dataset, indices=test_indices)
+    train_subset = Subset(dataset=dataset, indices=train_indices)
+    test_subset = Subset(dataset=dataset, indices=test_indices)
 
     #  2. test-validation split  (no stratify used)
 
@@ -178,11 +165,11 @@ def get_dataloaders(images_dirpath,
     #   which applies a mapping function to the labels using a certain label selection strategy
 
     train_subset = LabelFunctionWrapper(original_dataset=train_subset,
-                                        label_function=choose_label_from_available_labels,
+                                        label_function=_choose_label_from_available_labels,
                                         label_selection_strategy=label_selection_strategy_train)
 
     val_subset = LabelFunctionWrapper(original_dataset=val_subset,
-                                      label_function=choose_label_from_available_labels,
+                                      label_function=_choose_label_from_available_labels,
                                       label_selection_strategy=label_selection_strategy_valid)
 
     # -----------------------------------------------------------------------------------------------------------

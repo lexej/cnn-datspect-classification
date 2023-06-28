@@ -6,7 +6,7 @@ from model import CustomModel2d
 from model import ResNet18
 from model import ResNet34
 
-from data import get_dataloaders
+from data import SpectDataset, get_dataloaders
 
 from train import train_model
 
@@ -64,18 +64,22 @@ def run_experiment(config: dict):
 
     print(f'\nExperiment "{config_filename}": \n')
 
-    #   Create data loader for train, validation and test subset
+    #   Create SPECT dataset instance
 
-    dataloaders = get_dataloaders(images_dirpath=images_dirpath,
-                                  labels_filepath=labels_filepath,
+    spect_dataset = SpectDataset(features_dirpath=images_dirpath,
+                                 labels_filepath=labels_filepath,
+                                 target_input_height=input_height,
+                                 target_input_width=input_width,
+                                 interpolation_method=interpolation_method)
+
+    #   Create dataloader for train, validation and test split given dataset
+
+    dataloaders = get_dataloaders(dataset=spect_dataset,
                                   batch_size=batch_size,
                                   test_to_train_split_size_percent=test_to_train_split_size_percent,
                                   valid_to_train_split_size_percent=valid_to_train_split_size_percent,
-                                  target_input_height=input_height,
-                                  target_input_width=input_width,
                                   label_selection_strategy_train=label_selection_strategy_train,
-                                  label_selection_strategy_valid=label_selection_strategy_valid,
-                                  interpolation_method=interpolation_method)
+                                  label_selection_strategy_valid=label_selection_strategy_valid)
 
     train_dataloader, valid_dataloader, test_dataloader = dataloaders
 
