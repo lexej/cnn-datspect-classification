@@ -19,8 +19,7 @@ if __name__ == '__main__':
     for f_name in configs_filepaths:
         filepath = os.path.join(configs_dirpath, f_name)
         if os.path.isfile(filepath):
-
-            command = ["python", "experiment.py", "-c", filepath]
+            command = ["python", "experiment.py", "-c", filepath, "-n", f_name.removesuffix('.yaml')]
 
             subprocess.call(" ".join(command), shell=True)
 

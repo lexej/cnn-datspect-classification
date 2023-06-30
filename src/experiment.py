@@ -13,7 +13,7 @@ from train import train_model
 from evaluation import evaluate_on_test_data
 
 
-def run_experiment(config: dict):
+def run_experiment(config: dict, experiment_name: str):
 
     # ---------------------------------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ def run_experiment(config: dict):
 
     os.makedirs(results_dir, exist_ok=True)
 
-    results_path = os.path.join(results_dir, config_filename)
+    results_path = os.path.join(results_dir, experiment_name)
 
     if os.path.exists(results_path):
         shutil.rmtree(results_path)
@@ -62,7 +62,7 @@ def run_experiment(config: dict):
 
     # ---------------------------------------------------------------------------------------------------------
 
-    print(f'\nExperiment "{config_filename}": \n')
+    print(f'\nExperiment "{experiment_name}": \n')
 
     #   Create SPECT dataset instance
 
@@ -142,6 +142,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script for running experiments using a YAML configuration file.')
 
     parser.add_argument('-c', '--config', type=str, required=True, help='Path to the YAML configuration file')
+    parser.add_argument('-n', '--name', type=str, required=True, help='Name of experiment '
+                                                                      '(also used as name for the results directory).')
 
     args = parser.parse_args()
 
@@ -152,4 +154,4 @@ if __name__ == '__main__':
 
     config_filename = os.path.basename(args.config).removesuffix('.yaml')
 
-    run_experiment(config=config)
+    run_experiment(config=config, experiment_name=args.name)
