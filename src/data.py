@@ -110,7 +110,7 @@ def _choose_label_from_available_labels(label: dict, label_selection_strategy: s
 
     intra_rater_consensus_labels = {key: label[key] for key in ['R1', 'R2', 'R3']}
 
-    available_labels = list(intra_rater_consensus_labels.values())
+    available_labels = sorted(list(intra_rater_consensus_labels.values()))
 
     if label_selection_strategy == 'random':
         chosen_label = np.random.choice(available_labels)
