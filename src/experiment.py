@@ -129,17 +129,17 @@ def run_experiment(config: dict, experiment_name: str):
     if starting_weights_path is not None:
         model.load_state_dict(torch.load(starting_weights_path))
 
-    model, best_epoch, best_epoch_weights_path = train_model(model,
-                                                             num_epochs,
-                                                             train_dataloader,
-                                                             valid_dataloader,
-                                                             optimizer,
-                                                             loss_fn,
-                                                             results_path)
+    model, best_epoch, model_weights_path = train_model(model,
+                                                        num_epochs,
+                                                        train_dataloader,
+                                                        valid_dataloader,
+                                                        optimizer,
+                                                        loss_fn,
+                                                        results_path)
 
     #   Evaluate trained model (best epoch wrt. validation loss) on test data
 
-    evaluate_on_test_data(model, best_epoch_weights_path, best_epoch, test_dataloader, strategy, results_path)
+    evaluate_on_test_data(model, model_weights_path, best_epoch, test_dataloader, strategy, results_path)
 
     print('-----------------------------------------------------------------------------------------')
 

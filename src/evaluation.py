@@ -4,7 +4,7 @@ from common import f1_score, confusion_matrix, roc_curve, auc, accuracy_score, p
     ConfusionMatrixDisplay
 
 
-def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, test_dataloader: DataLoader,
+def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_dataloader: DataLoader,
                           strategy, results_path):
 
     results_testing_path = os.path.join(results_path, 'testing')
@@ -13,7 +13,7 @@ def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, 
     relevant_digits = 5
 
     # Load weights into model
-    model.load_state_dict(torch.load(best_epoch_weights_path))
+    model.load_state_dict(torch.load(model_weights_path))
 
     #   Evaluation mode
     model.eval()
@@ -69,161 +69,173 @@ def evaluate_on_test_data(model, best_epoch_weights_path: str, best_epoch: int, 
     #   Calculate trues and preds for consensus test cases
 
     ids_consensus = ids[consensus_indices]
+    ids_no_consensus = ids[no_consensus_indices]
 
     trues_consensus_full = labels_original_list[consensus_indices]
-
     trues_consensus_reduced = trues_consensus_full[:, 0:1].squeeze()
-
-    preds_consensus = preds[consensus_indices]
-
-    #   Calculate trues and preds for no consensus test cases
-
     trues_no_consensus_full = labels_original_list[no_consensus_indices]
 
-    #   Select majority value as label
+    """
     trues_no_consensus_reduced = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
                                                      axis=1,
                                                      arr=trues_no_consensus_full)
+    """
 
+    preds_consensus = preds[consensus_indices]
     preds_no_consensus = preds[no_consensus_indices]
 
     #   For binary classification: Compute multiple metrics
 
-    if strategy == 0:
+    #   ---------------------------------------------------------------------------------------------
+    #   ROC curves
 
-        #   ---------------------------------------------------------------------------------------------
-        #   ROC curves
-
-        def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
-            plt.figure(figsize=(12, 6))
-            plt.plot(fpr, tpr, label=label)
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(title)
-            plt.legend(loc='lower right')
-
-            plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
-
-        #   ROC curve for test data with label consensus
-
-        fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
-
-        roc_auc_consensus_labels = auc(fpr, tpr)
-
-        create_roc_curve(fpr=fpr,
-                         tpr=tpr,
-                         title=f'ROC Curve (only test data with label consensus)',
-                         label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
-                         file_name_save='roc_curve_consensus_labels')
-
-        #   ROC curve for all test data; if no consensus in labels: majority vote
-
-        fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
-
-        roc_auc_all_labels = auc(fpr, tpr)
-
-        create_roc_curve(fpr=fpr,
-                         tpr=tpr,
-                         title=f'ROC Curve (all test data; if no label consensus: majority)',
-                         label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
-                         file_name_save='roc_curve_all_labels')
-
-        #   ---------------------------------------------------------------------------------------------
-        #   Strip Plot with points representing the test samples and x-axis is predicted prob
-
-        plt.figure(figsize=(16, 8))
-
-        x_stripplot = np.concatenate((preds_consensus, preds_no_consensus))
-        y_stripplot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
-                                      np.full_like(preds_no_consensus, 'majority', dtype=np.object_)))
-        hue_stripplot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}',
-                                                            axis=1, arr=trues_consensus_full),
-                                        np.apply_along_axis(lambda a: f'label {a}',
-                                                            axis=1, arr=trues_no_consensus_full)))
-
-        sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot)
-
-        plt.xlabel('Predicted Probabilities')
-        plt.title('Predictions for certain and uncertain test cases - Evaluation on test data')
-
-        # Vertical threshold lines
-        for i in np.arange(0, 1.1, 0.1):
-            plt.axvline(x=i, linestyle='dotted', color='grey')
-
-        plt.savefig(os.path.join(results_testing_path, 'strip_plot.png'), dpi=300)
-
-        #   ---------------------------------------------------------------------------------------------
-        #   Histogram
-
+    def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
         plt.figure(figsize=(12, 6))
+        plt.plot(fpr, tpr, label=label)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(title)
+        plt.legend(loc='lower right')
 
-        num_bins = 50
-        log_scale = (False, True)
+        plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
 
-        x_histplot = x_stripplot
-        hue_histplot = [y_stripplot[i] + '; ' + hue_stripplot[i] for i in range(len(hue_stripplot))]
+    #   ROC curve for test data with label consensus
 
-        sns.histplot(x=x_histplot,
-                     hue=hue_histplot,
-                     bins=num_bins,
-                     multiple='stack',
-                     log_scale=log_scale)
+    fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
 
-        # Vertical threshold lines
-        for i in np.arange(0, 1.1, 0.1):
-            plt.axvline(x=i, linestyle='dotted', color='grey')
+    roc_auc_consensus_labels = auc(fpr, tpr)
 
-        plt.xlabel('Predicted Probabilities')
-        plt.ylabel('Frequency')
-        plt.title('Histogram - Evaluation on test data')
+    create_roc_curve(fpr=fpr,
+                     tpr=tpr,
+                     title=f'ROC Curve (only test data with label consensus)',
+                     label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
+                     file_name_save='roc_curve_consensus_labels')
 
-        plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
+    #   ROC curve for all test data; if no consensus in labels: majority vote
 
-        #   ---------------------------------------------------------------------------------------------
+    fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
 
-        #   Get information about ID's and original labels of misclassified cases (given thresholds)
+    roc_auc_all_labels = auc(fpr, tpr)
 
-        #   False positives and false negatives are calculated only for label consensus test cases
-        #   (not for uncertain test cases)
+    create_roc_curve(fpr=fpr,
+                     tpr=tpr,
+                     title=f'ROC Curve (all test data; if no label consensus: majority)',
+                     label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
+                     file_name_save='roc_curve_all_labels')
 
-        #   fp consensus test cases
+    #   ---------------------------------------------------------------------------------------------
+    #   Strip Plot with points representing the test samples and x-axis is predicted prob
 
-        #   TODO: Find optimum !!!
-        fp_threshold = 0.1
+    plt.figure(figsize=(16, 8))
 
-        false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
+    x_stripplot = np.concatenate((preds_consensus, preds_no_consensus))
+    y_stripplot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
+                                  np.full_like(preds_no_consensus, 'no consensus', dtype=np.object_)))
+    hue_stripplot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}',
+                                                        axis=1, arr=trues_consensus_full),
+                                    np.apply_along_axis(lambda a: f'label {a}',
+                                                        axis=1, arr=trues_no_consensus_full)))
 
-        fp_samples_dict = {
-            'id': ids_consensus[false_positive_indices].tolist(),
-            'prediction': preds_consensus[false_positive_indices].tolist(),
-            'labels_original': trues_consensus_full[false_positive_indices].tolist(),
-            'fp_threshold': fp_threshold
-        }
+    sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot)
 
-        fp_samples = pd.DataFrame(fp_samples_dict)
-        fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
+    plt.xlabel('Predicted Probabilities')
+    plt.title('Predictions for certain and uncertain test cases - Evaluation on test data')
 
-        #   fn consensus test cases
+    # Vertical threshold lines
+    for i in np.arange(0, 1.1, 0.1):
+        plt.axvline(x=i, linestyle='dotted', color='grey')
 
-        #   TODO: Find optimum !!!
-        fn_threshold = 0.9
+    plt.savefig(os.path.join(results_testing_path, 'strip_plot.png'), dpi=300)
 
-        false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
+    #   ---------------------------------------------------------------------------------------------
+    #   Histogram over predictions
 
-        fn_samples_dict = {
-            'id': ids_consensus[false_negative_indices].tolist(),
-            'prediction': preds_consensus[false_negative_indices].tolist(),
-            'labels_original': trues_consensus_full[false_negative_indices].tolist(),
-            'fn_threshold': fn_threshold
-        }
+    plt.figure(figsize=(12, 6))
 
-        fn_samples = pd.DataFrame(fn_samples_dict)
-        fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
+    num_bins = 50
+    log_scale = (False, True)
 
-        #   ---------------------------------------------------------------------------------------------
+    x_histplot = x_stripplot
+    hue_histplot = [y_stripplot[i] + '; ' + hue_stripplot[i] for i in range(len(hue_stripplot))]
 
-        #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
+    sns.histplot(x=x_histplot,
+                 hue=hue_histplot,
+                 bins=num_bins,
+                 multiple='stack',
+                 log_scale=log_scale)
+
+    # Vertical threshold lines
+    for i in np.arange(0, 1.1, 0.1):
+        plt.axvline(x=i, linestyle='dotted', color='grey')
+
+    plt.xlabel('Predicted Probabilities')
+    plt.ylabel('Frequency')
+    plt.title('Histogram - Evaluation on test data')
+
+    plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
+
+    #   ---------------------------------------------------------------------------------------------
+
+    #   Store predictions for consensus and no consensus cases
+
+    consensus_cases = pd.DataFrame({
+        'id': ids_consensus.tolist(),
+        'prediction': preds_consensus.tolist(),
+        'labels_original': trues_consensus_full.tolist()
+    })
+
+    consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_consensus_cases.csv'), index=False)
+
+    no_consensus_cases = pd.DataFrame({
+        'id': ids_no_consensus.tolist(),
+        'prediction': preds_no_consensus.tolist(),
+        'labels_original': trues_no_consensus_full.tolist()
+    })
+
+    no_consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
+
+    #   ---------------------------------------------------------------------------------------------
+
+    #   Store predictions for misclassified (fp or fn) consensus cases (given a threshold)
+
+    #   fp consensus cases
+
+    #   TODO: Find optimum !!!
+    fp_threshold = 0.1
+
+    false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
+
+    fp_samples = pd.DataFrame({
+        'id': ids_consensus[false_positive_indices].tolist(),
+        'prediction': preds_consensus[false_positive_indices].tolist(),
+        'labels_original': trues_consensus_full[false_positive_indices].tolist(),
+        'fp_threshold': fp_threshold
+    })
+
+    fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
+
+    #   fn consensus cases
+
+    #   TODO: Find optimum !!!
+    fn_threshold = 0.9
+
+    false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
+
+    fn_samples = pd.DataFrame({
+        'id': ids_consensus[false_negative_indices].tolist(),
+        'prediction': preds_consensus[false_negative_indices].tolist(),
+        'labels_original': trues_consensus_full[false_negative_indices].tolist(),
+        'fn_threshold': fn_threshold
+    })
+
+    fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
+
+    #   ---------------------------------------------------------------------------------------------
+
+    #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
+
+    #   ---------------------------------------------------------------------------------------------
 
     #   TODO: choose threshold_value appropriately
     threshold_value = 0.5
