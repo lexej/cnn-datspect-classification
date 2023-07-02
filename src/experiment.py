@@ -32,27 +32,31 @@ def run_experiment(config: dict, experiment_name: str):
 
     os.makedirs(results_path)
 
-    images_dirpath = config['images_dir']
-    labels_filepath = config['labels_filepath']
+    try:
+        images_dirpath = config['images_dir']
+        labels_filepath = config['labels_filepath']
 
-    (input_height, input_width) = config['target_img_size']
-    interpolation_method = config['interpolation_method']
+        (input_height, input_width) = config['target_img_size']
+        interpolation_method = config['interpolation_method']
 
-    model_name = config['model_name']
-    starting_weights_path = config['starting_weights_path']
-    pretrained = config['pretrained']
-    strategy = config['strategy']
+        model_name = config['model_name']
+        starting_weights_path = config['starting_weights_path']
+        pretrained = config['pretrained']
+        strategy = config['strategy']
 
-    label_selection_strategy_train = config['label_selection_strategy_train']
-    label_selection_strategy_valid = config['label_selection_strategy_valid']
+        label_selection_strategy_train = config['label_selection_strategy_train']
+        label_selection_strategy_valid = config['label_selection_strategy_valid']
 
-    batch_size = config['batch_size']
-    lr = config['lr']
-    num_epochs = config['epochs']
+        batch_size = config['batch_size']
+        lr = config['lr']
+        num_epochs = config['epochs']
 
-    test_to_train_split_size_percent = config['test_to_train_split_size_percent']
+        test_to_train_split_size_percent = config['test_to_train_split_size_percent']
 
-    valid_to_train_split_size_percent = config['valid_to_train_split_size_percent']
+        valid_to_train_split_size_percent = config['valid_to_train_split_size_percent']
+
+    except KeyError as e:
+        sys.exit(f'Error caught: Required key {e} could not be found in passed config.')
 
     # ---------------------------------------------------------------------------------------------------------
 
