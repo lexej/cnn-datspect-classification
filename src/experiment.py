@@ -39,6 +39,7 @@ def run_experiment(config: dict, experiment_name: str):
     interpolation_method = config['interpolation_method']
 
     model_name = config['model_name']
+    starting_weights_path = config['starting_weights_path']
     pretrained = config['pretrained']
     strategy = config['strategy']
 
@@ -120,6 +121,9 @@ def run_experiment(config: dict, experiment_name: str):
     model = model.to(device=device, dtype=torch.float)
 
     optimizer = optim.Adam(params=model.parameters(), lr=lr)
+
+    if starting_weights_path is not None:
+        model.load_state_dict(torch.load(starting_weights_path))
 
     model, best_epoch, best_epoch_weights_path = train_model(model,
                                                              num_epochs,
