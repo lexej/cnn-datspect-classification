@@ -92,7 +92,7 @@ def run_experiment(config: dict, experiment_name: str):
 
     #   TODO -> Finetune ResNet
 
-    if strategy == 0:
+    if strategy == 'baseline':
         num_out_features = 1
         outputs_function = "sigmoid"
         loss_fn = nn.BCELoss()

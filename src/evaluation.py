@@ -242,7 +242,7 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
 
     #   Calculate metrics acc_score, precision, recall, f1-score, conf_matrix for label consensus test cases!
 
-    if strategy == 0:
+    if strategy == 'baseline':
         preds_consensus = (preds_consensus > threshold_value).astype(float)
         average = 'binary'
 
