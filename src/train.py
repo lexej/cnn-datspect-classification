@@ -1,7 +1,8 @@
-from common import os, np, tqdm, plt, torch
+from common import os, np, tqdm, plt
+from common import torch, nn
 
 
-def train_model(model, num_epochs, train_dataloader, valid_dataloader, optimizer, loss_fn, results_path):
+def train_model(model: nn.Module, num_epochs, train_dataloader, valid_dataloader, optimizer, loss_fn, results_path):
     best_loss = float('inf')
     best_weights = None
     best_epoch = None
@@ -73,6 +74,11 @@ def train_model(model, num_epochs, train_dataloader, valid_dataloader, optimizer
 
     best_weights_path = os.path.join(results_training_path, 'best_weights.pth')
     torch.save(best_weights, best_weights_path)
+
+    model.load_state_dict(torch.load(best_weights_path))
+
+    model_with_best_weights_path = os.path.join(results_training_path, 'model_with_best_weights.pth')
+    torch.save(model, model_with_best_weights_path)
 
     #   plot loss curves
     plt.figure()

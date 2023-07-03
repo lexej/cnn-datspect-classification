@@ -5,6 +5,39 @@ from common import device
 from common import train_test_split
 
 
+def preprocess_image(img: np.ndarray, target_input_height: int, target_input_width: int,
+                     interpolation_method: str, batch_dim: bool = False) -> torch.Tensor:
+
+    #   1. Crop image of size (91, 109) to region of interest (91, 91)
+    #       policy: select all rows and 10th to 100th column
+
+    transformed_img = img[:, 9:100]
+
+    #   2. Convert to torch tensor
+    #   3. Resize images from (91, 91) to target size (input_height, input_width)
+    #           using certain interpolation method
+    #       - Attention: Interpolation method can have impact on model performance !
+
+    img_transforms = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize(size=(target_input_height, target_input_width),
+                          interpolation=getattr(InterpolationMode, interpolation_method.upper()),
+                          antialias=True)
+    ])
+
+    transformed_img = img_transforms(transformed_img)
+
+    #   4. Convert to float type and move to device
+
+    transformed_img = transformed_img.to(device=device, dtype=torch.float)
+
+    if batch_dim:
+        #   prepend batch dimension; proper working of layers which potentially require batch dimension e.g. BatchNorm
+        transformed_img = torch.unsqueeze(transformed_img, 0)
+
+    return transformed_img
+
+
 class SpectDataset(Dataset):
     def __init__(self, features_dirpath, labels_filepath, target_input_height,
                  target_input_width, interpolation_method):
@@ -32,11 +65,9 @@ class SpectDataset(Dataset):
 
         image_path = os.path.join(self.features_dirpath, image_filename)
 
-        data_nifti = nib.load(image_path)
+        img = nib.load(image_path).get_fdata()
 
-        img = data_nifti.get_fdata()
-
-        img = self.apply_transforms(img)
+        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
 
         #   ---------------------------------------------------------------------------
         #   Get label
@@ -62,33 +93,6 @@ class SpectDataset(Dataset):
         }
 
         return img, label, metadata
-
-    def apply_transforms(self, img: np.ndarray) -> torch.Tensor:
-
-        #   1. Crop image of size (91, 109) to region of interest (91, 91)
-        #       policy: select all rows and 10th to 100th column
-
-        transformed_img = img[:, 9:100]
-
-        #   2. Convert to torch tensor
-        #   3. Resize images from (91, 91) to target size (input_height, input_width)
-        #           using certain interpolation method
-        #       - Attention: Interpolation method has impact on model performance !
-
-        img_transforms = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize(size=(self.target_input_height, self.target_input_width),
-                              interpolation=getattr(InterpolationMode, self.interpolation_method.upper()),
-                              antialias=True)
-        ])
-
-        transformed_img = img_transforms(transformed_img)
-
-        #   4. Convert to float type and move to device
-
-        transformed_img = transformed_img.to(device=device, dtype=torch.float)
-
-        return transformed_img
 
 
 class LabelFunctionWrapper(Dataset):
