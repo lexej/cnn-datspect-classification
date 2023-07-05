@@ -41,7 +41,17 @@ def predict_with_confidence_estimation(experiment_name: str, test_case_path: str
 
     pred = model(img)
 
-    print(f'\nPrediction: ', float(pred), f'\n for image {test_case_path} ')
+    pred = float(pred)
+
+    #   TODO: Make dependent from performance metrics on test data? Biased towards test data then...
+    if pred < 0.1:
+        result = 'normal'
+    elif pred > 0.9:
+        result = 'reduced'
+    else:
+        result = 'uncertain'
+
+    print(f'\nPrediction: ', result, f'\n for image {test_case_path} ')
 
 
 if __name__ == '__main__':
