@@ -1,13 +1,13 @@
-from common import nn, sigmoid, softmax
+from common import nn
 from common import resnet18, ResNet18_Weights
 from common import resnet34, ResNet34_Weights
 
 
 class ResNet18(nn.Module):
-    def __init__(self, num_out_features: int, outputs_function: str, pretrained: bool):
+    def __init__(self, num_out_features: int, outputs_activation_func, pretrained: bool):
         super(ResNet18, self).__init__()
 
-        self.outputs_function = outputs_function
+        self.outputs_activation_func = outputs_activation_func
 
         #   Vanilla ResNet-18 expects input tensors of size (3, 224, 224)
         #   and has Linear layer with 1000 neurons as output layer
@@ -27,18 +27,15 @@ class ResNet18(nn.Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        if self.outputs_function == 'sigmoid':
-            x = sigmoid(x)
-        elif self.outputs_function == 'softmax':
-            x = softmax(x, dim=1)
+        x = self.outputs_activation_func(x)
         return x
 
 
 class ResNet34(nn.Module):
-    def __init__(self, num_out_features: int, outputs_function: str, pretrained: bool):
+    def __init__(self, num_out_features: int, outputs_activation_func, pretrained: bool):
         super(ResNet34, self).__init__()
 
-        self.outputs_function = outputs_function
+        self.outputs_activation_func = outputs_activation_func
 
         #   Vanilla ResNet-34 expects input tensors of size (3, 224, 224)
         #   and has Linear layer with 1000 neurons as output layer
@@ -58,10 +55,7 @@ class ResNet34(nn.Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        if self.outputs_function == 'sigmoid':
-            x = sigmoid(x)
-        elif self.outputs_function == 'softmax':
-            x = softmax(x, dim=1)
+        x = self.outputs_activation_func(x)
         return x
 
 

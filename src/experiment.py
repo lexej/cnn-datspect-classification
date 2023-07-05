@@ -1,5 +1,5 @@
 from common import os, sys, yaml, argparse, shutil
-from common import torch, nn, optim
+from common import torch, nn, optim, sigmoid, softmax
 from common import device
 
 from model import CustomModel2d
@@ -95,16 +95,16 @@ def run_experiment(config: dict, experiment_name: str):
 
     if strategy == 'baseline':
         num_out_features = 1
-        outputs_function = "sigmoid"
+        outputs_function = sigmoid
         loss_fn = nn.BCELoss()
     elif strategy == 'regression':
         num_out_features = 1
-        outputs_function = "sigmoid"
+        outputs_function = sigmoid
         loss_fn = nn.MSELoss()
     elif strategy == 2:
         #   TODO: Achtung Baustelle..
         num_out_features = 7
-        outputs_function = "sigmoid"
+        outputs_function = lambda x: softmax(x, dim=1)
         loss_fn = nn.MSELoss(reduction='sum')
     else:
         raise ValueError("Invalid value for config parameter strategy passed.")
@@ -114,11 +114,11 @@ def run_experiment(config: dict, experiment_name: str):
         model.initialize_weights()
     elif model_name == 'resnet18':
         model = ResNet18(num_out_features=num_out_features,
-                         outputs_function=outputs_function,
+                         outputs_activation_func=outputs_function,
                          pretrained=pretrained)
     elif model_name == 'resnet34':
         model = ResNet34(num_out_features=num_out_features,
-                         outputs_function=outputs_function,
+                         outputs_activation_func=outputs_function,
                          pretrained=pretrained)
     else:
         raise Exception("Invalid model name passed.")
