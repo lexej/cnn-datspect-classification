@@ -66,7 +66,8 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
     consensus_indices = np.where(consensus_condition)[0]
     no_consensus_indices = np.where(~consensus_condition)[0]
 
-    #   Calculate trues and preds for consensus test cases
+    #   ---------------------------------------------------------------------------------------------
+    #   Calculate ids, trues and preds for consensus and no-consensus test cases
 
     ids_consensus = ids[consensus_indices]
     ids_no_consensus = ids[no_consensus_indices]
@@ -75,54 +76,8 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
     trues_consensus_reduced = trues_consensus_full[:, 0:1].squeeze()
     trues_no_consensus_full = labels_original_list[no_consensus_indices]
 
-    """
-    trues_no_consensus_reduced = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)),
-                                                     axis=1,
-                                                     arr=trues_no_consensus_full)
-    """
-
     preds_consensus = preds[consensus_indices]
     preds_no_consensus = preds[no_consensus_indices]
-
-    #   For binary classification: Compute multiple metrics
-
-    #   ---------------------------------------------------------------------------------------------
-    #   ROC curves
-
-    def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
-        plt.figure(figsize=(12, 6))
-        plt.plot(fpr, tpr, label=label)
-        plt.plot([0, 1], [0, 1], 'k--')
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title(title)
-        plt.legend(loc='lower right')
-
-        plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
-
-    #   ROC curve for test data with label consensus
-
-    fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
-
-    roc_auc_consensus_labels = auc(fpr, tpr)
-
-    create_roc_curve(fpr=fpr,
-                     tpr=tpr,
-                     title=f'ROC Curve (only test data with label consensus)',
-                     label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
-                     file_name_save='roc_curve_consensus_labels')
-
-    #   ROC curve for all test data; if no consensus in labels: majority vote
-
-    fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
-
-    roc_auc_all_labels = auc(fpr, tpr)
-
-    create_roc_curve(fpr=fpr,
-                     tpr=tpr,
-                     title=f'ROC Curve (all test data; if no label consensus: majority)',
-                     label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
-                     file_name_save='roc_curve_all_labels')
 
     #   ---------------------------------------------------------------------------------------------
     #   Strip Plot with points representing the test samples and x-axis is predicted prob
@@ -195,106 +150,148 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
 
     no_consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
 
-    #   ---------------------------------------------------------------------------------------------
-
-    #   Store predictions for misclassified (fp or fn) consensus cases (given a threshold)
-
-    #   fp consensus cases
-
-    #   TODO: Find optimum !!!
-    fp_threshold = 0.1
-
-    false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
-
-    fp_samples = pd.DataFrame({
-        'id': ids_consensus[false_positive_indices].tolist(),
-        'prediction': preds_consensus[false_positive_indices].tolist(),
-        'labels_original': trues_consensus_full[false_positive_indices].tolist(),
-        'fp_threshold': fp_threshold
-    })
-
-    fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
-
-    #   fn consensus cases
-
-    #   TODO: Find optimum !!!
-    fn_threshold = 0.9
-
-    false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
-
-    fn_samples = pd.DataFrame({
-        'id': ids_consensus[false_negative_indices].tolist(),
-        'prediction': preds_consensus[false_negative_indices].tolist(),
-        'labels_original': trues_consensus_full[false_negative_indices].tolist(),
-        'fn_threshold': fn_threshold
-    })
-
-    fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
-
-    #   ---------------------------------------------------------------------------------------------
-
-    #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
-
-    #   ---------------------------------------------------------------------------------------------
-
-    #   TODO: choose threshold_value appropriately
-    threshold_value = 0.5
-
-    #   Calculate metrics acc_score, precision, recall, f1-score, conf_matrix for label consensus test cases!
-
     if strategy == 'baseline':
-        preds_consensus = (preds_consensus > threshold_value).astype(float)
-        average = 'binary'
 
-    #   TODO -> Anpassen an strategy 1 und 2
-    """
-    elif strategy == 1:
-        #   Decode predictions by taking argmax (vanilla multi-class..)
-        preds = np.argmax(preds, axis=1)
-        average = 'macro'
-    elif strategy == 2:
-        #   TODO: convert torch tensor expectations for numpy
+        #   ---------------------------------------------------------------------------------------------
+        #   ROC curves
 
-        #   1. Manually decode labels
-        trues = enc.decode_labels(trues)
+        def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
+            plt.figure(figsize=(12, 6))
+            plt.plot(fpr, tpr, label=label)
+            plt.plot([0, 1], [0, 1], 'k--')
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title(title)
+            plt.legend(loc='lower right')
 
-        #   2. Manually decode predictions
-        preds = enc.decode_preds(preds)
-        
-        average = 'macro'
-    """
+            plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
 
-    acc_score = accuracy_score(trues_consensus_reduced, preds_consensus)
-    precision = precision_score(trues_consensus_reduced, preds_consensus, average=average)
-    recall = recall_score(trues_consensus_reduced, preds_consensus, average=average)
-    f1 = f1_score(trues_consensus_reduced, preds_consensus, average=average)
+        #   ROC curve for test data with label consensus
 
-    conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus)
+        fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
 
-    print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
+        roc_auc_consensus_labels = auc(fpr, tpr)
 
-    print(f"Accuracy: {round(acc_score, relevant_digits)}")
-    print(f"Precision: {round(precision, relevant_digits)}")
-    print(f"Recall: {round(recall, relevant_digits)}")
-    print(f"F1-score: {round(f1, relevant_digits)}")
-    print('\nConfusion matrix:')
-    print(conf_matrix)
+        create_roc_curve(fpr=fpr,
+                         tpr=tpr,
+                         title=f'ROC Curve (only test data with label consensus)',
+                         label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
+                         file_name_save='roc_curve_consensus_labels')
 
-    #   Save performance metrics
+        #   ROC curve for all test data; if no consensus in labels: majority vote
 
-    results_test_split = {
-        'threshold_chosen': threshold_value,
-        'accuracy': acc_score,
-        'precision': precision,
-        'recall': recall,
-        'f1-score': f1
-    }
+        fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
 
-    with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
-        json.dump(results_test_split, f, indent=4)
+        roc_auc_all_labels = auc(fpr, tpr)
 
-    cm_display = ConfusionMatrixDisplay(conf_matrix)
-    fig, ax = plt.subplots(figsize=(8, 8))
-    cm_display.plot(ax=ax)
-    ax.set_title(f"Confusion Matrix for label consensus test cases (threshold = {threshold_value})")
-    plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+        create_roc_curve(fpr=fpr,
+                         tpr=tpr,
+                         title=f'ROC Curve (all test data; if no label consensus: majority)',
+                         label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
+                         file_name_save='roc_curve_all_labels')
+
+        #   ---------------------------------------------------------------------------------------------
+
+        #   Store predictions for misclassified (fp or fn) consensus cases (given a threshold)
+
+        #   fp consensus cases
+
+        #   TODO: Find optimum !!!
+        fp_threshold = 0.1
+
+        false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
+
+        fp_samples = pd.DataFrame({
+            'id': ids_consensus[false_positive_indices].tolist(),
+            'prediction': preds_consensus[false_positive_indices].tolist(),
+            'labels_original': trues_consensus_full[false_positive_indices].tolist(),
+            'fp_threshold': fp_threshold
+        })
+
+        fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
+
+        #   fn consensus cases
+
+        #   TODO: Find optimum !!!
+        fn_threshold = 0.9
+
+        false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
+
+        fn_samples = pd.DataFrame({
+            'id': ids_consensus[false_negative_indices].tolist(),
+            'prediction': preds_consensus[false_negative_indices].tolist(),
+            'labels_original': trues_consensus_full[false_negative_indices].tolist(),
+            'fn_threshold': fn_threshold
+        })
+
+        fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
+
+        #   ---------------------------------------------------------------------------------------------
+
+        #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
+
+        #   ---------------------------------------------------------------------------------------------
+
+        #   TODO: choose threshold_value appropriately
+        threshold_value = 0.5
+
+        #   Calculate metrics acc_score, precision, recall, f1-score, conf_matrix for label consensus test cases!
+
+        if strategy == 'baseline':
+            preds_consensus = (preds_consensus > threshold_value).astype(float)
+            average = 'binary'
+
+        #   TODO -> Anpassen an strategy 1 und 2
+        """
+        elif strategy == 1:
+            #   Decode predictions by taking argmax (vanilla multi-class..)
+            preds = np.argmax(preds, axis=1)
+            average = 'macro'
+        elif strategy == 2:
+            #   TODO: convert torch tensor expectations for numpy
+    
+            #   1. Manually decode labels
+            trues = enc.decode_labels(trues)
+    
+            #   2. Manually decode predictions
+            preds = enc.decode_preds(preds)
+            
+            average = 'macro'
+        """
+
+        acc_score = accuracy_score(trues_consensus_reduced, preds_consensus)
+        precision = precision_score(trues_consensus_reduced, preds_consensus, average=average)
+        recall = recall_score(trues_consensus_reduced, preds_consensus, average=average)
+        f1 = f1_score(trues_consensus_reduced, preds_consensus, average=average)
+
+        conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus)
+
+        print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
+
+        print(f"Accuracy: {round(acc_score, relevant_digits)}")
+        print(f"Precision: {round(precision, relevant_digits)}")
+        print(f"Recall: {round(recall, relevant_digits)}")
+        print(f"F1-score: {round(f1, relevant_digits)}")
+        print('\nConfusion matrix:')
+        print(conf_matrix)
+
+        #   Save performance metrics
+
+        results_test_split = {
+            'threshold_chosen': threshold_value,
+            'accuracy': acc_score,
+            'precision': precision,
+            'recall': recall,
+            'f1-score': f1
+        }
+
+        with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
+            json.dump(results_test_split, f, indent=4)
+
+        cm_display = ConfusionMatrixDisplay(conf_matrix)
+        fig, ax = plt.subplots(figsize=(8, 8))
+        cm_display.plot(ax=ax)
+        ax.set_title(f"Confusion Matrix for label consensus test cases (threshold = {threshold_value})")
+        plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+    elif strategy == 'regression':
+        pass    # TODO

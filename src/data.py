@@ -1,3 +1,5 @@
+import sys
+
 from common import os, np, pd, nib
 from common import torch, transforms, Dataset, Subset, DataLoader, InterpolationMode
 from common import RANDOM_SEED, generator
@@ -96,35 +98,49 @@ class SpectDataset(Dataset):
 
 
 class LabelFunctionWrapper(Dataset):
-    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str):
+    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str, strategy: str):
         self.original_dataset = original_dataset
         self.label_function = label_function
         self.label_selection_strategy = label_selection_strategy
+        self.strategy = strategy
 
     def __getitem__(self, index):
         img, label, metadata = self.original_dataset[index]
-        modified_label = self.label_function(label, self.label_selection_strategy)
+        modified_label = self.label_function(label, self.label_selection_strategy, self.strategy)
         return img, modified_label, metadata
 
     def __len__(self):
         return len(self.original_dataset)
 
 
-def _choose_label_from_available_labels(label: dict, label_selection_strategy: str) -> torch.Tensor:
+def _choose_label_from_available_labels(label: dict, label_selection_strategy: str, strategy: str) -> torch.Tensor:
 
     intra_rater_consensus_labels = {key: label[key] for key in ['R1', 'R2', 'R3']}
 
     available_labels = sorted(list(intra_rater_consensus_labels.values()))
 
-    if label_selection_strategy == 'random':
-        chosen_label = np.random.choice(available_labels)
-    elif label_selection_strategy == 'majority':
-        chosen_label = np.bincount(available_labels).argmax()
+    if strategy == 'baseline':
+        if label_selection_strategy == 'random':
+            chosen_label = int(np.random.choice(available_labels))
+        elif label_selection_strategy == 'majority':
+            chosen_label = int(np.bincount(available_labels).argmax())
+        else:
+            raise Exception("Invalid label_selection_strategy passed.")
+    elif strategy == 'regression':
+        labels_bincount = np.bincount(available_labels)
+        if labels_bincount[0] == 3:
+            chosen_label = float(0)
+        elif labels_bincount[0] == 2:
+            chosen_label = float(1.0/3.0)
+        elif labels_bincount[0] == 1:
+            chosen_label = float(2.0/3.0)
+        elif labels_bincount[0] == 0:
+            chosen_label = float(1)
     else:
-        raise Exception("Invalid label_selection_strategy passed.")
+        raise ValueError("Invalid value for config parameter 'strategy' was passed.")
 
     #   Wrap as torch tensor
-    chosen_label = torch.tensor(data=[int(chosen_label)],
+    chosen_label = torch.tensor(data=[chosen_label],
                                 dtype=torch.float32,
                                 device=device)
 
@@ -136,7 +152,8 @@ def get_dataloaders(dataset: Dataset,
                     test_to_train_split_size_percent,
                     valid_to_train_split_size_percent,
                     label_selection_strategy_train,
-                    label_selection_strategy_valid):
+                    label_selection_strategy_valid,
+                    strategy: str):
 
     # -----------------------------------------------------------------------------------------------------------
 
@@ -170,11 +187,13 @@ def get_dataloaders(dataset: Dataset,
 
     train_subset = LabelFunctionWrapper(original_dataset=train_subset,
                                         label_function=_choose_label_from_available_labels,
-                                        label_selection_strategy=label_selection_strategy_train)
+                                        label_selection_strategy=label_selection_strategy_train,
+                                        strategy=strategy)
 
     val_subset = LabelFunctionWrapper(original_dataset=val_subset,
                                       label_function=_choose_label_from_available_labels,
-                                      label_selection_strategy=label_selection_strategy_valid)
+                                      label_selection_strategy=label_selection_strategy_valid,
+                                      strategy=strategy)
 
     # -----------------------------------------------------------------------------------------------------------
 

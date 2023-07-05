@@ -84,7 +84,8 @@ def run_experiment(config: dict, experiment_name: str):
                                   test_to_train_split_size_percent=test_to_train_split_size_percent,
                                   valid_to_train_split_size_percent=valid_to_train_split_size_percent,
                                   label_selection_strategy_train=label_selection_strategy_train,
-                                  label_selection_strategy_valid=label_selection_strategy_valid)
+                                  label_selection_strategy_valid=label_selection_strategy_valid,
+                                  strategy=strategy)
 
     train_dataloader, valid_dataloader, test_dataloader = dataloaders
 
@@ -96,16 +97,17 @@ def run_experiment(config: dict, experiment_name: str):
         num_out_features = 1
         outputs_function = "sigmoid"
         loss_fn = nn.BCELoss()
-    elif strategy == 1:
-        num_out_features = 3
-        outputs_function = "softmax"
-        loss_fn = nn.CrossEntropyLoss()
+    elif strategy == 'regression':
+        num_out_features = 1
+        outputs_function = "sigmoid"
+        loss_fn = nn.MSELoss()
     elif strategy == 2:
+        #   TODO: Achtung Baustelle..
         num_out_features = 7
         outputs_function = "sigmoid"
         loss_fn = nn.MSELoss(reduction='sum')
     else:
-        raise Exception("Invalid strategy passed.")
+        raise ValueError("Invalid value for config parameter strategy passed.")
 
     if model_name == 'custom':
         model = CustomModel2d(input_height=input_height, input_width=input_height)
