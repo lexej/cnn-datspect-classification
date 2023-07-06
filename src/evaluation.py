@@ -150,21 +150,21 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
 
     no_consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
 
+    def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
+        plt.figure(figsize=(12, 6))
+        plt.plot(fpr, tpr, label=label)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(title)
+        plt.legend(loc='lower right')
+
+        plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
+
     if strategy == 'baseline':
 
         #   ---------------------------------------------------------------------------------------------
-        #   ROC curves
-
-        def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
-            plt.figure(figsize=(12, 6))
-            plt.plot(fpr, tpr, label=label)
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(title)
-            plt.legend(loc='lower right')
-
-            plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
+        #   ROC curves:
 
         #   ROC curve for test data with label consensus
 
@@ -192,106 +192,88 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
 
         #   ---------------------------------------------------------------------------------------------
 
+        #   Define upper and lower threshold for decision; TODO: Tune
+
+        neg_pred_threshold = 0.1
+
+        pos_pred_threshold = 0.9
+
+        #   Inbetween both thresholds -> Inconclusive
+
+        #   ---------------------------------------------------------------------------------------------
+
         #   Store predictions for misclassified (fp or fn) consensus cases (given a threshold)
 
-        #   fp consensus cases
+        #   fp consensus cases (inconclusive also counted as false)
 
-        #   TODO: Find optimum !!!
-        fp_threshold = 0.1
-
-        false_positive_indices = np.where((preds_consensus > fp_threshold) & (trues_consensus_reduced == 0))[0]
+        false_positive_indices = np.where((preds_consensus > neg_pred_threshold) & (trues_consensus_reduced == 0))[0]
 
         fp_samples = pd.DataFrame({
             'id': ids_consensus[false_positive_indices].tolist(),
             'prediction': preds_consensus[false_positive_indices].tolist(),
             'labels_original': trues_consensus_full[false_positive_indices].tolist(),
-            'fp_threshold': fp_threshold
+            'neg_pred_threshold': neg_pred_threshold
         })
 
         fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
 
-        #   fn consensus cases
+        #   fn consensus cases (inconclusive also counted as false)
 
-        #   TODO: Find optimum !!!
-        fn_threshold = 0.9
-
-        false_negative_indices = np.where((preds_consensus < fn_threshold) & (trues_consensus_reduced == 1))[0]
+        false_negative_indices = np.where((preds_consensus < pos_pred_threshold) & (trues_consensus_reduced == 1))[0]
 
         fn_samples = pd.DataFrame({
             'id': ids_consensus[false_negative_indices].tolist(),
             'prediction': preds_consensus[false_negative_indices].tolist(),
             'labels_original': trues_consensus_full[false_negative_indices].tolist(),
-            'fn_threshold': fn_threshold
+            'pos_pred_threshold': pos_pred_threshold
         })
 
         fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
 
         #   ---------------------------------------------------------------------------------------------
 
-        #   TODO: Calculate the Fischer Linear Discriminant (FLD) from preds and trues_chosen_majority
+        #   Calculate metrics precision, recall, f1-score, conf_matrix for label consensus test cases
 
-        #   ---------------------------------------------------------------------------------------------
+        #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
+        preds_consensus = np.where(preds_consensus >= pos_pred_threshold, 1,
+                                   np.where(preds_consensus <= neg_pred_threshold, 0, -1))
 
-        #   TODO: choose threshold_value appropriately
-        threshold_value = 0.5
-
-        #   Calculate metrics acc_score, precision, recall, f1-score, conf_matrix for label consensus test cases!
-
-        if strategy == 'baseline':
-            preds_consensus = (preds_consensus > threshold_value).astype(float)
-            average = 'binary'
-
-        #   TODO -> Anpassen an strategy 1 und 2
-        """
-        elif strategy == 1:
-            #   Decode predictions by taking argmax (vanilla multi-class..)
-            preds = np.argmax(preds, axis=1)
-            average = 'macro'
-        elif strategy == 2:
-            #   TODO: convert torch tensor expectations for numpy
-    
-            #   1. Manually decode labels
-            trues = enc.decode_labels(trues)
-    
-            #   2. Manually decode predictions
-            preds = enc.decode_preds(preds)
-            
-            average = 'macro'
-        """
+        #   Calculate metrics per class
+        average = None
 
         acc_score = accuracy_score(trues_consensus_reduced, preds_consensus)
         precision = precision_score(trues_consensus_reduced, preds_consensus, average=average)
-        recall = recall_score(trues_consensus_reduced, preds_consensus, average=average)
+        recall = recall_score(trues_consensus_reduced, preds_consensus, average=average, zero_division=0)
         f1 = f1_score(trues_consensus_reduced, preds_consensus, average=average)
 
-        conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus)
+        results_test_split = {
+            'lower_threshold': neg_pred_threshold,
+            'upper_threshold': pos_pred_threshold,
+            'labels': ['inconclusive', 'normal', 'reduced'],
+            'accuracy': acc_score,
+            'precision': precision.tolist(),
+            'recall': recall.tolist(),
+            'f1-score': f1.tolist()
+        }
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
-
-        print(f"Accuracy: {round(acc_score, relevant_digits)}")
-        print(f"Precision: {round(precision, relevant_digits)}")
-        print(f"Recall: {round(recall, relevant_digits)}")
-        print(f"F1-score: {round(f1, relevant_digits)}")
-        print('\nConfusion matrix:')
-        print(conf_matrix)
-
-        #   Save performance metrics
-
-        results_test_split = {
-            'threshold_chosen': threshold_value,
-            'accuracy': acc_score,
-            'precision': precision,
-            'recall': recall,
-            'f1-score': f1
-        }
+        print(results_test_split)
 
         with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
-        cm_display = ConfusionMatrixDisplay(conf_matrix)
-        fig, ax = plt.subplots(figsize=(8, 8))
+        conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus,
+                                       labels=[-1, 0, 1])
+
+        print('\nConfusion matrix:')
+        print(conf_matrix)
+
+        cm_display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix,
+                                            display_labels=['inconclusive', '0', '1'])
+        fig, ax = plt.subplots(figsize=(12, 8))
         cm_display.plot(ax=ax)
-        ax.set_title(f"Confusion Matrix for label consensus test cases (threshold = {threshold_value})")
+        ax.set_title(f"Confusion Matrix for label consensus test cases \n"
+                     f"(upper threshold = {pos_pred_threshold}, lower threshold = {neg_pred_threshold})")
         plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
     elif strategy == 'regression':
         pass    # TODO

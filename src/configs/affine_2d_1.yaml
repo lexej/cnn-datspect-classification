@@ -28,15 +28,16 @@ valid_to_train_split_size_percent: 0.15  # ratio of validation split to train sp
 #   Model-related
 
 model_name: 'resnet18' # options: 'custom', 'resnet18', 'resnet34'
+starting_weights_path: null # path to weights to load as initial weights for training; set null to omit
 pretrained: False
-strategy: 0 # options:
-            #   0 -> 1 output class; binary classification
-            #   1 -> 3 output classes; nominal multi-class classification
-            #   2 -> 7 output classes; ordinal multi-class classification
+strategy: 'baseline' # options:
+            #   'baseline' -> 1 output binary classification neuron
+            #   'regression' -> 1 output regression neuron
+            #   'some-other' -> 3 output neurons; nominal multi-class classification (BAUSTELLE)
 
-# options: 'majority', 'random'
-label_selection_strategy_train: 'majority'
-label_selection_strategy_valid: 'majority'
+# only used if strategy = 'baseline' ; options: 'majority', 'random'
+label_selection_strategy_train: 'random'
+label_selection_strategy_valid: 'random'
 
 lr: 0.0001
 epochs: 30
