@@ -161,7 +161,7 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
 
         plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
 
-    if strategy == 'baseline':
+    if strategy == 'baseline' or strategy == 'regression':
 
         #   ---------------------------------------------------------------------------------------------
         #   ROC curves:
@@ -250,10 +250,10 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
             'lower_threshold': neg_pred_threshold,
             'upper_threshold': pos_pred_threshold,
             'labels': ['inconclusive', 'normal', 'reduced'],
-            'accuracy': acc_score,
-            'precision': precision.tolist(),
-            'recall': recall.tolist(),
-            'f1-score': f1.tolist()
+            'accuracy': round(acc_score, relevant_digits),
+            'precision': [round(num, relevant_digits) for num in precision],
+            'recall': [round(num, relevant_digits) for num in recall],
+            'f1-score': [round(num, relevant_digits) for num in f1]
         }
 
         print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
@@ -275,5 +275,3 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
         ax.set_title(f"Confusion Matrix for label consensus test cases \n"
                      f"(upper threshold = {pos_pred_threshold}, lower threshold = {neg_pred_threshold})")
         plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
-    elif strategy == 'regression':
-        pass    # TODO
