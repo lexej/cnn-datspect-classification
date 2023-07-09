@@ -27,7 +27,8 @@ class ResNet18(nn.Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        x = self.outputs_activation_func(x)
+        if self.outputs_activation_func is not None:
+            x = self.outputs_activation_func(x)
         return x
 
 
@@ -55,7 +56,8 @@ class ResNet34(nn.Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        x = self.outputs_activation_func(x)
+        if self.outputs_activation_func is not None:
+            x = self.outputs_activation_func(x)
         return x
 
 

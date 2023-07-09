@@ -93,13 +93,16 @@ def run_experiment(config: dict, experiment_name: str):
 
     #   TODO -> Finetune ResNet
 
+
+    #   TODO : samples welche für train_loss reduktion schwierig sind -> id's bestimmen
+
     if strategy == 'baseline':
         num_out_features = 1
         outputs_function = sigmoid
         loss_fn = nn.BCELoss()
     elif strategy == 'regression':
         num_out_features = 1
-        outputs_function = sigmoid
+        outputs_function = None  # or sigmoid; TODO : cross-correlation?
         loss_fn = nn.MSELoss()
     elif strategy == 2:
         #   TODO: Achtung Baustelle..
