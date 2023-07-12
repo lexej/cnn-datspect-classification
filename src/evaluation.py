@@ -18,6 +18,8 @@ class PerformanceEvaluator:
 
     def evaluate_on_test_data(self):
 
+        print(f'\n--- Evaluating model (best epoch: {self.best_epoch}) on test data ---')
+
         relevant_digits = 5
 
         ids, preds, labels_original_list = self.__get_predictions()
@@ -48,8 +50,8 @@ class PerformanceEvaluator:
         preds_consensus = preds[consensus_indices]
         preds_no_consensus = preds[no_consensus_indices]
 
-        print('---------------------------------------------------------------------------------------------')
-        print(f'\nEvaluation of model (best epoch: {self.best_epoch}) on test split:\n')
+        self.__save_preds(ids_consensus, preds_consensus, trues_consensus_full,
+                          ids_no_consensus, preds_no_consensus, trues_no_consensus_full)
 
         self.__calculate_statistics(preds_consensus=preds_consensus,
                                     trues_consensus_reduced=trues_consensus_reduced,
@@ -66,37 +68,6 @@ class PerformanceEvaluator:
 
         self.__create_histplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot)
 
-        #   ---------------------------------------------------------------------------------------------
-
-        #   Store predictions for consensus and no consensus cases
-
-        consensus_cases = pd.DataFrame({
-            'id': ids_consensus.tolist(),
-            'prediction': preds_consensus.tolist(),
-            'labels_original': trues_consensus_full.tolist()
-        })
-
-        consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_consensus_cases.csv'), index=False)
-
-        no_consensus_cases = pd.DataFrame({
-            'id': ids_no_consensus.tolist(),
-            'prediction': preds_no_consensus.tolist(),
-            'labels_original': trues_no_consensus_full.tolist()
-        })
-
-        no_consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
-
-        def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
-            plt.figure(figsize=(12, 6))
-            plt.plot(fpr, tpr, label=label)
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(title)
-            plt.legend(loc='lower right')
-
-            plt.savefig(os.path.join(self.results_testing_path, file_name_save+'.png'), dpi=300)
-
         if self.strategy == 'baseline' or self.strategy == 'regression':
 
             #   ---------------------------------------------------------------------------------------------
@@ -108,11 +79,11 @@ class PerformanceEvaluator:
 
             roc_auc_consensus_labels = auc(fpr, tpr)
 
-            create_roc_curve(fpr=fpr,
-                             tpr=tpr,
-                             title=f'ROC Curve (only test data with label consensus)',
-                             label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
-                             file_name_save='roc_curve_consensus_labels')
+            self.__create_roc_curve(fpr=fpr,
+                                    tpr=tpr,
+                                    title=f'ROC Curve (only test data with label consensus)',
+                                    label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
+                                    file_name_save='roc_curve_consensus_labels')
 
             #   ROC curve for all test data; if no consensus in labels: majority vote
 
@@ -120,11 +91,11 @@ class PerformanceEvaluator:
 
             roc_auc_all_labels = auc(fpr, tpr)
 
-            create_roc_curve(fpr=fpr,
-                             tpr=tpr,
-                             title=f'ROC Curve (all test data; if no label consensus: majority)',
-                             label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
-                             file_name_save='roc_curve_all_labels')
+            self.__create_roc_curve(fpr=fpr,
+                                    tpr=tpr,
+                                    title=f'ROC Curve (all test data; if no label consensus: majority)',
+                                    label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
+                                    file_name_save='roc_curve_all_labels')
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -192,16 +163,11 @@ class PerformanceEvaluator:
                 'f1-score': [round(num, relevant_digits) for num in f1]
             }
 
-            print(json.dumps(results_test_split, indent=4))
-
             with open(os.path.join(self.results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
                 json.dump(results_test_split, f, indent=4)
 
             conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus,
                                            labels=[-1, 0, 1])
-
-            print('\nConfusion matrix:')
-            print(conf_matrix)
 
             cm_display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix,
                                                 display_labels=['inconclusive', '0', '1'])
@@ -210,6 +176,8 @@ class PerformanceEvaluator:
             ax.set_title(f"Confusion Matrix for label consensus test cases \n"
                          f"(upper threshold = {pos_pred_threshold}, lower threshold = {neg_pred_threshold})")
             plt.savefig(os.path.join(self.results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+
+        print(f'\n--- Evaluation done. ---')
 
     def __get_predictions(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
@@ -256,6 +224,27 @@ class PerformanceEvaluator:
                               signature='()->(m)')(labels_original)
 
         return ids, preds, labels
+
+    def __save_preds(self, ids_consensus, preds_consensus, trues_consensus_full,
+                     ids_no_consensus, preds_no_consensus, trues_no_consensus_full):
+
+        #   Store predictions for "consensus" and "no consensus" cases
+
+        consensus_cases = pd.DataFrame({
+            'id': ids_consensus.tolist(),
+            'prediction': preds_consensus.tolist(),
+            'labels_original': trues_consensus_full.tolist()
+        })
+
+        consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_consensus_cases.csv'), index=False)
+
+        no_consensus_cases = pd.DataFrame({
+            'id': ids_no_consensus.tolist(),
+            'prediction': preds_no_consensus.tolist(),
+            'labels_original': trues_no_consensus_full.tolist()
+        })
+
+        no_consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
                                trues_no_consensus_full):
@@ -313,8 +302,6 @@ class PerformanceEvaluator:
 
         statistics_on_test_split.loc['no_consensus_majority_pos'] = get_statistics_for_preds(
             preds_no_consensus_majority_pos)
-
-        print(statistics_on_test_split.to_string(justify='center'))
 
         statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, 'preds_statistics.csv'))
 
@@ -379,3 +366,14 @@ class PerformanceEvaluator:
         plt.title('Histogram - Evaluation on test data')
 
         plt.savefig(os.path.join(self.results_testing_path, 'histogram.png'), dpi=300)
+
+    def __create_roc_curve(self, fpr, tpr, title: str, label: str, file_name_save: str):
+        plt.figure(figsize=(12, 6))
+        plt.plot(fpr, tpr, label=label)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(title)
+        plt.legend(loc='lower right')
+
+        plt.savefig(os.path.join(self.results_testing_path, file_name_save+'.png'), dpi=300)
