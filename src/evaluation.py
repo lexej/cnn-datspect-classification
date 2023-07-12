@@ -22,6 +22,8 @@ class PerformanceEvaluator:
 
         print(f'\n--- Evaluating model (best epoch: {self.best_epoch}) on test data ---')
 
+        #   ---------------------------------------------------------------------------------------------
+
         ids, preds, labels_original_list = self.__get_predictions()
 
         #   labels for testing have to be inferred from original labels using a majority vote
@@ -37,7 +39,6 @@ class PerformanceEvaluator:
         consensus_indices = np.where(consensus_condition)[0]
         no_consensus_indices = np.where(~consensus_condition)[0]
 
-        #   ---------------------------------------------------------------------------------------------
         #   Calculate ids, trues and preds for consensus and no-consensus test cases
 
         ids_consensus = ids[consensus_indices]
@@ -50,8 +51,15 @@ class PerformanceEvaluator:
         preds_consensus = preds[consensus_indices]
         preds_no_consensus = preds[no_consensus_indices]
 
+        #   ---------------------------------------------------------------------------------------------
+
+        #   Save predictions for consensus test cases
         self.__save_preds(ids_consensus, preds_consensus, trues_consensus_full,
-                          ids_no_consensus, preds_no_consensus, trues_no_consensus_full)
+                          save_as='preds_consensus_cases.csv')
+
+        #   Save predictions for "no consensus" test cases
+        self.__save_preds(ids_no_consensus, preds_no_consensus, trues_no_consensus_full,
+                          save_as='preds_no_consensus_cases.csv')
 
         self.__calculate_statistics(preds_consensus=preds_consensus,
                                     trues_consensus_reduced=trues_consensus_reduced,
@@ -216,26 +224,17 @@ class PerformanceEvaluator:
 
         return ids, preds, labels
 
-    def __save_preds(self, ids_consensus, preds_consensus, trues_consensus_full,
-                     ids_no_consensus, preds_no_consensus, trues_no_consensus_full):
+    def __save_preds(self, ids, preds, trues, save_as):
 
         #   Store predictions for "consensus" and "no consensus" cases
 
-        consensus_cases = pd.DataFrame({
-            'id': ids_consensus.tolist(),
-            'prediction': preds_consensus.tolist(),
-            'labels_original': trues_consensus_full.tolist()
+        result = pd.DataFrame({
+            'id': ids.tolist(),
+            'prediction': preds.tolist(),
+            'true_label': trues.tolist()
         })
 
-        consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_consensus_cases.csv'), index=False)
-
-        no_consensus_cases = pd.DataFrame({
-            'id': ids_no_consensus.tolist(),
-            'prediction': preds_no_consensus.tolist(),
-            'labels_original': trues_no_consensus_full.tolist()
-        })
-
-        no_consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
+        result.to_csv(os.path.join(self.results_testing_path, save_as), index=False)
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
                                trues_no_consensus_full, save_as: str):
