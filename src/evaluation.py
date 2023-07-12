@@ -224,7 +224,7 @@ class PerformanceEvaluator:
 
         return ids, preds, labels
 
-    def __save_preds(self, ids, preds, trues, save_as):
+    def __save_preds(self, ids: np.ndarray, preds: np.ndarray, trues: np.ndarray, save_as: str):
 
         #   Store predictions for "consensus" and "no consensus" cases
 
@@ -295,7 +295,7 @@ class PerformanceEvaluator:
 
         statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, save_as))
 
-    def __create_stripplot_for_preds(self, x, y, hue, save_as: str):
+    def __create_stripplot_for_preds(self, x: np.ndarray, y: np.ndarray, hue: np.ndarray, save_as: str):
 
         #   Strip Plot with points representing the test samples and x-axis is predicted prob
 
@@ -312,7 +312,7 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
-    def __create_histplot_for_preds(self, x, y, hue, save_as: str):
+    def __create_histplot_for_preds(self, x: np.ndarray, y: np.ndarray, hue: np.ndarray, save_as: str):
 
         #   Histogram over predictions
 
