@@ -22,46 +22,7 @@ class PerformanceEvaluator:
 
         relevant_digits = 5
 
-        # Load weights into model
-        self.model.load_state_dict(torch.load(self.model_weights_path))
-
-        #   Evaluation mode
-        self.model.eval()
-
-        preds = []
-        ids = []
-        labels_original = []
-
-        #   Create numpy array for predictions and ground truths
-
-        with torch.no_grad():
-            for batch in self.test_dataloader:
-                batch_features, batch_labels, batch_metadata = batch
-
-                outputs = self.model(batch_features)
-
-                preds.extend(outputs.tolist())
-
-                #   batch_labels shape: dict with keys
-                #   'R1', 'R2', 'R3', 'R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2'
-                #   and values are torch tensors containing the <batch_size>-labels
-
-                for i in range(len(batch_labels['R1'])):
-                    labels_sample = {}
-
-                    for key, value in batch_labels.items():
-                        labels_sample[key] = int(value[i])
-
-                    labels_original.append(labels_sample)
-
-                ids.extend(batch_metadata['id'].tolist())
-
-        preds = np.array(preds).squeeze()
-        ids = np.array(ids)
-        labels_original = np.array(labels_original)
-
-        labels_original_list = np.vectorize(lambda d: np.array([d[k] for k in ['R1', 'R2', 'R3']]),
-                                            signature='()->(m)')(labels_original)
+        ids, preds, labels_original_list = self.__get_predictions()
 
         #   labels for testing have to be inferred from original labels using a majority vote
 
@@ -362,3 +323,49 @@ class PerformanceEvaluator:
             ax.set_title(f"Confusion Matrix for label consensus test cases \n"
                          f"(upper threshold = {pos_pred_threshold}, lower threshold = {neg_pred_threshold})")
             plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+
+    def __get_predictions(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+
+        # Load weights into model
+        self.model.load_state_dict(torch.load(self.model_weights_path))
+
+        #   Evaluation mode
+        self.model.eval()
+
+        preds = []
+        ids = []
+        labels_original = []
+
+        #   Create numpy array for predictions and ground truths
+
+        with torch.no_grad():
+            for batch in self.test_dataloader:
+                batch_features, batch_labels, batch_metadata = batch
+
+                outputs = self.model(batch_features)
+
+                preds.extend(outputs.tolist())
+
+                #   batch_labels shape: dict with keys
+                #   'R1', 'R2', 'R3', 'R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2'
+                #   and values are torch tensors containing the <batch_size>-labels
+
+                for i in range(len(batch_labels['R1'])):
+                    labels_sample = {}
+
+                    for key, value in batch_labels.items():
+                        labels_sample[key] = int(value[i])
+
+                    labels_original.append(labels_sample)
+
+                ids.extend(batch_metadata['id'].tolist())
+
+        preds = np.array(preds).squeeze()
+        ids = np.array(ids)
+        labels_original = np.array(labels_original)
+
+        #   Reduce list of dict to list of list (removing information about rater)
+        labels = np.vectorize(lambda d: np.array([d[k] for k in ['R1', 'R2', 'R3']]),
+                              signature='()->(m)')(labels_original)
+
+        return ids, preds, labels
