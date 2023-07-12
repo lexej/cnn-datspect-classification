@@ -13,12 +13,10 @@ class PerformanceEvaluator:
         self.best_epoch = best_epoch
         self.test_dataloader = test_dataloader
         self.strategy = strategy
-        self.results_path = results_path
+        self.results_testing_path = os.path.join(results_path, 'testing')
+        os.makedirs(self.results_testing_path, exist_ok=True)
 
     def evaluate_on_test_data(self):
-
-        results_testing_path = os.path.join(self.results_path, 'testing')
-        os.makedirs(results_testing_path, exist_ok=True)
 
         relevant_digits = 5
 
@@ -54,61 +52,13 @@ class PerformanceEvaluator:
         preds_consensus = preds[consensus_indices]
         preds_no_consensus = preds[no_consensus_indices]
 
-        #   Get preds for true negative and true positive consensus cases
-
-        consensus_true_neg_indices = np.where(trues_consensus_reduced == 0)
-        consensus_true_pos_indices = np.where(trues_consensus_reduced == 1)
-
-        preds_consensus_true_neg = preds_consensus[consensus_true_neg_indices]
-        preds_consensus_true_pos = preds_consensus[consensus_true_pos_indices]
-
-        #   Get preds for "no consensus" cases where majority is positive/negative
-
-        no_consensus_majority_neg_indices = np.where(trues_no_consensus_reduced == 0)
-        no_consensus_majority_pos_indices = np.where(trues_no_consensus_reduced == 1)
-
-        preds_no_consensus_majority_neg = preds_no_consensus[no_consensus_majority_neg_indices]
-        preds_no_consensus_majority_pos = preds_no_consensus[no_consensus_majority_pos_indices]
-
-        #   ---------------------------------------------------------------------------------------------
-        #   Calculate statistics for consensus cases
-
-        def get_statistics_for_preds(predictions: np.ndarray) -> pd.Series:
-            mean = float(np.mean(predictions))
-            median = float(np.median(predictions))
-            standard_dev = float(np.std(predictions))
-
-            result = {
-                'mean': mean,
-                'median': median,
-                'standard_dev': standard_dev
-
-            }
-            result = pd.Series(result)
-
-            return result
-
         print('---------------------------------------------------------------------------------------------')
         print(f'\nEvaluation of model (best epoch: {self.best_epoch}) on test split:\n')
 
-        #   Statistics for predictions of different test cases
-
-        statistics_on_test_split = pd.DataFrame(columns=['mean', 'median', 'standard_dev'],
-                                                index=['consensus_true_negatives', 'consensus_true_positives',
-                                                       'no_consensus_majority_neg', 'no_consensus_majority_pos'])
-
-        statistics_on_test_split.loc['consensus_true_negatives'] = get_statistics_for_preds(preds_consensus_true_neg)
-        statistics_on_test_split.loc['consensus_true_positives'] = get_statistics_for_preds(preds_consensus_true_pos)
-
-        statistics_on_test_split.loc['no_consensus_majority_neg'] = get_statistics_for_preds(
-            preds_no_consensus_majority_neg)
-
-        statistics_on_test_split.loc['no_consensus_majority_pos'] = get_statistics_for_preds(
-            preds_no_consensus_majority_pos)
-
-        print(statistics_on_test_split.to_string(justify='center'))
-
-        statistics_on_test_split.to_csv(os.path.join(results_testing_path, 'preds_statistics.csv'))
+        self.__calculate_statistics(preds_consensus=preds_consensus,
+                                    trues_consensus_reduced=trues_consensus_reduced,
+                                    preds_no_consensus=preds_no_consensus,
+                                    trues_no_consensus_reduced=trues_no_consensus_reduced)
 
         #   ---------------------------------------------------------------------------------------------
         #   Strip Plot with points representing the test samples and x-axis is predicted prob
@@ -132,7 +82,7 @@ class PerformanceEvaluator:
         for i in np.arange(0, 1.1, 0.1):
             plt.axvline(x=i, linestyle='dotted', color='grey')
 
-        plt.savefig(os.path.join(results_testing_path, 'strip_plot.png'), dpi=300)
+        plt.savefig(os.path.join(self.results_testing_path, 'strip_plot.png'), dpi=300)
 
         #   ---------------------------------------------------------------------------------------------
         #   Histogram over predictions
@@ -177,7 +127,7 @@ class PerformanceEvaluator:
         plt.xlabel('Predicted Probabilities')
         plt.title('Histogram - Evaluation on test data')
 
-        plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
+        plt.savefig(os.path.join(self.results_testing_path, 'histogram.png'), dpi=300)
 
         #   ---------------------------------------------------------------------------------------------
 
@@ -189,7 +139,7 @@ class PerformanceEvaluator:
             'labels_original': trues_consensus_full.tolist()
         })
 
-        consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_consensus_cases.csv'), index=False)
+        consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_consensus_cases.csv'), index=False)
 
         no_consensus_cases = pd.DataFrame({
             'id': ids_no_consensus.tolist(),
@@ -197,7 +147,7 @@ class PerformanceEvaluator:
             'labels_original': trues_no_consensus_full.tolist()
         })
 
-        no_consensus_cases.to_csv(os.path.join(results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
+        no_consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
 
         def create_roc_curve(fpr, tpr, title: str, label: str, file_name_save: str):
             plt.figure(figsize=(12, 6))
@@ -208,7 +158,7 @@ class PerformanceEvaluator:
             plt.title(title)
             plt.legend(loc='lower right')
 
-            plt.savefig(os.path.join(results_testing_path, file_name_save+'.png'), dpi=300)
+            plt.savefig(os.path.join(self.results_testing_path, file_name_save+'.png'), dpi=300)
 
         if self.strategy == 'baseline' or self.strategy == 'regression':
 
@@ -264,7 +214,7 @@ class PerformanceEvaluator:
                 'neg_pred_threshold': neg_pred_threshold
             })
 
-            fp_samples.to_csv(os.path.join(results_testing_path, 'fp_samples_consensus.csv'), index=False)
+            fp_samples.to_csv(os.path.join(self.results_testing_path, 'fp_samples_consensus.csv'), index=False)
 
             #   fn consensus cases (inconclusive also counted as false)
 
@@ -277,7 +227,7 @@ class PerformanceEvaluator:
                 'pos_pred_threshold': pos_pred_threshold
             })
 
-            fn_samples.to_csv(os.path.join(results_testing_path, 'fn_samples_consensus.csv'), index=False)
+            fn_samples.to_csv(os.path.join(self.results_testing_path, 'fn_samples_consensus.csv'), index=False)
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -307,7 +257,7 @@ class PerformanceEvaluator:
 
             print(json.dumps(results_test_split, indent=4))
 
-            with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
+            with open(os.path.join(self.results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
                 json.dump(results_test_split, f, indent=4)
 
             conf_matrix = confusion_matrix(trues_consensus_reduced, preds_consensus,
@@ -322,7 +272,7 @@ class PerformanceEvaluator:
             cm_display.plot(ax=ax)
             ax.set_title(f"Confusion Matrix for label consensus test cases \n"
                          f"(upper threshold = {pos_pred_threshold}, lower threshold = {neg_pred_threshold})")
-            plt.savefig(os.path.join(results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+            plt.savefig(os.path.join(self.results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
 
     def __get_predictions(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 
@@ -369,3 +319,59 @@ class PerformanceEvaluator:
                               signature='()->(m)')(labels_original)
 
         return ids, preds, labels
+
+    def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
+                               trues_no_consensus_reduced):
+
+        #   Get preds for true negative and true positive consensus cases
+
+        consensus_true_neg_indices = np.where(trues_consensus_reduced == 0)
+        consensus_true_pos_indices = np.where(trues_consensus_reduced == 1)
+
+        preds_consensus_true_neg = preds_consensus[consensus_true_neg_indices]
+        preds_consensus_true_pos = preds_consensus[consensus_true_pos_indices]
+
+        #   Get preds for "no consensus" cases where majority is positive/negative
+
+        no_consensus_majority_neg_indices = np.where(trues_no_consensus_reduced == 0)
+        no_consensus_majority_pos_indices = np.where(trues_no_consensus_reduced == 1)
+
+        preds_no_consensus_majority_neg = preds_no_consensus[no_consensus_majority_neg_indices]
+        preds_no_consensus_majority_pos = preds_no_consensus[no_consensus_majority_pos_indices]
+
+        #   ---------------------------------------------------------------------------------------------
+        #   Calculate statistics for consensus cases
+
+        def get_statistics_for_preds(predictions: np.ndarray) -> pd.Series:
+            mean = float(np.mean(predictions))
+            median = float(np.median(predictions))
+            standard_dev = float(np.std(predictions))
+
+            result = {
+                'mean': mean,
+                'median': median,
+                'standard_dev': standard_dev
+
+            }
+            result = pd.Series(result)
+
+            return result
+
+        #   Statistics for predictions of different test cases
+
+        statistics_on_test_split = pd.DataFrame(columns=['mean', 'median', 'standard_dev'],
+                                                index=['consensus_true_negatives', 'consensus_true_positives',
+                                                       'no_consensus_majority_neg', 'no_consensus_majority_pos'])
+
+        statistics_on_test_split.loc['consensus_true_negatives'] = get_statistics_for_preds(preds_consensus_true_neg)
+        statistics_on_test_split.loc['consensus_true_positives'] = get_statistics_for_preds(preds_consensus_true_pos)
+
+        statistics_on_test_split.loc['no_consensus_majority_neg'] = get_statistics_for_preds(
+            preds_no_consensus_majority_neg)
+
+        statistics_on_test_split.loc['no_consensus_majority_pos'] = get_statistics_for_preds(
+            preds_no_consensus_majority_pos)
+
+        print(statistics_on_test_split.to_string(justify='center'))
+
+        statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, 'preds_statistics.csv'))
