@@ -1,3 +1,5 @@
+import sys
+
 from common import os, json, np, pd, plt, sns
 from common import torch, DataLoader
 from common import f1_score, confusion_matrix, roc_curve, auc, accuracy_score, precision_score, recall_score, \
@@ -75,9 +77,69 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
     trues_consensus_full = labels_original_list[consensus_indices]
     trues_consensus_reduced = trues_consensus_full[:, 0:1].squeeze()
     trues_no_consensus_full = labels_original_list[no_consensus_indices]
+    #   Reduction using majority vote here:
+    trues_no_consensus_reduced = np.apply_along_axis(lambda x: np.argmax(np.bincount(x)),
+                                                     axis=1,
+                                                     arr=trues_no_consensus_full)
 
     preds_consensus = preds[consensus_indices]
     preds_no_consensus = preds[no_consensus_indices]
+
+    #   Get preds for true negative and true positive consensus cases
+
+    consensus_true_neg_indices = np.where(trues_consensus_reduced == 0)
+    consensus_true_pos_indices = np.where(trues_consensus_reduced == 1)
+
+    preds_consensus_true_neg = preds_consensus[consensus_true_neg_indices]
+    preds_consensus_true_pos = preds_consensus[consensus_true_pos_indices]
+
+    #   Get preds for "no consensus" cases where majority is positive/negative
+
+    no_consensus_majority_neg_indices = np.where(trues_no_consensus_reduced == 0)
+    no_consensus_majority_pos_indices = np.where(trues_no_consensus_reduced == 1)
+
+    preds_no_consensus_majority_neg = preds_no_consensus[no_consensus_majority_neg_indices]
+    preds_no_consensus_majority_pos = preds_no_consensus[no_consensus_majority_pos_indices]
+
+    #   ---------------------------------------------------------------------------------------------
+    #   Calculate statistics for consensus cases
+
+    def get_statistics_for_preds(predictions: np.ndarray) -> pd.Series:
+        mean = float(np.mean(predictions))
+        median = float(np.median(predictions))
+        standard_dev = float(np.std(predictions))
+
+        result = {
+            'mean': mean,
+            'median': median,
+            'standard_dev': standard_dev
+
+        }
+        result = pd.Series(result)
+
+        return result
+
+    print('---------------------------------------------------------------------------------------------')
+    print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
+
+    #   Statistics for predictions of different test cases
+
+    statistics_on_test_split = pd.DataFrame(columns=['mean', 'median', 'standard_dev'],
+                                            index=['consensus_true_negatives', 'consensus_true_positives',
+                                                   'no_consensus_majority_neg', 'no_consensus_majority_pos'])
+
+    statistics_on_test_split.loc['consensus_true_negatives'] = get_statistics_for_preds(preds_consensus_true_neg)
+    statistics_on_test_split.loc['consensus_true_positives'] = get_statistics_for_preds(preds_consensus_true_pos)
+
+    statistics_on_test_split.loc['no_consensus_majority_neg'] = get_statistics_for_preds(
+        preds_no_consensus_majority_neg)
+
+    statistics_on_test_split.loc['no_consensus_majority_pos'] = get_statistics_for_preds(
+        preds_no_consensus_majority_pos)
+
+    print(statistics_on_test_split.to_string(justify='center'))
+
+    statistics_on_test_split.to_csv(os.path.join(results_testing_path, 'preds_statistics.csv'))
 
     #   ---------------------------------------------------------------------------------------------
     #   Strip Plot with points representing the test samples and x-axis is predicted prob
@@ -106,7 +168,7 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
     #   ---------------------------------------------------------------------------------------------
     #   Histogram over predictions
 
-    plt.figure(figsize=(12, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
     num_bins = 50
     log_scale = (False, True)
@@ -120,12 +182,30 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
                  multiple='stack',
                  log_scale=log_scale)
 
+    ax1.set_ylabel('Frequency')
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('ECDF')
+
+    sns.ecdfplot(x_histplot, ax=ax2, color='red', linestyle='dotted')
+
+    #   Mark 5 % "center" region (w.r.t. percentiles):
+
+    ymax_percentiles = 0.6
+
+    percentile_47_5 = np.percentile(x_histplot, 50 - 2.5)  # 47.5% Percentile
+    plt.axvline(x=percentile_47_5, color='blue', linestyle='--', ymax=ymax_percentiles)
+    plt.text(x=percentile_47_5, y=ymax_percentiles, s=f'47.5th Percentile', ha='center')
+
+    percentile_52_5 = np.percentile(x_histplot, 50 + 2.5)  # 52.5% Percentile
+    plt.axvline(x=percentile_52_5, color='blue', linestyle='--', ymax=ymax_percentiles)
+    plt.text(x=percentile_52_5, y=ymax_percentiles, s=f'52.5th Percentile', ha='center')
+
     # Vertical threshold lines
     for i in np.arange(0, 1.1, 0.1):
         plt.axvline(x=i, linestyle='dotted', color='grey')
 
     plt.xlabel('Predicted Probabilities')
-    plt.ylabel('Frequency')
     plt.title('Histogram - Evaluation on test data')
 
     plt.savefig(os.path.join(results_testing_path, 'histogram.png'), dpi=300)
@@ -256,8 +336,7 @@ def evaluate_on_test_data(model, model_weights_path: str, best_epoch: int, test_
             'f1-score': [round(num, relevant_digits) for num in f1]
         }
 
-        print(f'\nEvaluation of model (best epoch: {best_epoch}) on test split:\n')
-        print(results_test_split)
+        print(json.dumps(results_test_split, indent=4))
 
         with open(os.path.join(results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
