@@ -16,11 +16,11 @@ class PerformanceEvaluator:
         self.results_testing_path = os.path.join(results_path, 'testing')
         os.makedirs(self.results_testing_path, exist_ok=True)
 
+        self.relevant_digits = 5
+
     def evaluate_on_test_data(self):
 
         print(f'\n--- Evaluating model (best epoch: {self.best_epoch}) on test data ---')
-
-        relevant_digits = 5
 
         ids, preds, labels_original_list = self.__get_predictions()
 
@@ -56,7 +56,8 @@ class PerformanceEvaluator:
         self.__calculate_statistics(preds_consensus=preds_consensus,
                                     trues_consensus_reduced=trues_consensus_reduced,
                                     preds_no_consensus=preds_no_consensus,
-                                    trues_no_consensus_full=trues_no_consensus_full)
+                                    trues_no_consensus_full=trues_no_consensus_full,
+                                    save_as='preds_statistics.csv')
 
         x_plot = np.concatenate((preds_consensus, preds_no_consensus))
         y_plot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
@@ -64,38 +65,28 @@ class PerformanceEvaluator:
         hue_plot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}', axis=1, arr=trues_consensus_full),
                                    np.apply_along_axis(lambda a: f'label {a}', axis=1, arr=trues_no_consensus_full)))
 
-        self.__create_stripplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot)
+        self.__create_stripplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot, save_as='strip_plot.png')
 
-        self.__create_histplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot)
+        self.__create_histplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot, save_as='histogram.png')
 
         if self.strategy == 'baseline' or self.strategy == 'regression':
 
             #   ---------------------------------------------------------------------------------------------
-            #   ROC curves:
+            #   ROC curves
 
             #   ROC curve for test data with label consensus
 
-            fpr, tpr, _ = roc_curve(trues_consensus_reduced, preds_consensus)
-
-            roc_auc_consensus_labels = auc(fpr, tpr)
-
-            self.__create_roc_curve(fpr=fpr,
-                                    tpr=tpr,
+            self.__create_roc_curve(trues=trues_consensus_reduced,
+                                    preds=preds_consensus,
                                     title=f'ROC Curve (only test data with label consensus)',
-                                    label=f'ROC curve; AUC = {round(roc_auc_consensus_labels, relevant_digits)}',
-                                    file_name_save='roc_curve_consensus_labels')
+                                    save_as='roc_curve_consensus_labels.png')
 
             #   ROC curve for all test data; if no consensus in labels: majority vote
 
-            fpr, tpr, _ = roc_curve(trues_chosen_majority, preds)
-
-            roc_auc_all_labels = auc(fpr, tpr)
-
-            self.__create_roc_curve(fpr=fpr,
-                                    tpr=tpr,
-                                    title=f'ROC Curve (all test data; if no label consensus: majority)',
-                                    label=f'ROC curve; AUC = {round(roc_auc_all_labels, relevant_digits)}',
-                                    file_name_save='roc_curve_all_labels')
+            self.__create_roc_curve(trues=trues_chosen_majority,
+                                    preds=preds,
+                                    title=f'ROC Curve (all test data; majority label choice if no label consensus)',
+                                    save_as='roc_curve_all_labels.png')
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -157,10 +148,10 @@ class PerformanceEvaluator:
                 'lower_threshold': neg_pred_threshold,
                 'upper_threshold': pos_pred_threshold,
                 'labels': ['inconclusive', 'normal', 'reduced'],
-                'accuracy': round(acc_score, relevant_digits),
-                'precision': [round(num, relevant_digits) for num in precision],
-                'recall': [round(num, relevant_digits) for num in recall],
-                'f1-score': [round(num, relevant_digits) for num in f1]
+                'accuracy': round(acc_score, self.relevant_digits),
+                'precision': [round(num, self.relevant_digits) for num in precision],
+                'recall': [round(num, self.relevant_digits) for num in recall],
+                'f1-score': [round(num, self.relevant_digits) for num in f1]
             }
 
             with open(os.path.join(self.results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
@@ -247,7 +238,7 @@ class PerformanceEvaluator:
         no_consensus_cases.to_csv(os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'), index=False)
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
-                               trues_no_consensus_full):
+                               trues_no_consensus_full, save_as: str):
 
         #   Reduction using majority vote here:
         trues_no_consensus_reduced = np.apply_along_axis(lambda x: np.argmax(np.bincount(x)),
@@ -303,9 +294,9 @@ class PerformanceEvaluator:
         statistics_on_test_split.loc['no_consensus_majority_pos'] = get_statistics_for_preds(
             preds_no_consensus_majority_pos)
 
-        statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, 'preds_statistics.csv'))
+        statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, save_as))
 
-    def __create_stripplot_for_preds(self, x, y, hue):
+    def __create_stripplot_for_preds(self, x, y, hue, save_as: str):
 
         #   Strip Plot with points representing the test samples and x-axis is predicted prob
 
@@ -320,9 +311,9 @@ class PerformanceEvaluator:
         for i in np.arange(0, 1.1, 0.1):
             plt.axvline(x=i, linestyle='dotted', color='grey')
 
-        plt.savefig(os.path.join(self.results_testing_path, 'strip_plot.png'), dpi=300)
+        plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
-    def __create_histplot_for_preds(self, x, y, hue):
+    def __create_histplot_for_preds(self, x, y, hue, save_as: str):
 
         #   Histogram over predictions
 
@@ -365,9 +356,16 @@ class PerformanceEvaluator:
         plt.xlabel('Predicted Probabilities')
         plt.title('Histogram - Evaluation on test data')
 
-        plt.savefig(os.path.join(self.results_testing_path, 'histogram.png'), dpi=300)
+        plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
-    def __create_roc_curve(self, fpr, tpr, title: str, label: str, file_name_save: str):
+    def __create_roc_curve(self, trues, preds, title, save_as: str):
+
+        fpr, tpr, _ = roc_curve(trues, preds)
+
+        roc_auc = auc(fpr, tpr)
+
+        label = f'ROC curve; AUC = {round(roc_auc, self.relevant_digits)}'
+
         plt.figure(figsize=(12, 6))
         plt.plot(fpr, tpr, label=label)
         plt.plot([0, 1], [0, 1], 'k--')
@@ -376,4 +374,4 @@ class PerformanceEvaluator:
         plt.title(title)
         plt.legend(loc='lower right')
 
-        plt.savefig(os.path.join(self.results_testing_path, file_name_save+'.png'), dpi=300)
+        plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
