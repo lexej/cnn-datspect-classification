@@ -10,7 +10,7 @@ from data import SpectDataset, get_dataloaders
 
 from train import train_model
 
-from evaluation import evaluate_on_test_data
+from evaluation import PerformanceEvaluator
 
 
 def run_experiment(config: dict, experiment_name: str):
@@ -144,7 +144,13 @@ def run_experiment(config: dict, experiment_name: str):
 
     #   Evaluate trained model (best epoch wrt. validation loss) on test data
 
-    evaluate_on_test_data(model, model_weights_path, best_epoch, test_dataloader, strategy, results_path)
+    performance_evaluator = PerformanceEvaluator(model=model,
+                                                 model_weights_path=model_weights_path,
+                                                 best_epoch=best_epoch,
+                                                 test_dataloader=test_dataloader,
+                                                 strategy=strategy,
+                                                 results_path=results_path)
+    performance_evaluator.evaluate_on_test_data()
 
     print('-----------------------------------------------------------------------------------------')
 
