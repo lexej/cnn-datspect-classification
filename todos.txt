@@ -1,0 +1,9 @@
+
+evaluation metrics:
+
+- for "no consensus" test cases
+    -> if majority for 1 -> sum over distances of preds to 0.5
+
+
+
+performance von meinem CustomModell vergleichen mit ResNet18

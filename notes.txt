@@ -1,0 +1,23 @@
+
+6.7.2023:
+
+von majority -> random : welche cases ändern sich; histogram über x=änderung
+histogram -> 5% visualisierbar machen dur
+
+Änderung der Test "Performance" bei Ausschluss von x% uncertain cases in den Trainingsdaten
+
+
+
+- measure für "uncertainty" auf test daten = AbsDistance(pred, 0.5) -> korrelieren mit cert2SBRputMin
+
+
+1. preds für alle test cases (majority nutzen)
+2. Für verschiedene definierte "uncertain" ranges z.B. 0.4-0.6, 0.35-0.65 etc.:
+    - Anteil der test cases in "uncertain" range
+    - Performance in "certain" range(s) ("nicht uncertain" range)
+    - Anteil der no-consensus cases in uncertain range abhängig von range (und andersum)
+
+
+
+
+(Weiterer Testsatz?)
