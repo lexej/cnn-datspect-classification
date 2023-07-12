@@ -44,10 +44,6 @@ class PerformanceEvaluator:
         trues_consensus_full = labels_original_list[consensus_indices]
         trues_consensus_reduced = trues_consensus_full[:, 0:1].squeeze()
         trues_no_consensus_full = labels_original_list[no_consensus_indices]
-        #   Reduction using majority vote here:
-        trues_no_consensus_reduced = np.apply_along_axis(lambda x: np.argmax(np.bincount(x)),
-                                                         axis=1,
-                                                         arr=trues_no_consensus_full)
 
         preds_consensus = preds[consensus_indices]
         preds_no_consensus = preds[no_consensus_indices]
@@ -58,76 +54,17 @@ class PerformanceEvaluator:
         self.__calculate_statistics(preds_consensus=preds_consensus,
                                     trues_consensus_reduced=trues_consensus_reduced,
                                     preds_no_consensus=preds_no_consensus,
-                                    trues_no_consensus_reduced=trues_no_consensus_reduced)
+                                    trues_no_consensus_full=trues_no_consensus_full)
 
-        #   ---------------------------------------------------------------------------------------------
-        #   Strip Plot with points representing the test samples and x-axis is predicted prob
+        x_plot = np.concatenate((preds_consensus, preds_no_consensus))
+        y_plot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
+                                 np.full_like(preds_no_consensus, 'no consensus', dtype=np.object_)))
+        hue_plot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}', axis=1, arr=trues_consensus_full),
+                                   np.apply_along_axis(lambda a: f'label {a}', axis=1, arr=trues_no_consensus_full)))
 
-        plt.figure(figsize=(16, 8))
+        self.__create_stripplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot)
 
-        x_stripplot = np.concatenate((preds_consensus, preds_no_consensus))
-        y_stripplot = np.concatenate((np.full_like(preds_consensus, 'consensus', dtype=np.object_),
-                                      np.full_like(preds_no_consensus, 'no consensus', dtype=np.object_)))
-        hue_stripplot = np.concatenate((np.apply_along_axis(lambda a: f'label {a}',
-                                                            axis=1, arr=trues_consensus_full),
-                                        np.apply_along_axis(lambda a: f'label {a}',
-                                                            axis=1, arr=trues_no_consensus_full)))
-
-        sns.stripplot(x=x_stripplot, y=y_stripplot, hue=hue_stripplot)
-
-        plt.xlabel('Predicted Probabilities')
-        plt.title('Predictions for certain and uncertain test cases - Evaluation on test data')
-
-        # Vertical threshold lines
-        for i in np.arange(0, 1.1, 0.1):
-            plt.axvline(x=i, linestyle='dotted', color='grey')
-
-        plt.savefig(os.path.join(self.results_testing_path, 'strip_plot.png'), dpi=300)
-
-        #   ---------------------------------------------------------------------------------------------
-        #   Histogram over predictions
-
-        fig, ax1 = plt.subplots(figsize=(12, 6))
-
-        num_bins = 50
-        log_scale = (False, True)
-
-        x_histplot = x_stripplot
-        hue_histplot = [y_stripplot[i] + '; ' + hue_stripplot[i] for i in range(len(hue_stripplot))]
-
-        sns.histplot(x=x_histplot,
-                     hue=hue_histplot,
-                     bins=num_bins,
-                     multiple='stack',
-                     log_scale=log_scale)
-
-        ax1.set_ylabel('Frequency')
-
-        ax2 = ax1.twinx()
-        ax2.set_ylabel('ECDF')
-
-        sns.ecdfplot(x_histplot, ax=ax2, color='red', linestyle='dotted')
-
-        #   Mark 5 % "center" region (w.r.t. percentiles):
-
-        ymax_percentiles = 0.6
-
-        percentile_47_5 = np.percentile(x_histplot, 50 - 2.5)  # 47.5% Percentile
-        plt.axvline(x=percentile_47_5, color='blue', linestyle='--', ymax=ymax_percentiles)
-        plt.text(x=percentile_47_5, y=ymax_percentiles, s=f'47.5th Percentile', ha='center')
-
-        percentile_52_5 = np.percentile(x_histplot, 50 + 2.5)  # 52.5% Percentile
-        plt.axvline(x=percentile_52_5, color='blue', linestyle='--', ymax=ymax_percentiles)
-        plt.text(x=percentile_52_5, y=ymax_percentiles, s=f'52.5th Percentile', ha='center')
-
-        # Vertical threshold lines
-        for i in np.arange(0, 1.1, 0.1):
-            plt.axvline(x=i, linestyle='dotted', color='grey')
-
-        plt.xlabel('Predicted Probabilities')
-        plt.title('Histogram - Evaluation on test data')
-
-        plt.savefig(os.path.join(self.results_testing_path, 'histogram.png'), dpi=300)
+        self.__create_histplot_for_preds(x=x_plot, y=y_plot, hue=hue_plot)
 
         #   ---------------------------------------------------------------------------------------------
 
@@ -321,7 +258,12 @@ class PerformanceEvaluator:
         return ids, preds, labels
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
-                               trues_no_consensus_reduced):
+                               trues_no_consensus_full):
+
+        #   Reduction using majority vote here:
+        trues_no_consensus_reduced = np.apply_along_axis(lambda x: np.argmax(np.bincount(x)),
+                                                         axis=1,
+                                                         arr=trues_no_consensus_full)
 
         #   Get preds for true negative and true positive consensus cases
 
@@ -375,3 +317,65 @@ class PerformanceEvaluator:
         print(statistics_on_test_split.to_string(justify='center'))
 
         statistics_on_test_split.to_csv(os.path.join(self.results_testing_path, 'preds_statistics.csv'))
+
+    def __create_stripplot_for_preds(self, x, y, hue):
+
+        #   Strip Plot with points representing the test samples and x-axis is predicted prob
+
+        plt.figure(figsize=(16, 8))
+
+        sns.stripplot(x=x, y=y, hue=hue)
+
+        plt.xlabel('Predicted Probabilities')
+        plt.title('Predictions for certain and uncertain test cases - Evaluation on test data')
+
+        # Vertical threshold lines
+        for i in np.arange(0, 1.1, 0.1):
+            plt.axvline(x=i, linestyle='dotted', color='grey')
+
+        plt.savefig(os.path.join(self.results_testing_path, 'strip_plot.png'), dpi=300)
+
+    def __create_histplot_for_preds(self, x, y, hue):
+
+        #   Histogram over predictions
+
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+
+        num_bins = 50
+        log_scale = (False, True)
+
+        hue_histplot = [y[i] + '; ' + hue[i] for i in range(len(hue))]
+
+        sns.histplot(x=x,
+                     hue=hue_histplot,
+                     bins=num_bins,
+                     multiple='stack',
+                     log_scale=log_scale)
+
+        ax1.set_ylabel('Frequency')
+
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('ECDF')
+
+        sns.ecdfplot(x, ax=ax2, color='red', linestyle='dotted')
+
+        #   Mark 5 % "center" region (w.r.t. percentiles):
+
+        ymax_percentiles = 0.6
+
+        percentile_47_5 = np.percentile(x, 50 - 2.5)  # 47.5% Percentile
+        plt.axvline(x=percentile_47_5, color='blue', linestyle='--', ymax=ymax_percentiles)
+        plt.text(x=percentile_47_5, y=ymax_percentiles, s=f'47.5th Percentile', ha='center')
+
+        percentile_52_5 = np.percentile(x, 50 + 2.5)  # 52.5% Percentile
+        plt.axvline(x=percentile_52_5, color='blue', linestyle='--', ymax=ymax_percentiles)
+        plt.text(x=percentile_52_5, y=ymax_percentiles, s=f'52.5th Percentile', ha='center')
+
+        # Vertical threshold lines
+        for i in np.arange(0, 1.1, 0.1):
+            plt.axvline(x=i, linestyle='dotted', color='grey')
+
+        plt.xlabel('Predicted Probabilities')
+        plt.title('Histogram - Evaluation on test data')
+
+        plt.savefig(os.path.join(self.results_testing_path, 'histogram.png'), dpi=300)
