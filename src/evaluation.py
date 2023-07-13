@@ -93,14 +93,14 @@ class PerformanceEvaluator:
             self.__create_roc_curve(trues=trues_consensus_reduced,
                                     preds=preds_consensus,
                                     title=f'ROC Curve (only test data with label consensus)',
-                                    save_as='roc_curve_consensus_labels.png')
+                                    save_as='roc_curve_consensus_cases.png')
 
             #   ROC curve for all test data; if no consensus in labels: majority vote
 
             self.__create_roc_curve(trues=trues_chosen_majority,
                                     preds=preds,
                                     title=f'ROC Curve (all test data; majority label choice if no label consensus)',
-                                    save_as='roc_curve_all_labels.png')
+                                    save_as='roc_curve_all_cases.png')
 
             #   ---------------------------------------------------------------------------------------------
 
@@ -317,13 +317,20 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
-    def __compute_performance_for_threshold_range(self, preds, trues, ids, lower_threshold, upper_threshold, ):
+    def __compute_performance_for_threshold_range(self, preds, trues, ids, lower_threshold, upper_threshold):
 
-        #   Inbetween both thresholds -> Inconclusive range
+        #   ---------------------------------------------------------------------------------------------
+
+        #   Sub-path of testing directory for performance evaluation given thresholds
+
+        target_path = os.path.join(self.results_testing_path, f'thresholds_{lower_threshold}_{upper_threshold}')
+        os.makedirs(target_path, exist_ok=True)
 
         #   ---------------------------------------------------------------------------------------------
 
         trues_reduced = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)), axis=1, arr=trues)
+
+        #   Inbetween both thresholds -> Inconclusive range
 
         #   Store predictions for misclassified (fp or fn) cases (given a threshold)
 
@@ -334,11 +341,11 @@ class PerformanceEvaluator:
         fp_samples = pd.DataFrame({
             'id': ids[false_positive_indices].tolist(),
             'prediction': preds[false_positive_indices].tolist(),
-            'labels_original': trues[false_positive_indices].tolist(),
-            'neg_pred_threshold': lower_threshold
+            'true_label': trues[false_positive_indices].tolist(),
+            'lower_threshold': lower_threshold
         })
 
-        fp_samples.to_csv(os.path.join(self.results_testing_path, 'fp_samples_consensus.csv'), index=False)
+        fp_samples.to_csv(os.path.join(target_path, 'fp_samples_consensus.csv'), index=False)
 
         #   fn consensus cases (inconclusive also counted as false)
 
@@ -347,19 +354,18 @@ class PerformanceEvaluator:
         fn_samples = pd.DataFrame({
             'id': ids[false_negative_indices].tolist(),
             'prediction': preds[false_negative_indices].tolist(),
-            'labels_original': trues[false_negative_indices].tolist(),
-            'pos_pred_threshold': upper_threshold
+            'true_label': trues[false_negative_indices].tolist(),
+            'upper_threshold': upper_threshold
         })
 
-        fn_samples.to_csv(os.path.join(self.results_testing_path, 'fn_samples_consensus.csv'), index=False)
+        fn_samples.to_csv(os.path.join(target_path, 'fn_samples_consensus.csv'), index=False)
 
         #   ---------------------------------------------------------------------------------------------
 
         #   Calculate metrics precision, recall, f1-score, conf_matrix for label consensus test cases
 
         #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
-        preds = np.where(preds >= upper_threshold, 1,
-                                   np.where(preds <= lower_threshold, 0, -1))
+        preds = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
 
         #   Calculate metrics per class
         average = None
@@ -379,7 +385,7 @@ class PerformanceEvaluator:
             'f1-score': [round(num, self.relevant_digits) for num in f1]
         }
 
-        with open(os.path.join(self.results_testing_path, 'perf_metrics_consensus.json'), 'w') as f:
+        with open(os.path.join(target_path, 'perf_metrics_consensus.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
         conf_matrix = confusion_matrix(trues_reduced, preds, labels=[-1, 0, 1])
@@ -389,5 +395,5 @@ class PerformanceEvaluator:
         fig, ax = plt.subplots(figsize=(12, 8))
         cm_display.plot(ax=ax)
         ax.set_title(f"Confusion Matrix for label consensus test cases \n"
-                     f"(upper threshold = {upper_threshold}, lower threshold = {lower_threshold})")
-        plt.savefig(os.path.join(self.results_testing_path, 'conf_matrix_consensus.png'), dpi=300)
+                     f"(lower threshold = {lower_threshold}, upper threshold = {upper_threshold})")
+        plt.savefig(os.path.join(target_path, 'conf_matrix_consensus.png'), dpi=300)
