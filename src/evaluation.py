@@ -109,14 +109,14 @@ class PerformanceEvaluator:
             neg_pred_threshold = 0.1
             pos_pred_threshold = 0.9
 
-            #   For consensus cases
-            self.__compute_performance_for_threshold_range(preds=preds_consensus,
-                                                           trues=trues_consensus_full,
-                                                           ids=ids_consensus,
+            #   For all cases (majority vote for "no consensus" cases)
+            self.__compute_performance_for_threshold_range(preds=preds,
+                                                           trues=trues_chosen_majority,
+                                                           ids=ids,
                                                            lower_threshold=neg_pred_threshold,
                                                            upper_threshold=pos_pred_threshold)
 
-            #   TODO: for all cases (using majority vote)
+            #   TODO: do for different ranges
 
         print(f'\n--- Evaluation done. ---')
 
@@ -328,15 +328,13 @@ class PerformanceEvaluator:
 
         #   ---------------------------------------------------------------------------------------------
 
-        trues_reduced = np.apply_along_axis(lambda l: np.argmax(np.bincount(l)), axis=1, arr=trues)
-
         #   Inbetween both thresholds -> Inconclusive range
 
         #   Store predictions for misclassified (fp or fn) cases (given a threshold)
 
-        #   fp consensus cases (inconclusive also counted as false)
+        #   fp cases (inconclusive also counted as false)
 
-        false_positive_indices = np.where((preds > lower_threshold) & (trues_reduced == 0))[0]
+        false_positive_indices = np.where((preds > lower_threshold) & (trues == 0))[0]
 
         fp_samples = pd.DataFrame({
             'id': ids[false_positive_indices].tolist(),
@@ -345,11 +343,11 @@ class PerformanceEvaluator:
             'lower_threshold': lower_threshold
         })
 
-        fp_samples.to_csv(os.path.join(target_path, 'fp_samples_consensus.csv'), index=False)
+        fp_samples.to_csv(os.path.join(target_path, 'fp_samples.csv'), index=False)
 
-        #   fn consensus cases (inconclusive also counted as false)
+        #   fn cases (inconclusive also counted as false)
 
-        false_negative_indices = np.where((preds < upper_threshold) & (trues_reduced == 1))[0]
+        false_negative_indices = np.where((preds < upper_threshold) & (trues == 1))[0]
 
         fn_samples = pd.DataFrame({
             'id': ids[false_negative_indices].tolist(),
@@ -358,11 +356,11 @@ class PerformanceEvaluator:
             'upper_threshold': upper_threshold
         })
 
-        fn_samples.to_csv(os.path.join(target_path, 'fn_samples_consensus.csv'), index=False)
+        fn_samples.to_csv(os.path.join(target_path, 'fn_samples.csv'), index=False)
 
         #   ---------------------------------------------------------------------------------------------
 
-        #   Calculate metrics precision, recall, f1-score, conf_matrix for label consensus test cases
+        #   Calculate metrics precision, recall, f1-score, conf_matrix for all test cases
 
         #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
         preds = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
@@ -370,10 +368,10 @@ class PerformanceEvaluator:
         #   Calculate metrics per class
         average = None
 
-        acc_score = accuracy_score(trues_reduced, preds)
-        precision = precision_score(trues_reduced, preds, average=average)
-        recall = recall_score(trues_reduced, preds, average=average, zero_division=0)
-        f1 = f1_score(trues_reduced, preds, average=average)
+        acc_score = accuracy_score(trues, preds)
+        precision = precision_score(trues, preds, average=average)
+        recall = recall_score(trues, preds, average=average, zero_division=0)
+        f1 = f1_score(trues, preds, average=average)
 
         results_test_split = {
             'lower_threshold': lower_threshold,
@@ -385,12 +383,12 @@ class PerformanceEvaluator:
             'f1-score': [round(num, self.relevant_digits) for num in f1]
         }
 
-        with open(os.path.join(target_path, 'perf_metrics_consensus.json'), 'w') as f:
+        with open(os.path.join(target_path, 'perf_metrics.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
         #   Confusion matrix
 
-        conf_matrix = confusion_matrix(trues_reduced, preds, labels=[-1, 0, 1])
+        conf_matrix = confusion_matrix(trues, preds, labels=[-1, 0, 1])
 
         #   Exclude true label "inconclusive" (since it does not exist; only preds exist)
         conf_matrix = conf_matrix[1:]
@@ -413,7 +411,7 @@ class PerformanceEvaluator:
 
         ax.set_xlabel('Predicted Labels')
         ax.set_ylabel('True Labels')
-        ax.set_title(f"Confusion Matrix for label consensus test cases \n"
+        ax.set_title(f"Confusion Matrix (all cases; label for 'no consensus' cases through majority vote) \n"
                      f"(lower threshold = {lower_threshold}, upper threshold = {upper_threshold})")
 
-        plt.savefig(os.path.join(target_path, 'conf_matrix_consensus.png'), dpi=300)
+        plt.savefig(os.path.join(target_path, 'conf_matrix.png'), dpi=300)
