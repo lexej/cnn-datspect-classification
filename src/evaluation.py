@@ -388,12 +388,32 @@ class PerformanceEvaluator:
         with open(os.path.join(target_path, 'perf_metrics_consensus.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
+        #   Confusion matrix
+
         conf_matrix = confusion_matrix(trues_reduced, preds, labels=[-1, 0, 1])
 
-        cm_display = ConfusionMatrixDisplay(confusion_matrix=conf_matrix,
-                                            display_labels=['inconclusive', '0', '1'])
-        fig, ax = plt.subplots(figsize=(12, 8))
-        cm_display.plot(ax=ax)
+        #   Exclude true label "inconclusive" (since it does not exist; only preds exist)
+        conf_matrix = conf_matrix[1:]
+
+        class_percentages = conf_matrix / conf_matrix.sum(axis=1, keepdims=True)
+        total_percentages = conf_matrix / conf_matrix.sum(keepdims=True)
+
+        fig, ax = plt.subplots(figsize=(12, 12))
+        sns.heatmap(conf_matrix, annot=False, vmax=300, square=True, fmt='d', cmap='Blues', ax=ax)
+
+        for i in range(conf_matrix.shape[0]):
+            for j in range(conf_matrix.shape[1]):
+                text = f'{conf_matrix[i, j]}' \
+                       f'\n({class_percentages[i, j]*100:.2f}% of cases from class)' \
+                       f'\n({total_percentages[i, j]*100:.2f}% of all cases)'
+                ax.text(j + 0.5, i + 0.5, text, ha='center', va='center')
+
+        ax.set_xticklabels(['inconclusive', '0', '1'])
+        ax.set_yticklabels(['0', '1'])
+
+        ax.set_xlabel('Predicted Labels')
+        ax.set_ylabel('True Labels')
         ax.set_title(f"Confusion Matrix for label consensus test cases \n"
                      f"(lower threshold = {lower_threshold}, upper threshold = {upper_threshold})")
+
         plt.savefig(os.path.join(target_path, 'conf_matrix_consensus.png'), dpi=300)
