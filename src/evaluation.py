@@ -332,38 +332,38 @@ class PerformanceEvaluator:
 
         #   Store predictions for misclassified (fp or fn) cases (given a threshold)
 
-        #   fp cases (inconclusive also counted as false)
+        #   fp cases (inconclusive NOT counted as false)
 
-        false_positive_indices = np.where((preds > lower_threshold) & (trues == 0))[0]
+        false_positive_indices = np.where((preds > upper_threshold) & (trues == 0))[0]
 
         fp_samples = pd.DataFrame({
             'id': ids[false_positive_indices].tolist(),
             'prediction': preds[false_positive_indices].tolist(),
             'true_label': trues[false_positive_indices].tolist(),
-            'lower_threshold': lower_threshold
+            'upper_threshold': upper_threshold
         })
 
         fp_samples.to_csv(os.path.join(target_path, 'fp_samples.csv'), index=False)
 
-        #   fn cases (inconclusive also counted as false)
+        #   fn cases (inconclusive NOT counted as false)
 
-        false_negative_indices = np.where((preds < upper_threshold) & (trues == 1))[0]
+        false_negative_indices = np.where((preds < lower_threshold) & (trues == 1))[0]
 
         fn_samples = pd.DataFrame({
             'id': ids[false_negative_indices].tolist(),
             'prediction': preds[false_negative_indices].tolist(),
             'true_label': trues[false_negative_indices].tolist(),
-            'upper_threshold': upper_threshold
+            'lower_threshold': lower_threshold
         })
 
         fn_samples.to_csv(os.path.join(target_path, 'fn_samples.csv'), index=False)
 
         #   ---------------------------------------------------------------------------------------------
 
-        #   Calculate metrics precision, recall, f1-score, conf_matrix for all test cases
-
         #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
         preds = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
+
+        #   Calculate metrics precision, recall, f1-score, conf_matrix for all test cases
 
         #   Calculate metrics per class
         average = None
