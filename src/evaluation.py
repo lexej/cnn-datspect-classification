@@ -103,8 +103,8 @@ class PerformanceEvaluator:
 
             #   Define threshold ranges for decision
 
-            inconclusive_ranges = [(0.4, 0.6), (0.35, 0.65), (0.3, 0.7), (0.25, 0.75), (0.2, 0.8), (0.15, 0.85),
-                                   (0.1, 0.9)]
+            inconclusive_ranges = [(0.45, 0.55), (0.4, 0.6), (0.35, 0.65), (0.3, 0.7), (0.25, 0.75), (0.2, 0.8),
+                                   (0.15, 0.85), (0.1, 0.9)]
 
             inconclusive_no_consensus_percentages = []
 
@@ -120,17 +120,18 @@ class PerformanceEvaluator:
                 inconclusive_no_consensus_percentages.append(percentage_no_consensus_cases_predicted_inconclusive)
 
             incp = inconclusive_no_consensus_percentages
-            self.__save_inconclusive_no_consensus_percentages(ranges_for_evaluation=inconclusive_ranges,
+            self.__save_inconclusive_no_consensus_percentages(inconclusive_range=inconclusive_ranges,
                                                               inconclusive_no_consensus_percentages=incp)
 
         print(f'\n--- Evaluation done. ---')
 
     def __get_predictions(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Get the ids, predictions and true labels."""
 
         # Load weights into model
         self.model.load_state_dict(torch.load(self.model_weights_path))
 
-        #   Evaluation mode
+        #   Set evaluation mode
         self.model.eval()
 
         preds = []
@@ -172,8 +173,7 @@ class PerformanceEvaluator:
         return ids, preds, labels
 
     def __save_preds(self, ids: np.ndarray, preds: np.ndarray, trues: np.ndarray, save_as: str):
-
-        #   Store predictions for "consensus" and "no consensus" cases
+        """Save predictions for test cases in CSV format."""
 
         result = pd.DataFrame({
             'id': ids.tolist(),
@@ -390,19 +390,24 @@ class PerformanceEvaluator:
         result = number_no_consensus_cases_predicted_inconclusive / number_no_consensus_cases
         percentage_no_consensus_cases_predicted_inconclusive = result
 
+        #   ---------------------------------------------------------------------------------------------
+
         #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
-        preds = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
+
+        preds_thresholded = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
+
+        #   ---------------------------------------------------------------------------------------------
 
         #   Calculate metrics precision, recall, f1-score, conf_matrix for all test cases
 
         #   Calculate metrics per class
         average = None
 
-        acc_score = accuracy_score(trues_reduced, preds)
+        acc_score = accuracy_score(trues_reduced, preds_thresholded)
 
-        precision = precision_score(trues_reduced, preds, average=average)
-        recall = recall_score(trues_reduced, preds, average=average, zero_division=0)
-        f1 = f1_score(trues_reduced, preds, average=average)
+        precision = precision_score(trues_reduced, preds_thresholded, average=average)
+        recall = recall_score(trues_reduced, preds_thresholded, average=average, zero_division=0)
+        f1 = f1_score(trues_reduced, preds_thresholded, average=average)
 
         results_test_split = {
             'lower_threshold': lower_threshold,
@@ -419,11 +424,13 @@ class PerformanceEvaluator:
         with open(os.path.join(target_path, 'perf_metrics.json'), 'w') as f:
             json.dump(results_test_split, f, indent=4)
 
+        #   ---------------------------------------------------------------------------------------------
+
         #   Confusion matrix
 
-        conf_matrix = confusion_matrix(trues_reduced, preds, labels=[-1, 0, 1])
+        conf_matrix = confusion_matrix(trues_reduced, preds_thresholded, labels=[-1, 0, 1])
 
-        #   Exclude true label "inconclusive" (since it does not exist; only preds exist)
+        #   Exclude true label "inconclusive" (since it does not exist; only preds_thresholded exist)
         conf_matrix = conf_matrix[1:]
 
         class_percentages = conf_matrix / conf_matrix.sum(axis=1, keepdims=True)
@@ -451,11 +458,11 @@ class PerformanceEvaluator:
 
         return percentage_no_consensus_cases_predicted_inconclusive
 
-    def __save_inconclusive_no_consensus_percentages(self, ranges_for_evaluation,
+    def __save_inconclusive_no_consensus_percentages(self, inconclusive_range,
                                                      inconclusive_no_consensus_percentages):
         plt.figure(figsize=(12, 8))
 
-        x = [str(i) for i in ranges_for_evaluation]
+        x = [str(i) for i in inconclusive_range]
         y = inconclusive_no_consensus_percentages
 
         sns.lineplot(x=x, y=y, markers=True, marker='o')
@@ -473,3 +480,11 @@ class PerformanceEvaluator:
         plt.title('Percentage of "no consensus"-cases predicted as "inconclusive" over inconclusive range')
 
         plt.savefig(os.path.join(self.results_testing_path, 'inconclusive_no_consensus_percentages.png'), dpi=300)
+
+        #   Save also the plot data
+
+        df = pd.DataFrame({'inconclusive_range': x,
+                           'inconclusive_no_consensus_percentages': y})
+
+        df.to_csv(os.path.join(self.results_testing_path, 'inconclusive_no_consensus_percentages.csv'),
+                  index=False)
