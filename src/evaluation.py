@@ -107,21 +107,26 @@ class PerformanceEvaluator:
                                    (0.15, 0.85), (0.1, 0.9)]
 
             inconclusive_no_consensus_percentages = []
+            acc_scores = []
 
             for tr in inconclusive_ranges:
                 #   Calculate for all test cases (majority vote for "no consensus" cases)
-                percentage_no_consensus_cases_predicted_inconclusive = self.__compute_performance_for_threshold_range(
-                    preds=preds,
-                    trues=labels_original_list,
-                    ids=ids,
-                    lower_threshold=tr[0],
-                    upper_threshold=tr[1])
+
+                acc_score, percentage_no_consensus_cases_predicted_inconclusive = \
+                    self.__compute_performance_for_threshold_range(
+                        preds=preds,
+                        trues=labels_original_list,
+                        ids=ids,
+                        lower_threshold=tr[0],
+                        upper_threshold=tr[1])
 
                 inconclusive_no_consensus_percentages.append(percentage_no_consensus_cases_predicted_inconclusive)
+                acc_scores.append(acc_score)
 
             incp = inconclusive_no_consensus_percentages
             self.__save_inconclusive_no_consensus_percentages(inconclusive_range=inconclusive_ranges,
-                                                              inconclusive_no_consensus_percentages=incp)
+                                                              inconclusive_no_consensus_percentages=incp,
+                                                              acc_scores=acc_scores)
 
         print(f'\n--- Evaluation done. ---')
 
@@ -392,33 +397,31 @@ class PerformanceEvaluator:
 
         #   ---------------------------------------------------------------------------------------------
 
-        #   3 classes: -1 (inconclusive), 0 (normal), 1 (reduced)
+        #   Calculate metrics precision, recall and f1-score for test cases predicted in conclusive range
 
-        preds_thresholded = np.where(preds >= upper_threshold, 1, np.where(preds <= lower_threshold, 0, -1))
+        preds_conclusive_indices = np.argwhere(np.logical_or(preds >= upper_threshold, preds <= lower_threshold))
 
-        #   ---------------------------------------------------------------------------------------------
+        preds_thresholded_only_conclusive = np.where(preds[preds_conclusive_indices] >= upper_threshold, 1, 0)
+        trues_only_conclusive = trues_reduced[preds_conclusive_indices]
 
-        #   Calculate metrics precision, recall, f1-score, conf_matrix for all test cases
+        average = 'binary'
 
-        #   Calculate metrics per class
-        average = None
+        acc_score = accuracy_score(trues_only_conclusive, preds_thresholded_only_conclusive)
 
-        acc_score = accuracy_score(trues_reduced, preds_thresholded)
-
-        precision = precision_score(trues_reduced, preds_thresholded, average=average)
-        recall = recall_score(trues_reduced, preds_thresholded, average=average, zero_division=0)
-        f1 = f1_score(trues_reduced, preds_thresholded, average=average)
+        precision = precision_score(trues_only_conclusive, preds_thresholded_only_conclusive,
+                                    average=average)
+        recall = recall_score(trues_only_conclusive, preds_thresholded_only_conclusive, average=average)
+        f1 = f1_score(trues_only_conclusive, preds_thresholded_only_conclusive, average=average)
 
         results_test_split = {
             'lower_threshold': lower_threshold,
             'upper_threshold': upper_threshold,
+            'accuracy': round(acc_score, self.relevant_digits),
+            'precision': round(float(precision), self.relevant_digits),
+            'recall': round(float(recall), self.relevant_digits),
+            'f1-score': round(float(f1), self.relevant_digits),
             'percentage_no_consensus_cases_predicted_inconclusive':
                 round(percentage_no_consensus_cases_predicted_inconclusive, self.relevant_digits),
-            'labels': ['inconclusive', 'normal', 'reduced'],
-            'accuracy': round(acc_score, self.relevant_digits),
-            'precision': [round(num, self.relevant_digits) for num in precision],
-            'recall': [round(num, self.relevant_digits) for num in recall],
-            'f1-score': [round(num, self.relevant_digits) for num in f1]
         }
 
         with open(os.path.join(target_path, 'perf_metrics.json'), 'w') as f:
@@ -426,9 +429,13 @@ class PerformanceEvaluator:
 
         #   ---------------------------------------------------------------------------------------------
 
-        #   Confusion matrix
+        #   Confusion matrix (with inconclusive class)
 
-        conf_matrix = confusion_matrix(trues_reduced, preds_thresholded, labels=[-1, 0, 1])
+        #   3 preds classes created for calculation: -1 (inconclusive), 0 (normal), 1 (reduced)
+        preds_thresholded_with_inconclusive_class = np.where(preds >= upper_threshold, 1,
+                                                             np.where(preds <= lower_threshold, 0, -1))
+
+        conf_matrix = confusion_matrix(trues_reduced, preds_thresholded_with_inconclusive_class, labels=[-1, 0, 1])
 
         #   Exclude true label "inconclusive" (since it does not exist; only preds_thresholded exist)
         conf_matrix = conf_matrix[1:]
@@ -456,35 +463,67 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(target_path, 'conf_matrix.png'), dpi=300)
 
-        return percentage_no_consensus_cases_predicted_inconclusive
+        return acc_score, percentage_no_consensus_cases_predicted_inconclusive
 
     def __save_inconclusive_no_consensus_percentages(self, inconclusive_range,
-                                                     inconclusive_no_consensus_percentages):
-        plt.figure(figsize=(12, 8))
+                                                     inconclusive_no_consensus_percentages, acc_scores):
+
+        fig, ax1 = plt.subplots(figsize=(12, 8))
+
+        ax1_label = 'percentage of "no consensus"-cases predicted as "inconclusive"'
+
+        ax1.set_xlabel('inconclusive range')
+        ax1.set_ylabel(ax1_label)
 
         x = [str(i) for i in inconclusive_range]
-        y = inconclusive_no_consensus_percentages
+        incp = inconclusive_no_consensus_percentages
 
-        sns.lineplot(x=x, y=y, markers=True, marker='o')
+        sns.lineplot(x=x, y=incp,
+                     markers=True,
+                     marker='o',
+                     label=ax1_label,
+                     legend=False,
+                     color='blue',
+                     ax=ax1)
 
+        ax2 = ax1.twinx()
+        ax2_label = 'accuracy w.r.t. conclusive cases'
+        ax2.set_ylabel(ax2_label)
+
+        sns.lineplot(x=x, y=acc_scores,
+                     markers=True,
+                     marker='o',
+                     label=ax2_label,
+                     legend=False,
+                     color='green',
+                     ax=ax2)
+
+        """
         for i in range(len(x)):
-            plt.annotate(f'{round(y[i]*100, 2)} %',
-                         (x[i], y[i]),
+            plt.annotate(f'{round(incp[i]*100, 2)} %',
+                         (x[i], incp[i]),
                          textcoords="offset points",
                          xytext=(-12, 5),
                          ha='center')
 
         plt.grid(True, alpha=0.5)
-        plt.xlabel('inconclusive range')
-        plt.ylabel('percentage of "no consensus"-cases predicted as "inconclusive"')
-        plt.title('Percentage of "no consensus"-cases predicted as "inconclusive" over inconclusive range')
+        
+        """
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        lines = lines1 + lines2
+        labels = labels1 + labels2
+        ax1.legend(lines, labels)
+
+        ax1.set_title('Inconclusive range dependent evaluations')
 
         plt.savefig(os.path.join(self.results_testing_path, 'inconclusive_no_consensus_percentages.png'), dpi=300)
 
         #   Save also the plot data
 
         df = pd.DataFrame({'inconclusive_range': x,
-                           'inconclusive_no_consensus_percentages': y})
+                           'inconclusive_no_consensus_percentages': incp,
+                           'acc_scores': acc_scores})
 
         df.to_csv(os.path.join(self.results_testing_path, 'inconclusive_no_consensus_percentages.csv'),
                   index=False)
