@@ -1,3 +1,4 @@
 {
-    "python.defaultInterpreterPath": "~/opt/miniconda3/envs/master-thesis-kucerenko/bin/python"
+    "python.defaultInterpreterPath": "~/opt/miniconda3/envs/master-thesis-kucerenko/bin/python",
+    "terminal.integrated.fontSize": 13
 }
