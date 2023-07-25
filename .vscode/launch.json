@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Experiment",
+            "name": "baseline_majority",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/src",
@@ -14,7 +14,36 @@
                 "-c", "configs/baseline_majority.yaml",
                 "-n", "baseline_majority"
             ],
-            "console": "integratedTerminal",
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "justMyCode": true
+        },
+        {
+            "name": "baseline_random",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            "program": "experiment.py",
+            "args": [
+                "-c", "configs/baseline_random.yaml",
+                "-n", "baseline_random"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "justMyCode": true
+        },
+        {
+            "name": "regression",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            "program": "experiment.py",
+            "args": [
+                "-c", "configs/regression.yaml",
+                "-n", "regression"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
             "justMyCode": true
         }
     ]
