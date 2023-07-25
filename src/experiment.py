@@ -152,6 +152,8 @@ def run_experiment(config: dict, experiment_name: str):
                                                  results_path=results_path)
     performance_evaluator.evaluate_on_test_data()
 
+    print(f'\nExperiment "{experiment_name}" finished. \n')
+
     print('-----------------------------------------------------------------------------------------')
 
 

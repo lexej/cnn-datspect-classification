@@ -103,14 +103,14 @@ class PerformanceEvaluator:
 
             #   Define inconclusive intervals for performance evaluations
             
-            inconclusive_interval_widths = list(np.arange(0.1, 0.9, 0.1))
+            inconclusive_interval_widths = list(np.arange(start=0.02, stop=1.0, step=0.02))
 
             percentages_inconclusive_cases = []
             percentages_misclassified_conclusive_cases = []
 
             for interval_width in inconclusive_interval_widths:
 
-                acc_score_conclusive, percentage_inconclusive_cases = self.__compute_performance_for_threshold_range(
+                acc_score_conclusive, percentage_inconclusive_cases = self.__compute_performance_given_inconclusive_interval(
                         preds=preds,
                         trues=labels_original_list,
                         ids=ids,
@@ -262,6 +262,8 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
+        plt.close()
+
     def __create_histplot_for_preds(self, x: np.ndarray, y: np.ndarray, hue: np.ndarray, save_as: str):
 
         #   Histogram over the predictions
@@ -307,6 +309,8 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
+        plt.close()
+
     def __create_roc_curve(self, trues, preds, title, save_as: str):
 
         fpr, tpr, _ = roc_curve(trues, preds)
@@ -325,13 +329,16 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(self.results_testing_path, save_as), dpi=300)
 
-    def __compute_performance_for_threshold_range(self, preds, trues, ids, inconclusive_interval_width):
+        plt.close()
+
+    def __compute_performance_given_inconclusive_interval(self, preds, trues, ids, inconclusive_interval_width):
 
         #   ---------------------------------------------------------------------------------------------
 
         #   Sub-path of testing directory for performance evaluation given thresholds
         
         target_path = os.path.join(self.results_testing_path, 
+                                   'inconclusive_interval_dependent_evaluations',
                                    f'inconclusive_interval_width_{round(inconclusive_interval_width, 2)}')
         os.makedirs(target_path, exist_ok=True)
 
@@ -470,6 +477,8 @@ class PerformanceEvaluator:
 
         plt.savefig(os.path.join(target_path, 'conf_matrix.png'), dpi=300)
 
+        plt.close()
+
         return acc_score_conclusive, percentage_inconclusive_cases
 
     def __create_curves_for_optimization(self, inconclusive_interval_widths,
@@ -526,6 +535,8 @@ class PerformanceEvaluator:
         ax1.set_title('Trade-off curves for optimization')
 
         plt.savefig(os.path.join(self.results_testing_path, 'optimization_curves.png'), dpi=300)
+
+        plt.close()
 
         #   Save also the plot data
 
