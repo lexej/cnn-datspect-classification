@@ -52,20 +52,28 @@ class SpectDataset(Dataset):
 
         self.labels = pd.read_excel(labels_filepath)
 
-        #   Sort filenames by name
-        self.image_filenames = sorted(os.listdir(features_dirpath))
+        #   Sort subdirectories by name
+        self.subjects_subdirs = sorted(os.listdir(features_dirpath))
+        
 
     def __len__(self):
-        return len(self.image_filenames)
+        return len(self.subjects_subdirs)
 
     def __getitem__(self, idx):
 
         #   ---------------------------------------------------------------------------
-        #   Get image
+        #   Get image (currently: withASC and no Gaussian filtering)
 
-        image_filename = self.image_filenames[idx]
+        subject_subdir = self.subjects_subdirs[idx]
 
-        image_path = os.path.join(self.features_dirpath, image_filename)
+        subject_subdir_full = os.path.join(self.features_dirpath, subject_subdir)
+
+        available_features_for_subject = os.listdir(subject_subdir_full)
+
+        for _f in available_features_for_subject:
+            is_target_image = 'withASC' in _f and 'orig' in _f
+            if is_target_image:
+                image_path = os.path.join(subject_subdir_full, _f)
 
         img = nib.load(image_path).get_fdata()
 

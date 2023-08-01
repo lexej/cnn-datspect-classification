@@ -1,6 +1,9 @@
 __pycache__/
 .idea
-UKE_SPECT
+# images folders
+unused
+affine_2d
+*.m
 *.mat
 *.nii
 *.xlsx
