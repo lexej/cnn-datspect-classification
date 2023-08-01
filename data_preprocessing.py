@@ -3,7 +3,7 @@ import sys
 import shutil
 import numpy as np
 
-#   Script for creatig target data stucture from affine_2d folder
+#   Script for creating target data directory stucture from affine_2d directory
 def main():
     print('\n')
 
@@ -59,16 +59,6 @@ def main():
             
             shutil.copy(mf, os.path.join(subject_subdir_full, target_file_name))
 
-    
-    #   Split into training, testing and calibration set
-
-    #   1. Create the folders 'training', 'testing', 'calibration'
-
-    #  os.makedirs(target_data_dir)
-
-    
-
-    
     print('Target data created successfully.')
 
 
