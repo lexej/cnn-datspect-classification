@@ -72,10 +72,7 @@ def run_experiment(config: dict, experiment_name: str):
     #   Create SPECT dataset instance
 
     spect_dataset = SpectDataset(features_dirpath=images_dirpath,
-                                 labels_filepath=labels_filepath,
-                                 target_input_height=input_height,
-                                 target_input_width=input_width,
-                                 interpolation_method=interpolation_method)
+                                 labels_filepath=labels_filepath)
 
     #   Create dataloader for train, validation and test split given dataset
 
@@ -85,7 +82,10 @@ def run_experiment(config: dict, experiment_name: str):
                                   valid_to_train_split_size_percent=valid_to_train_split_size_percent,
                                   label_selection_strategy_train=label_selection_strategy_train,
                                   label_selection_strategy_valid=label_selection_strategy_valid,
-                                  strategy=strategy)
+                                  strategy=strategy,
+                                  target_input_height=input_height,
+                                  target_input_width=input_width,
+                                  interpolation_method=interpolation_method)
 
     train_dataloader, valid_dataloader, test_dataloader = dataloaders
 
