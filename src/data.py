@@ -1,5 +1,5 @@
 import sys
-
+import re
 from common import os, np, pd, nib
 from common import torch, transforms, Dataset, Subset, DataLoader, InterpolationMode
 from common import RANDOM_SEED, generator
@@ -40,34 +40,66 @@ def preprocess_image(img: np.ndarray, target_input_height: int, target_input_wid
     return transformed_img
 
 
-class SpectDataset(Dataset):
-    def __init__(self, features_dirpath, labels_filepath):
-        self.features_dirpath = features_dirpath
-        self.labels_filepath = labels_filepath
+class LabelSelector(Dataset):
+    def __init__(self, subset: Dataset, label_function, label_selection_strategy: str, strategy: str):
+        self.subset = subset
 
-        self.labels = pd.read_excel(labels_filepath)
+        self.label_function = label_function
+        self.label_selection_strategy = label_selection_strategy
+        self.strategy = strategy
 
-        #   Sort subdirectories by name
-        self.subjects_subdirs = sorted(os.listdir(features_dirpath))
+    def __getitem__(self, index):
+
+        img, available_labels, metadata = self.subset[index]
+
+        #   Decide for label
+        label = self.label_function(available_labels, self.label_selection_strategy, self.strategy)
+
+        return img, label, metadata
 
     def __len__(self):
-        return len(self.subjects_subdirs)
+        return len(self.subset)
 
-    def __getitem__(self, idx):
 
-        #   ---------------------------------------------------------------------------
-        #   Get one of the 12 version's of the subject image
+class SpectSubset(Dataset):
+    def __init__(self, features_path, labels_filepath, target_input_height, target_input_width, interpolation_method):
+        self.features_path = features_path
+        self.features_files = sorted(os.listdir(features_path))
 
-        subject_subdir_path = os.path.join(self.features_dirpath, self.subjects_subdirs[idx])
+        self.labels_filepath = labels_filepath
+        self.labels = pd.read_excel(labels_filepath)
 
-        available_versions_of_subject_image = os.listdir(subject_subdir_path)
+        self.target_input_height = target_input_height
+        self.target_input_width = target_input_width
+        self.interpolation_method = interpolation_method
 
-        available_images_paths = [os.path.join(subject_subdir_path, i) for i in available_versions_of_subject_image]
+    def __getitem__(self, index):
 
-        #   ---------------------------------------------------------------------------
-        #   Get label
+        target_file = self.features_files[index]
 
-        id_ = idx + 1
+        ######################################################################################################
+        #   Get Image
+
+        image_path = os.path.join(self.features_path, target_file)
+
+        img = nib.load(image_path).get_fdata()
+
+        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
+        
+        ######################################################################################################
+        #   Extract Id
+        
+        id_pattern_in_filename = r'[1-9]+[0-9]*.nii'
+
+        id_string_matched = re.findall(id_pattern_in_filename, target_file)[0]
+        id_ = int(id_string_matched.removesuffix('.nii'))
+
+        metadata = {
+            'id': id_
+        }
+
+        ######################################################################################################
+        #   Get available labels (no decision for label this point)
 
         label_row = self.labels.loc[self.labels['ID'].astype(int) == id_]
 
@@ -77,142 +109,12 @@ class SpectDataset(Dataset):
                                  'R1S1', 'R1S2', 'R2S1',
                                  'R2S2', 'R3S1', 'R3S2']].reset_index(drop=True).squeeze()
 
-        #   Attention: For the general Dataset the label is a dictionary containing all available labels;
-        #              the decision for the label is performed within Dataset classes wrapping train and valid Subset's
-        #              of the current Dataset
-
         available_labels = labels_full.to_dict()
-
-        metadata = {
-            'id': id_
-        }
-
-        return available_images_paths, available_labels, metadata
-
-
-class TrainSetWrapper(Dataset):
-    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str, strategy: str,
-                 target_input_height, target_input_width, interpolation_method):
-        self.original_dataset = original_dataset
-        self.label_function = label_function
-        self.label_selection_strategy = label_selection_strategy
-        self.strategy = strategy
-
-        self.target_input_height = target_input_height
-        self.target_input_width = target_input_width
-        self.interpolation_method = interpolation_method
-
-    def __getitem__(self, index):
-
-        available_images_paths, available_labels, metadata = self.original_dataset[index]
-        
-        #########################################################################
-        #   Decide for the image as feature:
-
-        """
-        #   If certain target version is required 
-
-        for _f in available_images_paths:
-            is_target_image = 'withASC' in os.path.basename(_f) and 'orig' in os.path.basename(_f) 
-            if is_target_image:
-                image_path = _f
-        """
-
-        #   Pick random image path from available 12 paths of each version of the same subject
-
-        image_path = np.random.choice(available_images_paths)
-
-        img = nib.load(image_path).get_fdata()
-
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
-        
-        #########################################################################
-
-        #   Decide for the label (only for training and validation split):
-        
-        modified_label = self.label_function(available_labels, self.label_selection_strategy, self.strategy)
-
-
-        return img, modified_label, metadata
-
-    def __len__(self):
-        return len(self.original_dataset)
-
-class ValidSetWrapper(Dataset):
-    def __init__(self, original_dataset: Dataset, label_function, label_selection_strategy: str, strategy: str,
-                 target_input_height, target_input_width, interpolation_method):
-        self.original_dataset = original_dataset
-        self.label_function = label_function
-        self.label_selection_strategy = label_selection_strategy
-        self.strategy = strategy
-
-        self.target_input_height = target_input_height
-        self.target_input_width = target_input_width
-        self.interpolation_method = interpolation_method
-
-    def __getitem__(self, index):
-
-        available_images_paths, available_labels, metadata = self.original_dataset[index]
-        
-        #########################################################################
-        #   Decide for the image as feature:
-        
-        #   For validation set: 'withASC' and no-filtering version of the subject images is used 
-
-        for _f in available_images_paths:
-            is_target_image = 'withASC' in os.path.basename(_f) and 'orig' in os.path.basename(_f) 
-            if is_target_image:
-                image_path = _f
-
-        img = nib.load(image_path).get_fdata()
-        
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
-        
-        #########################################################################
-
-        #   Decide for the label (only for training and validation split):
-        
-        modified_label = self.label_function(available_labels, self.label_selection_strategy, self.strategy)
-
-
-        return img, modified_label, metadata
-
-    def __len__(self):
-        return len(self.original_dataset)
-
-
-class TestSetWrapper(Dataset):
-    def __init__(self, original_dataset: Dataset, target_input_height, target_input_width, interpolation_method):
-        self.original_dataset = original_dataset
-        self.target_input_height = target_input_height
-        self.target_input_width = target_input_width
-        self.interpolation_method = interpolation_method
-
-    def __getitem__(self, index):
-
-        available_images_paths, available_labels, metadata = self.original_dataset[index]
-        
-        #########################################################################
-        #   Decide for the image as feature:
-        
-        #   For test set: 'withASC' and no-filtering version of the subject images is used 
-
-        for _f in available_images_paths:
-            is_target_image = 'withASC' in os.path.basename(_f) and 'orig' in os.path.basename(_f) 
-            if is_target_image:
-                image_path = _f
-
-        img = nib.load(image_path).get_fdata()
-
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
-
-        #########################################################################
-        #   No label decision is done for TestSet (all of them needed)
 
         return img, available_labels, metadata
 
     def __len__(self):
-        return len(self.original_dataset)
+        return len(self.features_files)
 
 
 def _choose_label_from_available_labels(label: dict, label_selection_strategy: str, strategy: str) -> torch.Tensor:
@@ -249,10 +151,9 @@ def _choose_label_from_available_labels(label: dict, label_selection_strategy: s
     return chosen_label
 
 
-def get_dataloaders(dataset: Dataset,
+def get_dataloaders(features_dirpath, 
+                    labels_filepath,
                     batch_size,
-                    test_to_train_split_size_percent,
-                    valid_to_train_split_size_percent,
                     label_selection_strategy_train,
                     label_selection_strategy_valid,
                     strategy: str,
@@ -262,57 +163,47 @@ def get_dataloaders(dataset: Dataset,
 
     # -----------------------------------------------------------------------------------------------------------
 
-    #   Create data split for training, validation and testing
+    #   Subset directory paths
 
-    #   1. train-test split  (no stratify used)
+    train_data_path = os.path.join(features_dirpath, 'train')
 
-    train_indices, test_indices = train_test_split(range(len(dataset)),
-                                                   test_size=test_to_train_split_size_percent,
-                                                   random_state=RANDOM_SEED,
-                                                   shuffle=True)
+    valid_data_path = os.path.join(features_dirpath, 'valid')
 
-    train_subset = Subset(dataset=dataset, indices=train_indices)
-    test_subset = Subset(dataset=dataset, indices=test_indices)
+    test_data_path = os.path.join(features_dirpath, 'test')
 
-    #  2. test-validation split  (no stratify used)
-
-    train_indices, val_indices = train_test_split(range(len(train_subset)),
-                                                  test_size=valid_to_train_split_size_percent,
-                                                  random_state=RANDOM_SEED,
-                                                  shuffle=True)
-
-    #   First create validation subset, then reassign train subset !
-
-    val_subset = Subset(dataset=train_subset, indices=val_indices)
-
-    train_subset = Subset(dataset=train_subset, indices=train_indices)
-
-    #   TrainSetWrapper ...
-    #       1. applies a mapping function to the labels using a certain label selection strategy
-    #       2. decides for one image from available 12 images per subject
-
-    train_subset = TrainSetWrapper(original_dataset=train_subset,
-                                   label_function=_choose_label_from_available_labels,
-                                   label_selection_strategy=label_selection_strategy_train,
-                                   strategy=strategy,
-                                   target_input_height=target_input_height, 
-                                   target_input_width=target_input_width, 
-                                   interpolation_method=interpolation_method)
-
-    val_subset = ValidSetWrapper(original_dataset=val_subset,
+    #   Train set
+    
+    train_subset = SpectSubset(features_path=train_data_path,
+                               labels_filepath=labels_filepath,
+                               target_input_height=target_input_height, 
+                               target_input_width=target_input_width, 
+                               interpolation_method=interpolation_method)
+    
+    train_subset = LabelSelector(subset=train_subset, 
                                  label_function=_choose_label_from_available_labels,
-                                 label_selection_strategy=label_selection_strategy_valid,
-                                 strategy=strategy, 
-                                 target_input_height=target_input_height, 
-                                 target_input_width=target_input_width, 
-                                 interpolation_method=interpolation_method)
+                                 label_selection_strategy=label_selection_strategy_train,
+                                 strategy=strategy)
 
-    #   TestSetWrapper decides for one image from available 12 images per subject
+    #   Validation set
 
-    test_subset = TestSetWrapper(original_dataset=test_subset, 
-                                 target_input_height=target_input_height, 
-                                 target_input_width=target_input_width, 
-                                 interpolation_method=interpolation_method)
+    val_subset = SpectSubset(features_path=valid_data_path,
+                             labels_filepath=labels_filepath,
+                             target_input_height=target_input_height, 
+                             target_input_width=target_input_width, 
+                             interpolation_method=interpolation_method)
+    
+    val_subset = LabelSelector(subset=val_subset, 
+                               label_function=_choose_label_from_available_labels,
+                               label_selection_strategy=label_selection_strategy_valid,
+                               strategy=strategy)
+    
+    #   Test set
+
+    test_subset = SpectSubset(features_path=test_data_path,
+                              labels_filepath=labels_filepath,
+                              target_input_height=target_input_height, 
+                              target_input_width=target_input_width, 
+                              interpolation_method=interpolation_method)                           
 
     # -----------------------------------------------------------------------------------------------------------
 

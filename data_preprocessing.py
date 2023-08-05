@@ -45,6 +45,8 @@ def main():
 
     #   Copy data from source folder to target splits folders
 
+    augmented_data_len = 0
+
     for _id in subject_ids:
 
         target_folder = os.path.join(target_data_dir, id_to_split_dict[_id])
@@ -69,10 +71,10 @@ def main():
             
             shutil.copy(mf, os.path.join(target_folder, target_file_name))
 
+            augmented_data_len += 1
+
     #   Check validity
-
-    augmented_data_len = len(subject_ids) * 12
-
+    
     percentage_in_train = round(len(os.listdir(os.path.join(target_data_dir, 'train'))) / augmented_data_len, 2)
     percentage_in_test = round(len(os.listdir(os.path.join(target_data_dir, 'test'))) / augmented_data_len, 2)
     percentage_in_valid = round(len(os.listdir(os.path.join(target_data_dir, 'valid'))) / augmented_data_len, 2)
