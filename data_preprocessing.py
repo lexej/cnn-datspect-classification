@@ -2,8 +2,11 @@ import os
 import sys
 import shutil
 import numpy as np
+import pandas as pd
+
 
 #   Script for creating target data directory stucture from affine_2d directory
+
 def main():
     print('\n')
 
@@ -29,27 +32,34 @@ def main():
 
     num_digits = len(str(subject_ids[-1]))
 
-    for _id in subject_ids:
+    #   Load id-to-split table and create subfolders for train, validation, test
+
+    id_to_split_table = pd.read_excel(os.path.join(cwd_dir, 'randomSplits03-Aug-2023-17-47-32.xlsx'))
     
-        subject_subdir = str(_id).zfill(num_digits)
+    id_to_split_dict = dict(zip(id_to_split_table['ID'], id_to_split_table['splittrain']))
 
-        subject_subdir_full = os.path.join(target_data_dir, subject_subdir)
+    split_folder_names = list(id_to_split_table['splittrain'].unique())
 
-        os.makedirs(subject_subdir_full)
+    for sfn in split_folder_names:
+        os.makedirs(os.path.join(target_data_dir, sfn))
 
-        #   Copy images from source_data_dir with current _id to target subject_subdir
+    #   Copy data from source folder to target splits folders
 
-        #   1. list of paths within source dir where filename end with _id
+    for _id in subject_ids:
+
+        target_folder = os.path.join(target_data_dir, id_to_split_dict[_id])
+
+        _id_filled = str(_id).zfill(num_digits)
+
+        #   Get list of image paths of subject _id
 
         matching_files = []
         for root, _, filenames in os.walk(source_data_dir):
             for filename in filenames:
-                if filename.endswith(subject_subdir + FILE_FORMAT):
+                if filename.endswith(_id_filled + FILE_FORMAT):
                     matching_files.append(os.path.join(root, filename))
         
-        matching_files = np.array(matching_files)
-        
-        #   2. Copy all matching_files to subject_subdir_full
+        #   Copy all matching_files to target split folder
 
         for mf in matching_files:
             
@@ -57,9 +67,20 @@ def main():
             
             target_file_name = mf_relpath.replace(os.path.sep, '_')
             
-            shutil.copy(mf, os.path.join(subject_subdir_full, target_file_name))
+            shutil.copy(mf, os.path.join(target_folder, target_file_name))
 
-    print('Target data created successfully.')
+    #   Check validity
+
+    augmented_data_len = len(subject_ids) * 12
+
+    percentage_in_train = round(len(os.listdir(os.path.join(target_data_dir, 'train'))) / augmented_data_len, 2)
+    percentage_in_test = round(len(os.listdir(os.path.join(target_data_dir, 'test'))) / augmented_data_len, 2)
+    percentage_in_valid = round(len(os.listdir(os.path.join(target_data_dir, 'valid'))) / augmented_data_len, 2)
+
+    if percentage_in_train != 0.60 or percentage_in_test != 0.20 or percentage_in_valid != 0.20:
+        raise Exception('Invalid distribution of data to split folders.')
+
+    print('Target data directory prepared successfully.')
 
 
 if __name__ == '__main__':
