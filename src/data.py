@@ -1,10 +1,75 @@
-import sys
-import re
-from common import os, np, pd, nib
-from common import torch, transforms, Dataset, Subset, DataLoader, InterpolationMode
+from common import os, sys, shutil, re, np, pd, nib
+from common import torch, transforms, Dataset, DataLoader, InterpolationMode
 from common import RANDOM_SEED, generator
 from common import device
 from common import train_test_split
+
+
+def create_data_splits(source_data_dir, target_data_dir, id_to_split_table_filepath):
+
+    print('--- Creating splits of image data ---')
+
+    #   ID's of subjects
+    subject_ids = np.arange(1, 1741)
+
+    FILE_FORMAT = '.nii'
+
+    num_digits = len(str(subject_ids[-1]))
+
+    #   Load id-to-split table and create subfolders for train, validation, test
+
+    id_to_split_table = pd.read_excel(id_to_split_table_filepath)
+
+    #   TODO: Should be passable as parameter to experiment
+    split_column = id_to_split_table['splittrain']
+    
+    id_to_split_dict = dict(zip(id_to_split_table['ID'], split_column))
+
+    split_folder_names = list(split_column.unique())
+
+    for sfn in split_folder_names:
+        os.makedirs(os.path.join(target_data_dir, sfn))
+
+    #   Copy data from source folder to target splits folders
+
+    augmented_data_len = 0
+
+    for _id in subject_ids:
+
+        target_folder = os.path.join(target_data_dir, id_to_split_dict[_id])
+
+        _id_filled = str(_id).zfill(num_digits)
+
+        #   Get list of image paths of subject _id
+
+        matching_files = []
+        for root, _, filenames in os.walk(source_data_dir):
+            for filename in filenames:
+                if filename.endswith(_id_filled + FILE_FORMAT):
+                    matching_files.append(os.path.join(root, filename))
+        
+        #   Copy all matching_files to target split folder
+
+        for mf in matching_files:
+            
+            mf_relpath = os.path.relpath(path=mf, start=source_data_dir)
+            
+            target_file_name = mf_relpath.replace(os.path.sep, '_')
+            
+            shutil.copy(mf, os.path.join(target_folder, target_file_name))
+
+            augmented_data_len += 1
+
+    #   Check validity
+    
+    percentage_in_train = round(len(os.listdir(os.path.join(target_data_dir, 'train'))) / augmented_data_len, 2)
+    percentage_in_test = round(len(os.listdir(os.path.join(target_data_dir, 'test'))) / augmented_data_len, 2)
+    percentage_in_valid = round(len(os.listdir(os.path.join(target_data_dir, 'valid'))) / augmented_data_len, 2)
+
+    if percentage_in_train != 0.60 or percentage_in_test != 0.20 or percentage_in_valid != 0.20:
+        raise Exception('Invalid distribution of data to split folders.')
+
+    print('--- Splits of image data successfully created. ---')
 
 
 def preprocess_image(img: np.ndarray, target_input_height: int, target_input_width: int,

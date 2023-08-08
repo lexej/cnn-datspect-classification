@@ -6,7 +6,7 @@ from model import CustomModel2d
 from model import ResNet18
 from model import ResNet34
 
-from data import get_dataloaders
+from data import create_data_splits, get_dataloaders
 
 from train import train_model
 
@@ -69,9 +69,30 @@ def run_experiment(config: dict, experiment_name: str):
 
     print(f'\nExperiment "{experiment_name}": \n')
 
+    cwd_dir = os.getcwd()
+
+    #   Create temporary target data directory with required directory structure
+    #    (exists only for the currently running experiment)
+    target_data_dir = os.path.join(cwd_dir, 'data')
+
+    if os.path.exists(target_data_dir) and os.path.isdir(target_data_dir):
+        try:
+            shutil.rmtree(target_data_dir)
+        except OSError as e:
+            print(f"Error: {target_data_dir} could not be removed; {e}")
+    
+    os.makedirs(target_data_dir)
+
+    #   TODO: Add this path to configs
+    id_to_split_table_filepath = os.path.join(cwd_dir, '..', 'randomSplits03-Aug-2023-17-47-32.xlsx')
+
+    create_data_splits(source_data_dir=images_dirpath, 
+                       target_data_dir=target_data_dir, 
+                       id_to_split_table_filepath=id_to_split_table_filepath)
+
     #   Create dataloader for train, validation and test split given dataset
 
-    dataloaders = get_dataloaders(features_dirpath=images_dirpath,
+    dataloaders = get_dataloaders(features_dirpath=target_data_dir,
                                   labels_filepath=labels_filepath,
                                   batch_size=batch_size,
                                   label_selection_strategy_train=label_selection_strategy_train,
@@ -145,6 +166,14 @@ def run_experiment(config: dict, experiment_name: str):
                                                  strategy=strategy,
                                                  results_path=results_path)
     performance_evaluator.evaluate_on_test_data()
+
+    #   Remove data splits related to current experiment
+    
+    if os.path.exists(target_data_dir) and os.path.isdir(target_data_dir):
+        try:
+            shutil.rmtree(target_data_dir)
+        except OSError as e:
+            print(f"Error: {target_data_dir} could not be removed; {e}")
 
     print(f'\nExperiment "{experiment_name}" finished. \n')
 
