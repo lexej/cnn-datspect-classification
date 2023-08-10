@@ -1,6 +1,6 @@
 from common import os, json, np, pd, plt, sns
 from common import torch, DataLoader
-from common import f1_score, confusion_matrix, roc_curve, auc, accuracy_score, precision_score, recall_score
+from common import f1_score, confusion_matrix, roc_curve, auc, accuracy_score, precision_score, recall_score, balanced_accuracy_score
 
 
 class PerformanceEvaluator:
@@ -106,25 +106,29 @@ class PerformanceEvaluator:
             inconclusive_interval_widths = list(np.arange(start=0.02, stop=1.0, step=0.02))
 
             percentages_inconclusive_cases = []
-            percentages_misclassified_conclusive_cases = []
+            balanced_acc_scores_conclusive = []
 
             for interval_width in inconclusive_interval_widths:
 
-                acc_score_conclusive, percentage_inconclusive_cases = self.__compute_performance_given_inconclusive_interval(
+                balanced_acc_score_conclusive, percentage_inconclusive_cases = self.__compute_performance_given_inconclusive_interval(
                         preds=preds,
                         trues=labels_original_list,
                         ids=ids,
                         inconclusive_interval_width=interval_width)
 
                 percentages_inconclusive_cases.append(percentage_inconclusive_cases)
-                percentages_misclassified_conclusive_cases.append(1.0 - acc_score_conclusive)
+                balanced_acc_scores_conclusive.append(balanced_acc_score_conclusive)
 
-            pic = percentages_inconclusive_cases
-            pmcc = percentages_misclassified_conclusive_cases
+            self.__create_curves_for_optimization(percentages_inconclusive_cases=percentages_inconclusive_cases,
+                                                  balanced_acc_scores_conclusive=balanced_acc_scores_conclusive)
+            
+            #   Save also the current data
 
-            self.__create_curves_for_optimization(inconclusive_interval_widths=inconclusive_interval_widths,
-                                                  percentages_inconclusive_cases=pic,
-                                                  percentages_misclassified_conclusive_cases=pmcc)
+            df = pd.DataFrame({'inconclusive_range': inconclusive_interval_widths,
+                               'percentages_inconclusive_cases': percentages_inconclusive_cases,
+                               'balanced_acc_scores_conclusive': balanced_acc_scores_conclusive})
+
+            df.to_csv(os.path.join(self.results_testing_path, 'optimization_curves.csv'), index=False)
 
         print(f'\n--- Evaluation done. ---')
 
@@ -397,7 +401,7 @@ class PerformanceEvaluator:
 
         percentage_inconclusive_cases = (len(preds) - len(preds_thresholded_only_conclusive)) / len(preds)
 
-        acc_score_conclusive = accuracy_score(trues_only_conclusive, preds_thresholded_only_conclusive)
+        balanced_acc_score_conclusive = balanced_accuracy_score(trues_only_conclusive, preds_thresholded_only_conclusive)
 
         precision_conclusive = precision_score(trues_only_conclusive, preds_thresholded_only_conclusive,
                                     average=average)
@@ -408,7 +412,7 @@ class PerformanceEvaluator:
             'lower_threshold': lower_threshold,
             'upper_threshold': upper_threshold,
             'percentage_inconclusive_cases': round(percentage_inconclusive_cases, self.relevant_digits),
-            'accuracy_conclusive_cases': round(acc_score_conclusive, self.relevant_digits),
+            'balanced_accuracy_conclusive_cases': round(balanced_acc_score_conclusive, self.relevant_digits),
             'precision_conclusive_cases': round(float(precision_conclusive), self.relevant_digits),
             'recall_conclusive_cases': round(float(recall_conclusive), self.relevant_digits),
             'f1-score_conclusive_cases': round(float(f1_conclusive), self.relevant_digits)
@@ -479,70 +483,26 @@ class PerformanceEvaluator:
 
         plt.close()
 
-        return acc_score_conclusive, percentage_inconclusive_cases
+        return balanced_acc_score_conclusive, percentage_inconclusive_cases
 
-    def __create_curves_for_optimization(self, inconclusive_interval_widths,
-                                         percentages_inconclusive_cases, percentages_misclassified_conclusive_cases):
+    def __create_curves_for_optimization(self, percentages_inconclusive_cases, balanced_acc_scores_conclusive):
 
-        fig, ax1 = plt.subplots(figsize=(12, 8))
+        fig, ax = plt.subplots(figsize=(12, 8))
 
-        ax1_label = 'percentage of inconclusive cases'
-
-        ax1.set_xlabel('inconclusive interval width')
-        ax1.set_ylabel(ax1_label)
-
-        x = inconclusive_interval_widths
-        pic = percentages_inconclusive_cases
-        pmcc = percentages_misclassified_conclusive_cases
-
-        sns.lineplot(x=x, y=pic,
+        ax.set_xlabel('percentage inconclusive cases')
+        ax.set_ylabel('balanced accuracy on conclusive cases')
+        
+        sns.lineplot(x=percentages_inconclusive_cases, 
+                     y=balanced_acc_scores_conclusive,
                      markers=True,
                      marker='o',
-                     label=ax1_label,
                      legend=False,
                      color='blue',
-                     ax=ax1)
+                     ax=ax)
 
-        ax2 = ax1.twinx()
-        ax2_label = 'percentage of misclassified conclusive cases'
-        ax2.set_ylabel(ax2_label)
-
-        sns.lineplot(x=x, y=pmcc,
-                     markers=True,
-                     marker='o',
-                     label=ax2_label,
-                     legend=False,
-                     color='green',
-                     ax=ax2)
-
-        """
-        for i in range(len(x)):
-            plt.annotate(f'{round(incp[i]*100, 2)} %',
-                         (x[i], incp[i]),
-                         textcoords="offset points",
-                         xytext=(-12, 5),
-                         ha='center')
-
-        plt.grid(True, alpha=0.5)
-        
-        """
-        lines1, labels1 = ax1.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()
-        lines = lines1 + lines2
-        labels = labels1 + labels2
-        ax1.legend(lines, labels, loc='upper center')
-
-        ax1.set_title('Trade-off curves for optimization')
+        ax.set_title('Trade-off curves for optimization')
 
         plt.savefig(os.path.join(self.results_testing_path, 'optimization_curves.png'), dpi=300)
 
         plt.close()
 
-        #   Save also the plot data
-
-        df = pd.DataFrame({'inconclusive_range': x,
-                           'percentages_inconclusive_cases': pic,
-                           'percentages_misclassified_conclusive_cases': pmcc})
-
-        df.to_csv(os.path.join(self.results_testing_path, 'optimization_curves.csv'),
-                  index=False)
