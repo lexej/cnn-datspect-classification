@@ -1,4 +1,4 @@
-from common import os, sys, yaml, argparse, shutil
+from common import os, sys, yaml, argparse, shutil, pd
 from common import torch, nn, optim, sigmoid, softmax
 from common import device
 
@@ -33,6 +33,59 @@ def run_experiment(config: dict, experiment_name: str):
     os.makedirs(results_path)
 
     try:
+        num_randomizations = config['num_randomizations']
+    except KeyError as e:
+        sys.exit(f'Error caught: Required key {e} could not be found in passed config.')
+
+    # ---------------------------------------------------------------------------------------------------------
+
+    #   Log the config file used for the experiment to results
+
+    with open(os.path.join(results_path, 'config_used.yaml'), 'w') as f:
+        yaml.dump(config, f)
+
+    # ---------------------------------------------------------------------------------------------------------
+
+    print(f'\nExperiment "{experiment_name}": \n')
+
+    cwd_dir = os.getcwd()
+
+    #   Load id-to-split table
+    
+    id_to_split_table_filepath = os.path.join(cwd_dir, '..', 'randomSplits03-Aug-2023-17-47-32.xlsx')
+
+    id_to_split_table = pd.read_excel(id_to_split_table_filepath)
+
+    ids = id_to_split_table['ID']
+
+    id_to_split_table_cols = list(id_to_split_table.columns)
+    id_to_split_table_cols.remove('ID')
+
+    #   Choose first num_randomizations columns of table as split columns
+    splits_for_randomization = id_to_split_table_cols[0:num_randomizations]
+
+    for i in splits_for_randomization:
+        print("*" * 80)
+        print(f'\n--- Randomization "{i}" ---\n')
+        
+        splits = id_to_split_table[i]
+
+        id_to_split_dict = dict(zip(ids, splits))
+
+        perform_experiment_given_randomization(randomization=i, config=config, 
+                                               results_path=results_path, 
+                                               id_to_split_dict=id_to_split_dict)
+        
+        print(f'\n--- Randomization "{i}" finished. ---\n')
+        print("*" * 80)
+
+    print(f'\nExperiment "{experiment_name}" finished. \n')
+
+    print("-" * 160)
+
+
+def perform_experiment_given_randomization(randomization: str, config, results_path, id_to_split_dict: dict):
+    try:
         images_dirpath = config['images_dir']
         labels_filepath = config['labels_filepath']
 
@@ -50,24 +103,8 @@ def run_experiment(config: dict, experiment_name: str):
         batch_size = config['batch_size']
         lr = config['lr']
         num_epochs = config['epochs']
-
-        test_to_train_split_size_percent = config['test_to_train_split_size_percent']
-
-        valid_to_train_split_size_percent = config['valid_to_train_split_size_percent']
-
     except KeyError as e:
         sys.exit(f'Error caught: Required key {e} could not be found in passed config.')
-
-    # ---------------------------------------------------------------------------------------------------------
-
-    #   Log the config file used for the experiment to results
-
-    with open(os.path.join(results_path, 'config_used.yaml'), 'w') as f:
-        yaml.dump(config, f)
-
-    # ---------------------------------------------------------------------------------------------------------
-
-    print(f'\nExperiment "{experiment_name}": \n')
 
     cwd_dir = os.getcwd()
 
@@ -83,12 +120,11 @@ def run_experiment(config: dict, experiment_name: str):
     
     os.makedirs(target_data_dir)
 
-    #   TODO: Add this path to configs
-    id_to_split_table_filepath = os.path.join(cwd_dir, '..', 'randomSplits03-Aug-2023-17-47-32.xlsx')
+    #   Create data folder containing the splits for given randomization
 
     create_data_splits(source_data_dir=images_dirpath, 
                        target_data_dir=target_data_dir, 
-                       id_to_split_table_filepath=id_to_split_table_filepath)
+                       id_to_split_dict=id_to_split_dict)
 
     #   Create dataloader for train, validation and test split given dataset
 
@@ -149,13 +185,16 @@ def run_experiment(config: dict, experiment_name: str):
     if starting_weights_path is not None:
         model.load_state_dict(torch.load(starting_weights_path))
 
+    #   The results path for the current randomization of image data
+    results_path_for_randomization = os.path.join(results_path, 'randomization_'+str(randomization))
+
     model, best_epoch, model_weights_path = train_model(model,
                                                         num_epochs,
                                                         train_dataloader,
                                                         valid_dataloader,
                                                         optimizer,
                                                         loss_fn,
-                                                        results_path)
+                                                        results_path_for_randomization)
 
     #   Evaluate trained model (best epoch wrt. validation loss) on test data
 
@@ -164,7 +203,7 @@ def run_experiment(config: dict, experiment_name: str):
                                                  best_epoch=best_epoch,
                                                  test_dataloader=test_dataloader,
                                                  strategy=strategy,
-                                                 results_path=results_path)
+                                                 results_path=results_path_for_randomization)
     performance_evaluator.evaluate_on_test_data()
 
     #   Remove data splits related to current experiment
@@ -174,11 +213,6 @@ def run_experiment(config: dict, experiment_name: str):
             shutil.rmtree(target_data_dir)
         except OSError as e:
             print(f"Error: {target_data_dir} could not be removed; {e}")
-
-    print(f'\nExperiment "{experiment_name}" finished. \n')
-
-    print('-----------------------------------------------------------------------------------------')
-
 
 if __name__ == '__main__':
     #   Parse command line arguments

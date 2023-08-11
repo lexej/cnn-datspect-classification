@@ -5,7 +5,7 @@ from common import device
 from common import train_test_split
 
 
-def create_data_splits(source_data_dir, target_data_dir, id_to_split_table_filepath):
+def create_data_splits(source_data_dir, target_data_dir, id_to_split_dict: dict):
 
     print('--- Creating splits of image data ---')
 
@@ -16,16 +16,7 @@ def create_data_splits(source_data_dir, target_data_dir, id_to_split_table_filep
 
     num_digits = len(str(subject_ids[-1]))
 
-    #   Load id-to-split table and create subfolders for train, validation, test
-
-    id_to_split_table = pd.read_excel(id_to_split_table_filepath)
-
-    #   TODO: Should be passable as parameter to experiment
-    split_column = id_to_split_table['splittrain']
-    
-    id_to_split_dict = dict(zip(id_to_split_table['ID'], split_column))
-
-    split_folder_names = list(split_column.unique())
+    split_folder_names = {split_name for split_name in id_to_split_dict.values()}
 
     for sfn in split_folder_names:
         os.makedirs(os.path.join(target_data_dir, sfn))
