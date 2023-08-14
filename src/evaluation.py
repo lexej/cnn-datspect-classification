@@ -56,6 +56,10 @@ class PerformanceEvaluator:
 
         #   ---------------------------------------------------------------------------------------------
 
+        #   Save predictions for test cases (without distinction between consensus or no consensus)
+        self.__save_preds(ids=ids, preds=preds, trues=labels_original_list, 
+                          save_as="preds_test_data.csv")
+
         #   Save predictions for consensus test cases
         self.__save_preds(ids_consensus, preds_consensus, trues_consensus_full,
                           save_as='preds_consensus_cases.csv')

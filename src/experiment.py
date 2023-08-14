@@ -46,8 +46,6 @@ def run_experiment(config: dict, experiment_name: str):
 
     # ---------------------------------------------------------------------------------------------------------
 
-    print(f'\nExperiment "{experiment_name}": \n')
-
     cwd_dir = os.getcwd()
 
     #   Load id-to-split table
@@ -63,6 +61,8 @@ def run_experiment(config: dict, experiment_name: str):
 
     #   Choose first num_randomizations columns of table as split columns
     splits_for_randomization = id_to_split_table_cols[0:num_randomizations]
+
+    print(f'\nExperiment "{experiment_name}" ({len(splits_for_randomization)} randomizations): \n')
 
     for i in splits_for_randomization:
         print("*" * 80)
