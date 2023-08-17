@@ -32,6 +32,10 @@ def run_experiment(config: dict, experiment_name: str):
 
     os.makedirs(results_path)
 
+    preds_dir = os.path.join(results_path, f'preds_{experiment_name}')
+
+    os.makedirs(preds_dir, exist_ok=True)
+
     try:
         num_randomizations = config['num_randomizations']
     except KeyError as e:
@@ -74,6 +78,7 @@ def run_experiment(config: dict, experiment_name: str):
 
         perform_experiment_given_randomization(randomization=i, config=config, 
                                                results_path=results_path, 
+                                               preds_dir=preds_dir,
                                                id_to_split_dict=id_to_split_dict)
         
         print(f'\n--- Randomization "{i}" finished. ---\n')
@@ -84,7 +89,7 @@ def run_experiment(config: dict, experiment_name: str):
     print("-" * 160)
 
 
-def perform_experiment_given_randomization(randomization: str, config, results_path, id_to_split_dict: dict):
+def perform_experiment_given_randomization(randomization: str, config, results_path, preds_dir, id_to_split_dict: dict):
     try:
         images_dirpath = config['images_dir']
         labels_filepath = config['labels_filepath']
@@ -205,6 +210,21 @@ def perform_experiment_given_randomization(randomization: str, config, results_p
                                                  strategy=strategy,
                                                  results_path=results_path_for_randomization)
     performance_evaluator.evaluate_on_test_data()
+
+    #   Concatenate predictions for train, validation and test cases
+
+    preds_train_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_train_data.csv'))
+    preds_train_data['split'] = 1
+
+    preds_valid_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_valid_data.csv'))
+    preds_valid_data['split'] = 2
+
+    preds_test_data = pd.read_csv(os.path.join(results_path_for_randomization, 'testing', 'preds_test_data.csv'))
+    preds_test_data['split'] = 3
+
+    preds_all = pd.concat([preds_train_data, preds_valid_data, preds_test_data], ignore_index=True)
+    
+    preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
 
     #   Remove data splits related to current experiment
     
