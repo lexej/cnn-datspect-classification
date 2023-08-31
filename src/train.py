@@ -1,5 +1,6 @@
 from common import os, np, tqdm, plt, pd
 from common import torch, nn
+from evaluation import _get_predictions, _save_preds
 
 
 def train_model(model: nn.Module, num_epochs, train_dataloader, valid_dataloader, optimizer, loss_fn, results_path):
@@ -86,13 +87,13 @@ def train_model(model: nn.Module, num_epochs, train_dataloader, valid_dataloader
     #   Store preds for train set and validations set on best weights
 
     #   Save preds for train data
-    ids_train, preds_train, labels_train = __get_predictions(model=model, dataloader=train_dataloader)
-    __save_preds(ids=ids_train, preds=preds_train, trues=labels_train, 
+    ids_train, preds_train, labels_train = _get_predictions(model=model, dataloader=train_dataloader)
+    _save_preds(ids=ids_train, preds=preds_train, trues=labels_train, 
                  save_to=os.path.join(results_training_path, 'preds_train_data.csv'))
     
     #   Save preds for valid data
-    ids_valid, preds_valid, labels_valid = __get_predictions(model=model, dataloader=valid_dataloader)
-    __save_preds(ids=ids_valid, preds=preds_valid, trues=labels_valid, 
+    ids_valid, preds_valid, labels_valid = _get_predictions(model=model, dataloader=valid_dataloader)
+    _save_preds(ids=ids_valid, preds=preds_valid, trues=labels_valid, 
                  save_to=os.path.join(results_training_path, 'preds_valid_data.csv'))
 
     #   Create plot with loss curves
@@ -108,42 +109,4 @@ def train_model(model: nn.Module, num_epochs, train_dataloader, valid_dataloader
     plt.savefig(os.path.join(results_training_path, 'training_curves.png'), dpi=300)
 
     return model, best_epoch, best_weights_path
-
-
-def __get_predictions(model, dataloader) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Calculate preds for train set and validation set."""
-
-    preds = []
-    ids = []
-    labels = []
-
-    #   Create numpy array for predictions and ground truths
-
-    with torch.no_grad():
-        for batch in dataloader:
-            batch_features, batch_labels, batch_metadata = batch
-
-            outputs = model(batch_features)
-
-            preds.extend(outputs.tolist())
-            labels.extend(batch_labels.tolist())
-            ids.extend(batch_metadata['id'].tolist())
-
-    preds = np.array(preds).squeeze()
-    ids = np.array(ids)
-    labels = np.array(labels).squeeze()
-
-    return ids, preds, labels
-
-
-def __save_preds(ids: np.ndarray, preds: np.ndarray, trues: np.ndarray, save_to: str):
-    """Save predictions in CSV format."""
-
-    result = pd.DataFrame({
-            'id': ids.tolist(),
-            'prediction': preds.tolist(),
-            'true_label': trues.tolist()
-    })
-
-    result.to_csv(save_to, index=False)
 

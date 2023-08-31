@@ -57,16 +57,16 @@ class PerformanceEvaluator:
         #   ---------------------------------------------------------------------------------------------
 
         #   Save predictions for test cases (without distinction between consensus or no consensus)
-        self.__save_preds(ids=ids, preds=preds, trues=labels_original_list, 
-                          save_as="preds_test_data.csv")
+        _save_preds(ids=ids, preds=preds, trues=labels_original_list,
+                    save_to=os.path.join(self.results_testing_path, "preds_test_data.csv"))
 
         #   Save predictions for consensus test cases
-        self.__save_preds(ids_consensus, preds_consensus, trues_consensus_full,
-                          save_as='preds_consensus_cases.csv')
+        _save_preds(ids=ids_consensus, preds=preds_consensus, trues=trues_consensus_full,
+                    save_to=os.path.join(self.results_testing_path, 'preds_consensus_cases.csv'))
 
         #   Save predictions for "no consensus" test cases
-        self.__save_preds(ids_no_consensus, preds_no_consensus, trues_no_consensus_full,
-                          save_as='preds_no_consensus_cases.csv')
+        _save_preds(ids=ids_no_consensus, preds=preds_no_consensus, trues=trues_no_consensus_full,
+                    save_to=os.path.join(self.results_testing_path, 'preds_no_consensus_cases.csv'))
 
         self.__calculate_statistics(preds_consensus=preds_consensus,
                                     trues_consensus_reduced=trues_consensus_reduced,
@@ -182,17 +182,6 @@ class PerformanceEvaluator:
                               signature='()->(m)')(labels_original)
 
         return ids, preds, labels
-
-    def __save_preds(self, ids: np.ndarray, preds: np.ndarray, trues: np.ndarray, save_as: str):
-        """Save predictions for test cases in CSV format."""
-
-        result = pd.DataFrame({
-            'id': ids.tolist(),
-            'prediction': preds.tolist(),
-            'true_label': trues.tolist()
-        })
-
-        result.to_csv(os.path.join(self.results_testing_path, save_as), index=False)
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
                                trues_no_consensus_full, save_as: str):
@@ -509,4 +498,49 @@ class PerformanceEvaluator:
         plt.savefig(os.path.join(self.results_testing_path, 'optimization_curves.png'), dpi=300)
 
         plt.close()
+
+
+
+def _get_predictions(model, dataloader) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Calculate preds for train set and validation set."""
+
+    preds = []
+    ids = []
+    labels = []
+
+    #   Create numpy array for predictions and ground truths
+
+    with torch.no_grad():
+        for batch in dataloader:
+            batch_features, batch_labels, batch_metadata = batch
+
+            outputs = model(batch_features)
+
+            preds.extend(outputs.tolist())
+            labels.extend(batch_labels.tolist())
+
+            if isinstance(batch_metadata['id'], list):
+                batch_ids = batch_metadata['id']
+            else:
+                batch_ids = batch_metadata['id'].tolist()
+
+            ids.extend(batch_ids)
+
+    preds = np.array(preds).squeeze()
+    ids = np.array(ids)
+    labels = np.array(labels).squeeze()
+
+    return ids, preds, labels
+
+
+def _save_preds(ids: np.ndarray, preds: np.ndarray, trues: np.ndarray, save_to: str):
+    """Save predictions in CSV format."""
+
+    result = pd.DataFrame({
+            'id': ids.tolist(),
+            'prediction': preds.tolist(),
+            'true_label': trues.tolist()
+    })
+
+    result.to_csv(save_to, index=False)
 

@@ -3,6 +3,7 @@ __pycache__/
 # images folders
 unused
 affine_2d
+PPMI_dataset
 *.m
 *.mat
 *.nii
