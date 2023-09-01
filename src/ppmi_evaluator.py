@@ -1,70 +1,11 @@
-from common import os, nib, torch, sys, re, yaml, shutil
-from common import sigmoid, Dataset, DataLoader
-
-from data import preprocess_image
+from common import os, sys, yaml, shutil
+from common import torch, DataLoader
 
 from evaluation import _get_predictions, _save_preds
 
+from data import PPMIDataset
 
-#   Dataset only used for testing performance of models
-class PPMIDataset(Dataset):
-    def __init__(self, features_normal_dir, features_reduced_dir, 
-                 target_input_height, target_input_width, interpolation_method):
-        
-        features_normal_filepaths = sorted(os.listdir(features_normal_dir))
-        features_normal_filepaths = [os.path.join(features_normal_dir, x) for x in features_normal_filepaths]
-        labels_normal = torch.zeros(len(features_normal_filepaths))
-
-        features_reduced_filepaths = sorted(os.listdir(features_reduced_dir))
-        features_reduced_filepaths = [os.path.join(features_reduced_dir, x) for x in features_reduced_filepaths]
-        labels_reduced = torch.ones(len(features_reduced_filepaths))
-
-        self.features_filepaths = features_normal_filepaths + features_reduced_filepaths
-        self.labels = torch.cat((labels_normal, labels_reduced))
-
-        self.target_input_height = target_input_height
-        self.target_input_width = target_input_width
-        self.interpolation_method = interpolation_method
-
-
-    def __getitem__(self, index):
-
-        target_filepath = self.features_filepaths[index]
-
-        ######################################################################################################
-        #   Get Image
-
-        img = nib.load(target_filepath).get_fdata()
-
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
-        
-        ######################################################################################################
-        #   Extract Id
-        
-        id_pattern_in_filename = r'slab(.+).nii'
-
-        id_ = re.findall(id_pattern_in_filename, os.path.basename(target_filepath))[0]
-
-        metadata = {
-            'id': id_
-        }
-
-        ######################################################################################################
-        #   Get label
-
-        label = self.labels[index]
-
-        return img, label, metadata
-
-    def __len__(self):
-        return len(self.features_filepaths)
-
-
-
-def main(results_dir):
-
-    features_normal_dir = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/PPMI_dataset/2D/normal_HC'
-    features_reduced_dir = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/PPMI_dataset/2D/reduced_PD'
+def main(results_dir: str, features_normal_dir: str, features_reduced_dir: str):
 
     #   Create dir for preds for ppmi dataset
 
@@ -123,6 +64,11 @@ if __name__ == "__main__":
 
     results_dirs = [results_dir_1, results_dir_2, results_dir_3, results_dir_4, results_dir_5, results_dir_6]
 
+    features_normal_dir = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/PPMI_dataset/2D/normal_HC'
+    features_reduced_dir = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/PPMI_dataset/2D/reduced_PD'
+
     for i in results_dirs:
-        main(results_dir=i)
+        main(results_dir=i, 
+             features_normal_dir=features_normal_dir, 
+             features_reduced_dir=features_reduced_dir)
 
