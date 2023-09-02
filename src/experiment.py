@@ -158,7 +158,7 @@ def perform_experiment_given_randomization(randomization: str, config, results_p
         loss_fn = nn.BCELoss()
     elif strategy == 'regression':
         num_out_features = 1
-        outputs_function = None  # or sigmoid; TODO : cross-correlation?
+        outputs_function = sigmoid  # or None ?
         loss_fn = nn.MSELoss()
     elif strategy == 2:
         #   TODO: Achtung Baustelle..
