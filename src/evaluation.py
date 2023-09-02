@@ -23,7 +23,14 @@ class PerformanceEvaluator:
 
         #   ---------------------------------------------------------------------------------------------
 
-        ids, preds, labels_original_list = self.__get_predictions()
+        #   Load weights into model
+        self.model.load_state_dict(torch.load(self.model_weights_path))
+
+        #   Set evaluation mode
+        self.model.eval()
+
+        ids, preds, labels_original_list = _get_predictions(model=self.model, 
+                                                            dataloader=self.test_dataloader)
 
         #   labels for testing have to be inferred from original labels using a majority vote
 
@@ -135,53 +142,6 @@ class PerformanceEvaluator:
             df.to_csv(os.path.join(self.results_testing_path, 'optimization_curves.csv'), index=False)
 
         print(f'\n--- Evaluation done. ---')
-
-    def __get_predictions(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Get the ids, predictions and true labels."""
-
-        # Load weights into model
-        self.model.load_state_dict(torch.load(self.model_weights_path))
-
-        #   Set evaluation mode
-        self.model.eval()
-
-        preds = []
-        ids = []
-        labels_original = []
-
-        #   Create numpy array for predictions and ground truths
-
-        with torch.no_grad():
-            for batch in self.test_dataloader:
-                batch_features, batch_labels, batch_metadata = batch
-
-                outputs = self.model(batch_features)
-
-                preds.extend(outputs.tolist())
-
-                #   batch_labels shape: dict with keys
-                #   'R1', 'R2', 'R3', 'R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2'
-                #   and values are torch tensors containing the <batch_size>-labels
-
-                for i in range(len(batch_labels['R1'])):
-                    labels_sample = {}
-
-                    for key, value in batch_labels.items():
-                        labels_sample[key] = int(value[i])
-
-                    labels_original.append(labels_sample)
-
-                ids.extend(batch_metadata['id'].tolist())
-
-        preds = np.array(preds).squeeze()
-        ids = np.array(ids)
-        labels_original = np.array(labels_original)
-
-        #   Reduce list of dict to list of list (removing information about rater)
-        labels = np.vectorize(lambda d: np.array([d[k] for k in ['R1', 'R2', 'R3']]),
-                              signature='()->(m)')(labels_original)
-
-        return ids, preds, labels
 
     def __calculate_statistics(self, preds_consensus, trues_consensus_reduced, preds_no_consensus,
                                trues_no_consensus_full, save_as: str):

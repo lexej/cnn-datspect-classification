@@ -162,11 +162,9 @@ class SpectSubset(Dataset):
 
         #   Convert pandas DataFrame row to pandas Series of labels of interest
 
-        labels_full = label_row[['R1', 'R2', 'R3',
-                                 'R1S1', 'R1S2', 'R2S1',
-                                 'R2S2', 'R3S1', 'R3S2']].reset_index(drop=True).squeeze()
+        labels_final = label_row[['R1', 'R2', 'R3']]
 
-        available_labels = labels_full.to_dict()
+        available_labels = labels_final.reset_index(drop=True).squeeze().values
 
         return img, available_labels, metadata
 
@@ -227,11 +225,11 @@ class PPMIDataset(Dataset):
         return len(self.features_filepaths)
 
 
-def _choose_label_from_available_labels(label: dict, label_selection_strategy: str, strategy: str) -> torch.Tensor:
+def _choose_label_from_available_labels(label: np.ndarray, 
+                                        label_selection_strategy: str, 
+                                        strategy: str) -> torch.Tensor:
 
-    intra_rater_consensus_labels = {key: label[key] for key in ['R1', 'R2', 'R3']}
-
-    available_labels = sorted(list(intra_rater_consensus_labels.values()))
+    available_labels = sorted(list(label))
 
     if strategy == 'baseline':
         if label_selection_strategy == 'random':
