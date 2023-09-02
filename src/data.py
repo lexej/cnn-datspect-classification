@@ -224,6 +224,52 @@ class PPMIDataset(Dataset):
     def __len__(self):
         return len(self.features_filepaths)
 
+class MPHDataset(Dataset):
+    """The MPH dataset is only used for evaluation of the trained models."""
+    def __init__(self, mph_features_dir: str, mph_labels_filepath: str, 
+                 target_input_height, target_input_width, interpolation_method):
+        
+        features_filepaths = sorted(os.listdir(mph_features_dir))
+        self.features_filepaths = [os.path.join(mph_features_dir, x) for x in features_filepaths]
+
+        self.labels_table = pd.read_excel(mph_labels_filepath)
+
+        self.target_input_height = target_input_height
+        self.target_input_width = target_input_width
+        self.interpolation_method = interpolation_method
+
+    def __getitem__(self, index):
+
+        target_filepath = self.features_filepaths[index]
+
+        ######################################################################################################
+        #   Extract Id from filename
+
+        id_pattern_in_filename = r'slab0*([1-9]+[0-9]*).nii'
+
+        id_ = int(re.findall(id_pattern_in_filename, os.path.basename(target_filepath))[0])
+
+        metadata = {
+            'id': id_
+        }
+
+        ######################################################################################################
+        #   Get image
+
+        img = nib.load(target_filepath).get_fdata()
+        
+        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
+
+        ######################################################################################################
+        #   Get label given the id
+
+        label = int(self.labels_table[self.labels_table['ID'] == id_]['scoreConsensus'])
+
+        return img, label, metadata
+
+    def __len__(self):
+        return len(self.features_filepaths)
+
 
 def _choose_label_from_available_labels(label: np.ndarray, 
                                         label_selection_strategy: str, 
