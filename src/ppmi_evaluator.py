@@ -1,5 +1,6 @@
-from common import os, sys, yaml, shutil
+from common import os, sys, yaml, shutil, np, json
 from common import torch, DataLoader
+from common import accuracy_score
 
 from evaluation import _get_predictions, _save_preds
 
@@ -7,7 +8,7 @@ from data import PPMIDataset
 
 def main(results_dir: str, features_normal_dir: str, features_reduced_dir: str):
 
-    #   Create dir for preds for ppmi dataset
+    #   Create dir for preds and performance metrics on PPMI dataset
 
     ppmi_preds_path = os.path.join(results_dir, 'preds_ppmi')
 
@@ -48,8 +49,23 @@ def main(results_dir: str, features_normal_dir: str, features_reduced_dir: str):
 
         ids_ppmi, preds_ppmi, labels_ppmi = _get_predictions(model, ppmi_dataloader)
 
+        #   Save preds 
+
         _save_preds(ids=ids_ppmi, preds=preds_ppmi, trues=labels_ppmi,
                     save_to=os.path.join(ppmi_preds_path, f'preds_ppmi_{os.path.basename(results_dir)}_{subdir}.csv'))
+        
+        #   Save performance stats
+
+        preds_ppmi_thresholded = np.where(np.array(preds_ppmi) >= 0.5, 1, 0)
+
+        performance_stats = {
+            'acc_score': accuracy_score(y_true=labels_ppmi, y_pred=preds_ppmi_thresholded)
+        }
+
+        performance_stats_path = os.path.join(ppmi_preds_path, f'performance_ppmi_{os.path.basename(results_dir)}_{subdir}.json')
+        
+        with open(performance_stats_path, 'w') as f:
+            json.dump(performance_stats, f)
 
 
 if __name__ == "__main__":
