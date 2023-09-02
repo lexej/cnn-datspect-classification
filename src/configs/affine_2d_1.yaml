@@ -20,9 +20,6 @@ target_img_size: [ 224,224 ] # for Resnet
 #                               'bicubic', 'box', 'hamming', and 'lanczos'
 interpolation_method: 'bicubic'
 
-test_to_train_split_size_percent: 0.3  # ratio of test split to train split
-valid_to_train_split_size_percent: 0.15  # ratio of validation split to train split
-
 # ---------------------------------------------------------------------------------------------
 
 #   Model-related
