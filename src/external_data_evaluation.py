@@ -56,15 +56,11 @@ def evaluate_on_external_dataset(results_dir: str, dataset: Dataset, batch_size,
 
 if __name__ == "__main__":
     # dir which contains the results for x-randomizations of the experiment given certain strategy
-    results_dir_1 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt1/baseline_majority'
-    results_dir_2 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt1/baseline_random'
-    results_dir_3 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt1/regression'
+    results_dir_1 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority'
+    results_dir_2 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_random'
+    results_dir_3 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/regression'
 
-    results_dir_4 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt2/baseline_majority'
-    results_dir_5 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt2/baseline_random'
-    results_dir_6 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/calculated_results/results_pt2/regression'
-
-    results_dirs = [results_dir_1, results_dir_2, results_dir_3, results_dir_4, results_dir_5, results_dir_6]
+    results_dirs = [results_dir_1, results_dir_2, results_dir_3]
 
     #   Paths to PPMI data
 
