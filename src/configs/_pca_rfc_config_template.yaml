@@ -1,6 +1,7 @@
 
 #   Syntax rules for this file; required keys are:
-#      'num_randomizations', 'interpolation_method', 'batch_size', 'images_dir', 'labels_filepath', 'strategy'
+#      'num_randomizations', 'batch_size', 'images_dir', 'labels_filepath', 'strategy', 'num_pca_components',
+#       'label_selection_strategy_train', 'label_selection_strategy_valid'
 
 #   Number of experiments to be performed using different randomizations
 
@@ -12,14 +13,6 @@ num_randomizations: 10
 
 images_dir: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/affine_2d
 labels_filepath: /Users/aleksej/IdeaProjects/master-thesis-kucerenko/scans_20230424.xlsx
-
-# ---------------------------------------------------------------------------------------------
-
-#   Data-related
-
-# interpolation_method can be: 'nearest', 'nearest-exact', 'bilinear',
-#                               'bicubic', 'box', 'hamming', and 'lanczos'
-interpolation_method: 'bicubic'
 
 # ---------------------------------------------------------------------------------------------
 
