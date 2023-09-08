@@ -8,3 +8,4 @@ MPH_30min_20230824
 *.m
 *.mat
 *.nii
+results*
