@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "pca_rfc",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            "program": "experiment.py",
+            "args": [
+                "-c", "configs/pca_rfc.yaml",
+                "-n", "pca_rfc"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "justMyCode": true
+        },
+        {
             "name": "baseline_majority",
             "type": "python",
             "request": "launch",
