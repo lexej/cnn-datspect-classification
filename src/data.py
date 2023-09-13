@@ -63,8 +63,9 @@ def create_data_splits(source_data_dir, target_data_dir, id_to_split_dict: dict)
     print('--- Splits of image data successfully created. ---')
 
 
-def preprocess_image(img: np.ndarray, target_input_height: int, target_input_width: int,
-                     interpolation_method: str, batch_dim: bool = False) -> torch.Tensor:
+def preprocess_image(img: np.ndarray, resize: bool, 
+                     target_input_height: int, target_input_width: int, interpolation_method: str, 
+                     batch_dim: bool = False) -> torch.Tensor:
 
     #   1. Crop image of size (91, 109) to region of interest (91, 91)
     #       policy: select all rows and 10th to 100th column
@@ -72,16 +73,21 @@ def preprocess_image(img: np.ndarray, target_input_height: int, target_input_wid
     transformed_img = img[:, 9:100]
 
     #   2. Convert to torch tensor
-    #   3. Resize images from (91, 91) to target size (input_height, input_width)
-    #           using certain interpolation method
-    #       - Attention: Interpolation method can have impact on model performance !
 
-    img_transforms = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Resize(size=(target_input_height, target_input_width),
+    transforms_list = [
+        transforms.ToTensor()
+    ]
+
+    if resize:
+        #   3. If resize=True, resize images from (91, 91) to target size (input_height, input_width)
+        #           using certain interpolation method
+        #       - Attention: Interpolation method can have impact on model performance !
+        resize = transforms.Resize(size=(target_input_height, target_input_width),
                           interpolation=getattr(InterpolationMode, interpolation_method.upper()),
                           antialias=True)
-    ])
+        transforms_list.append(resize)
+
+    img_transforms = transforms.Compose(transforms_list)
 
     transformed_img = img_transforms(transformed_img)
 
@@ -119,12 +125,15 @@ class LabelSelector(Dataset):
 
 class SpectSubset(Dataset):
     """SpectSubset represents a split (train/validation/test) of the Spect dataset."""
-    def __init__(self, features_path, labels_filepath, target_input_height, target_input_width, interpolation_method):
+    def __init__(self, features_path, labels_filepath, resize: bool, 
+                 target_input_height, target_input_width, interpolation_method):
         self.features_path = features_path
         self.features_files = sorted(os.listdir(features_path))
 
         self.labels_filepath = labels_filepath
         self.labels = pd.read_excel(labels_filepath)
+
+        self.resize = resize
 
         self.target_input_height = target_input_height
         self.target_input_width = target_input_width
@@ -141,7 +150,11 @@ class SpectSubset(Dataset):
 
         img = nib.load(image_path).get_fdata()
 
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
+        img = preprocess_image(img, 
+                               resize=self.resize,
+                               target_input_height=self.target_input_height, 
+                               target_input_width=self.target_input_width, 
+                               interpolation_method=self.interpolation_method)
         
         ######################################################################################################
         #   Extract Id
@@ -173,7 +186,7 @@ class SpectSubset(Dataset):
 
 class PPMIDataset(Dataset):
     """The PPMI dataset is only used for evaluation of the trained models."""
-    def __init__(self, features_normal_dir, features_reduced_dir, 
+    def __init__(self, features_normal_dir, features_reduced_dir, resize: bool,
                  target_input_height, target_input_width, interpolation_method):
         
         features_normal_filepaths = sorted(os.listdir(features_normal_dir))
@@ -186,6 +199,8 @@ class PPMIDataset(Dataset):
 
         self.features_filepaths = features_normal_filepaths + features_reduced_filepaths
         self.labels = torch.cat((labels_normal, labels_reduced))
+
+        self.resize = resize
 
         self.target_input_height = target_input_height
         self.target_input_width = target_input_width
@@ -201,7 +216,11 @@ class PPMIDataset(Dataset):
 
         img = nib.load(target_filepath).get_fdata()
 
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
+        img = preprocess_image(img, 
+                               resize=self.resize,
+                               target_input_height=self.target_input_height, 
+                               target_input_width=self.target_input_width, 
+                               interpolation_method=self.interpolation_method)
         
         ######################################################################################################
         #   Extract Id
@@ -226,13 +245,15 @@ class PPMIDataset(Dataset):
 
 class MPHDataset(Dataset):
     """The MPH dataset is only used for evaluation of the trained models."""
-    def __init__(self, mph_features_dir: str, mph_labels_filepath: str, 
+    def __init__(self, mph_features_dir: str, mph_labels_filepath: str, resize: bool, 
                  target_input_height, target_input_width, interpolation_method):
         
         features_filepaths = sorted(os.listdir(mph_features_dir))
         self.features_filepaths = [os.path.join(mph_features_dir, x) for x in features_filepaths]
 
         self.labels_table = pd.read_excel(mph_labels_filepath)
+
+        self.resize = resize
 
         self.target_input_height = target_input_height
         self.target_input_width = target_input_width
@@ -258,7 +279,11 @@ class MPHDataset(Dataset):
 
         img = nib.load(target_filepath).get_fdata()
         
-        img = preprocess_image(img, self.target_input_height, self.target_input_width, self.interpolation_method)
+        img = preprocess_image(img, 
+                               resize=self.resize,
+                               target_input_height=self.target_input_height, 
+                               target_input_width=self.target_input_width, 
+                               interpolation_method=self.interpolation_method)
 
         ######################################################################################################
         #   Get label given the id
@@ -277,7 +302,7 @@ def _choose_label_from_available_labels(label: np.ndarray,
 
     available_labels = sorted(list(label))
 
-    if strategy == 'baseline':
+    if strategy == 'baseline' or strategy == 'pca_rfc':
         if label_selection_strategy == 'random':
             chosen_label = int(np.random.choice(available_labels))
         elif label_selection_strategy == 'majority':
@@ -311,6 +336,7 @@ def get_dataloaders(features_dirpath,
                     label_selection_strategy_train,
                     label_selection_strategy_valid,
                     strategy: str,
+                    resize: bool,
                     target_input_height,
                     target_input_width,
                     interpolation_method):
@@ -329,6 +355,7 @@ def get_dataloaders(features_dirpath,
     
     train_subset = SpectSubset(features_path=train_data_path,
                                labels_filepath=labels_filepath,
+                               resize=resize,
                                target_input_height=target_input_height, 
                                target_input_width=target_input_width, 
                                interpolation_method=interpolation_method)
@@ -342,6 +369,7 @@ def get_dataloaders(features_dirpath,
 
     val_subset = SpectSubset(features_path=valid_data_path,
                              labels_filepath=labels_filepath,
+                             resize=resize,
                              target_input_height=target_input_height, 
                              target_input_width=target_input_width, 
                              interpolation_method=interpolation_method)
@@ -355,9 +383,10 @@ def get_dataloaders(features_dirpath,
 
     test_subset = SpectSubset(features_path=test_data_path,
                               labels_filepath=labels_filepath,
+                              resize=resize,
                               target_input_height=target_input_height, 
                               target_input_width=target_input_width, 
-                              interpolation_method=interpolation_method)                           
+                              interpolation_method=interpolation_method)
 
     # -----------------------------------------------------------------------------------------------------------
 

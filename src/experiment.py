@@ -8,6 +8,8 @@ from model import ResNet34
 
 from data import create_data_splits, get_dataloaders
 
+from pca_rfc import fit_rfc, evaluate_rfc
+
 from train import train_model
 
 from evaluation import PerformanceEvaluator
@@ -90,24 +92,35 @@ def run_experiment(config: dict, experiment_name: str):
 
 
 def perform_experiment_given_randomization(randomization: str, config, results_path, preds_dir, id_to_split_dict: dict):
+
+    #   The results path for the current randomization of image data
+    results_path_for_randomization = os.path.join(results_path, 'randomization_'+str(randomization))
+
     try:
+        strategy = config['strategy']
+
         images_dirpath = config['images_dir']
         labels_filepath = config['labels_filepath']
-
-        (input_height, input_width) = config['target_img_size']
-        interpolation_method = config['interpolation_method']
-
-        model_name = config['model_name']
-        starting_weights_path = config['starting_weights_path']
-        pretrained = config['pretrained']
-        strategy = config['strategy']
 
         label_selection_strategy_train = config['label_selection_strategy_train']
         label_selection_strategy_valid = config['label_selection_strategy_valid']
 
         batch_size = config['batch_size']
-        lr = config['lr']
-        num_epochs = config['epochs']
+
+        (input_height, input_width) = (None, None)
+        interpolation_method = None
+
+        if strategy == 'baseline' or strategy == 'regression':
+            (input_height, input_width) = config['target_img_size']
+            interpolation_method = config['interpolation_method']
+            model_name = config['model_name']
+            starting_weights_path = config['starting_weights_path']
+            pretrained = config['pretrained']
+            lr = config['lr']
+            num_epochs = config['epochs']
+        elif strategy == 'pca_rfc':
+            num_pca_components = config['num_pca_components']
+
     except KeyError as e:
         sys.exit(f'Error caught: Required key {e} could not be found in passed config.')
 
@@ -133,98 +146,118 @@ def perform_experiment_given_randomization(randomization: str, config, results_p
 
     #   Create dataloader for train, validation and test split given dataset
 
-    dataloaders = get_dataloaders(features_dirpath=target_data_dir,
-                                  labels_filepath=labels_filepath,
-                                  batch_size=batch_size,
-                                  label_selection_strategy_train=label_selection_strategy_train,
-                                  label_selection_strategy_valid=label_selection_strategy_valid,
-                                  strategy=strategy,
-                                  target_input_height=input_height,
-                                  target_input_width=input_width,
-                                  interpolation_method=interpolation_method)
-
-    train_dataloader, valid_dataloader, test_dataloader = dataloaders
-
-    #   Initialize model params and train model params with optimizer and loss function
-
-    #   TODO -> Finetune ResNet
-
-
-    #   TODO : samples welche für train_loss reduktion schwierig sind -> id's bestimmen
-
-    if strategy == 'baseline':
-        num_out_features = 1
-        outputs_function = sigmoid
-        loss_fn = nn.BCELoss()
-    elif strategy == 'regression':
-        num_out_features = 1
-        outputs_function = sigmoid  # or None ?
-        loss_fn = nn.MSELoss()
-    elif strategy == 2:
-        #   TODO: Achtung Baustelle..
-        num_out_features = 7
-        outputs_function = lambda x: softmax(x, dim=1)
-        loss_fn = nn.MSELoss(reduction='sum')
-    else:
-        raise ValueError("Invalid value for config parameter strategy passed.")
-
-    if model_name == 'custom':
-        model = CustomModel2d(input_height=input_height, input_width=input_height)
-        model.initialize_weights()
-    elif model_name == 'resnet18':
-        model = ResNet18(num_out_features=num_out_features,
-                         outputs_activation_func=outputs_function,
-                         pretrained=pretrained)
-    elif model_name == 'resnet34':
-        model = ResNet34(num_out_features=num_out_features,
-                         outputs_activation_func=outputs_function,
-                         pretrained=pretrained)
-    else:
-        raise Exception("Invalid model name passed.")
-
-    #   Move model to device and set data type
-    model = model.to(device=device, dtype=torch.float)
-
-    optimizer = optim.Adam(params=model.parameters(), lr=lr)
-
-    if starting_weights_path is not None:
-        model.load_state_dict(torch.load(starting_weights_path))
-
-    #   The results path for the current randomization of image data
-    results_path_for_randomization = os.path.join(results_path, 'randomization_'+str(randomization))
-
-    model, best_epoch, model_weights_path = train_model(model,
-                                                        num_epochs,
-                                                        train_dataloader,
-                                                        valid_dataloader,
-                                                        optimizer,
-                                                        loss_fn,
-                                                        results_path_for_randomization)
-
-    #   Evaluate trained model (best epoch wrt. validation loss) on test data
-
-    performance_evaluator = PerformanceEvaluator(model=model,
-                                                 model_weights_path=model_weights_path,
-                                                 best_epoch=best_epoch,
-                                                 test_dataloader=test_dataloader,
-                                                 strategy=strategy,
-                                                 results_path=results_path_for_randomization)
-    performance_evaluator.evaluate_on_test_data()
-
-    #   Concatenate predictions for train, validation and test cases
-
-    preds_train_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_train_data.csv'))
-    preds_train_data['split'] = 1
-
-    preds_valid_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_valid_data.csv'))
-    preds_valid_data['split'] = 2
-
-    preds_test_data = pd.read_csv(os.path.join(results_path_for_randomization, 'testing', 'preds_test_data.csv'))
-    preds_test_data['split'] = 3
-
-    preds_all = pd.concat([preds_train_data, preds_valid_data, preds_test_data], ignore_index=True)
+    if strategy == 'baseline' or strategy == 'regression':
+        #   CNN requires input size (224, 224)
+        resize = True
+    elif strategy == 'pca_rfc':
+        resize = False
     
-    preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
+    train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(features_dirpath=target_data_dir,
+                                                                          labels_filepath=labels_filepath,
+                                                                          batch_size=batch_size,
+                                                                          label_selection_strategy_train=label_selection_strategy_train,
+                                                                          label_selection_strategy_valid=label_selection_strategy_valid,
+                                                                          strategy=strategy,
+                                                                          resize=resize,
+                                                                          target_input_height=input_height,
+                                                                          target_input_width=input_width,
+                                                                          interpolation_method=interpolation_method)
+
+    if strategy == 'baseline' or strategy == 'regression':
+        #   Initialize model params and train model params with optimizer and loss function
+
+        if strategy == 'baseline':
+            num_out_features = 1
+            outputs_function = sigmoid
+            loss_fn = nn.BCELoss()
+        elif strategy == 'regression':
+            num_out_features = 1
+            outputs_function = sigmoid  # or None ?
+            loss_fn = nn.MSELoss()
+        """
+        elif strategy == 2:
+            #   TODO: Achtung Baustelle..
+            num_out_features = 7
+            outputs_function = lambda x: softmax(x, dim=1)
+            loss_fn = nn.MSELoss(reduction='sum')
+        """
+        
+        if model_name == 'custom':
+            model = CustomModel2d(input_height=input_height, input_width=input_height)
+            model.initialize_weights()
+        elif model_name == 'resnet18':
+            model = ResNet18(num_out_features=num_out_features,
+                            outputs_activation_func=outputs_function,
+                            pretrained=pretrained)
+        elif model_name == 'resnet34':
+            model = ResNet34(num_out_features=num_out_features,
+                            outputs_activation_func=outputs_function,
+                            pretrained=pretrained)
+
+        #   Move model to device and set data type
+        model = model.to(device=device, dtype=torch.float)
+
+        optimizer = optim.Adam(params=model.parameters(), lr=lr)
+
+        if starting_weights_path is not None:
+            model.load_state_dict(torch.load(starting_weights_path))
+
+        model, best_epoch, model_weights_path = train_model(model,
+                                                            num_epochs,
+                                                            train_dataloader,
+                                                            valid_dataloader,
+                                                            optimizer,
+                                                            loss_fn,
+                                                            results_path_for_randomization)
+        
+        #   Evaluate trained model (best epoch wrt. validation loss) on test data
+
+        performance_evaluator = PerformanceEvaluator(model=model,
+                                                    model_weights_path=model_weights_path,
+                                                    best_epoch=best_epoch,
+                                                    test_dataloader=test_dataloader,
+                                                    strategy=strategy,
+                                                    results_path=results_path_for_randomization)
+        performance_evaluator.evaluate_on_test_data()
+
+        #   Concatenate predictions for train, validation and test cases
+
+        preds_train_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_train_data.csv'))
+        preds_train_data['split'] = 1
+
+        preds_valid_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_valid_data.csv'))
+        preds_valid_data['split'] = 2
+
+        preds_test_data = pd.read_csv(os.path.join(results_path_for_randomization, 'testing', 'preds_test_data.csv'))
+        preds_test_data['split'] = 3
+
+        preds_all = pd.concat([preds_train_data, preds_valid_data, preds_test_data], ignore_index=True)
+        
+        preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
+        
+    elif strategy == 'pca_rfc':
+        rfc, pca = fit_rfc(train_dataloader=train_dataloader, 
+                           num_pca_components=num_pca_components,
+                           results_path=results_path_for_randomization)
+
+        evaluate_rfc(rfc=rfc, 
+                     pca=pca, 
+                     test_dataloader=test_dataloader, 
+                     strategy=strategy, 
+                     results_path=results_path_for_randomization)
+
+        #   Concatenate predictions for train and test cases
+
+        preds_train_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_train_data.csv'))
+        preds_train_data['split'] = 1
+
+        preds_test_data = pd.read_csv(os.path.join(results_path_for_randomization, 'testing', 'preds_test_data.csv'))
+        preds_test_data['split'] = 3
+
+        preds_all = pd.concat([preds_train_data, preds_test_data], ignore_index=True)
+        
+        preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
+    
 
     #   Remove data splits related to current experiment
     
