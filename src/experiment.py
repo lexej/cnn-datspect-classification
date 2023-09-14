@@ -243,21 +243,39 @@ def perform_experiment_given_randomization(randomization: str, config, results_p
         testing_dir_path = os.path.join(results_path_for_randomization, 'testing')
         os.makedirs(testing_dir_path)
 
+        #   Evaluate on validation split
+
+        valid_preds_path = os.path.join(testing_dir_path, 'preds_valid_data.csv')
+
+        evaluate_rfc(rfc_path=rfc_path, 
+                     pca_path=pca_path, 
+                     test_dataloader=valid_dataloader, 
+                     strategy=strategy, 
+                     save_to_path=valid_preds_path)
+
+
+        #   Evaluate on test split
+
+        test_preds_path = os.path.join(testing_dir_path, 'preds_test_data.csv')
+
         evaluate_rfc(rfc_path=rfc_path, 
                      pca_path=pca_path, 
                      test_dataloader=test_dataloader, 
                      strategy=strategy, 
-                     save_to_path=os.path.join(testing_dir_path, 'preds_test_data.csv'))
+                     save_to_path=test_preds_path)
 
         #   Concatenate predictions for train and test cases
 
         preds_train_data = pd.read_csv(os.path.join(results_path_for_randomization, 'training', 'preds_train_data.csv'))
         preds_train_data['split'] = 1
 
-        preds_test_data = pd.read_csv(os.path.join(results_path_for_randomization, 'testing', 'preds_test_data.csv'))
+        preds_valid_data = pd.read_csv(valid_preds_path)
+        preds_valid_data['split'] = 2
+
+        preds_test_data = pd.read_csv(test_preds_path)
         preds_test_data['split'] = 3
 
-        preds_all = pd.concat([preds_train_data, preds_test_data], ignore_index=True)
+        preds_all = pd.concat([preds_train_data, preds_valid_data, preds_test_data], ignore_index=True)
         
         preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
     
