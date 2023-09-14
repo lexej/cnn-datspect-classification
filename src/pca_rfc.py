@@ -1,4 +1,4 @@
-from common import os, PCA, RandomForestClassifier, RANDOM_SEED
+from common import os, plt, PCA, RandomForestClassifier, RANDOM_SEED
 from common import np, accuracy_score, recall_score, precision_score
 from common import pickle
 from common import DataLoader
@@ -10,8 +10,32 @@ from evaluation import _save_preds
 from data import _choose_label_from_available_labels
 
 
+def __create_pca_components_plot(pca_components, num_cols, save_to_path):
+
+    num_rows = int(np.ceil(len(pca_components) / num_cols))
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 6))
+
+    for i, ax in enumerate(axes.ravel()):
+        if i < len(pca_components):
+            ax.imshow(pca_components[i]) # , cmap='gray'
+            ax.set_title(f"PCA component {i + 1}")
+        else:
+            ax.axis('off')
+    
+    plt.tight_layout()
+    plt.savefig(save_to_path, dpi=300)
+    plt.close(fig)  
+
+
 def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
+
+    results_training_path = os.path.join(results_path, 'training')
+    os.makedirs(results_training_path, exist_ok=True)
+
     X_train, y_train, ids_train = dataloader_to_ndarrays(train_dataloader, squeeze=True)
+
+    img_dim_original = (X_train.shape[-2], X_train.shape[-1])
 
     #   Flatten ndarray of images to shape (num_samples, num_features)
 
@@ -26,6 +50,16 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
 
     X_train_pca_transformed = pca.transform(X_train)
 
+    #   Access the detected PCA components
+
+    pca_components = pca.components_.reshape((num_pca_components, 
+                                              img_dim_original[0], 
+                                              img_dim_original[1]))
+
+    #   Create plot of pca components
+    __create_pca_components_plot(pca_components, num_cols=5, 
+                                 save_to_path=os.path.join(results_training_path, 'pca_components.png'))
+
     rfc = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED)
 
     rfc.fit(X=X_train_pca_transformed, y=y_train)
@@ -36,9 +70,6 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
     preds_train = preds_train[:, 1]
 
     # preds_train_thresholded = rfc.predict(X_train_pca_transformed)
-
-    results_training_path = os.path.join(results_path, 'training')
-    os.makedirs(results_training_path, exist_ok=True)
 
     #   Save rfc and pca model
 
