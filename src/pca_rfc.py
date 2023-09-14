@@ -55,10 +55,16 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
     _save_preds(ids=ids_train, preds=preds_train, trues=y_train, 
                 save_to=os.path.join(results_training_path, 'preds_train_data.csv'))
 
-    return rfc, pca
+    return rfc_model_path, pca_model_path
 
 
-def evaluate_rfc(rfc, pca, test_dataloader: DataLoader, strategy, results_path):
+def evaluate_rfc(rfc_path, pca_path, test_dataloader: DataLoader, strategy, save_to_path: str):
+
+    with open(rfc_path, 'rb') as f_rfc:
+        rfc = pickle.load(f_rfc)
+
+    with open(pca_path, 'rb') as f_pca:
+        pca = pickle.load(f_pca)
 
     X_test, y_test, ids_test = dataloader_to_ndarrays(test_dataloader, squeeze=True)
 
@@ -66,15 +72,18 @@ def evaluate_rfc(rfc, pca, test_dataloader: DataLoader, strategy, results_path):
 
     X_test_pca_transformed = pca.transform(X_test)
 
-    y_test_reduced = []
+    if len(y_test.shape) > 1 and y_test.shape[1] > 1:
+        y_test_reduced = []
 
-    for i in y_test:
-        chosen_label = _choose_label_from_available_labels(i,
-                                                            label_selection_strategy='majority',
-                                                            strategy=strategy)
-        y_test_reduced.append(chosen_label.cpu().numpy())
-    
-    y_test_reduced = np.array(y_test_reduced)
+        for i in y_test:
+            chosen_label = _choose_label_from_available_labels(i,
+                                                               label_selection_strategy='majority',
+                                                               strategy=strategy)
+            y_test_reduced.append(chosen_label.cpu().numpy())
+        
+        y_test_reduced = np.array(y_test_reduced)
+    else:
+        y_test_reduced = y_test
 
     preds_test = rfc.predict_proba(X_test_pca_transformed)
     preds_test = preds_test[:, 1]
@@ -87,14 +96,9 @@ def evaluate_rfc(rfc, pca, test_dataloader: DataLoader, strategy, results_path):
 
     # images_reconstructed = pca.inverse_transform(images_transformed_pca).reshape(original_shape)
 
-    results_testing_path = os.path.join(results_path, 'testing')
-    os.makedirs(results_testing_path, exist_ok=True)
+    #   Save preds for test data
 
-    #   Save preds for test split
-
-    _save_preds(ids=ids_test, preds=preds_test, trues=y_test, 
-                save_to=os.path.join(results_testing_path, 'preds_test_data.csv'))
-    
+    _save_preds(ids=ids_test, preds=preds_test, trues=y_test, save_to=save_to_path)
 
 
 """

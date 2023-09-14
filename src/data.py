@@ -244,7 +244,9 @@ class PPMIDataset(Dataset):
         return len(self.features_filepaths)
 
 class MPHDataset(Dataset):
-    """The MPH dataset is only used for evaluation of the trained models."""
+    """The MPH dataset is only used for evaluation of the trained models. 
+    ATTENTION: MPH dataset contains 30 samples with nan-valued pixels (out of total n=640)
+    Nan-values pixels are mapped to median values."""
     def __init__(self, mph_features_dir: str, mph_labels_filepath: str, resize: bool, 
                  target_input_height, target_input_width, interpolation_method):
         
@@ -284,6 +286,12 @@ class MPHDataset(Dataset):
                                target_input_height=self.target_input_height, 
                                target_input_width=self.target_input_width, 
                                interpolation_method=self.interpolation_method)
+        
+        if torch.isnan(img).any():
+            # Map nan-valued pixels to median of image (excluding the nans)
+
+            nan_mask = torch.isnan(img)
+            img[nan_mask] = torch.median(img[~nan_mask])
 
         ######################################################################################################
         #   Get label given the id

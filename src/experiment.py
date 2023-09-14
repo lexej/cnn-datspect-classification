@@ -236,15 +236,18 @@ def perform_experiment_given_randomization(randomization: str, config, results_p
         preds_all.to_csv(os.path.join(preds_dir, f'preds_all_{str(randomization)}.csv'), index=False)
         
     elif strategy == 'pca_rfc':
-        rfc, pca = fit_rfc(train_dataloader=train_dataloader, 
-                           num_pca_components=num_pca_components,
-                           results_path=results_path_for_randomization)
+        rfc_path, pca_path = fit_rfc(train_dataloader=train_dataloader,
+                                     num_pca_components=num_pca_components,
+                                     results_path=results_path_for_randomization)
+        
+        testing_dir_path = os.path.join(results_path_for_randomization, 'testing')
+        os.makedirs(testing_dir_path)
 
-        evaluate_rfc(rfc=rfc, 
-                     pca=pca, 
+        evaluate_rfc(rfc_path=rfc_path, 
+                     pca_path=pca_path, 
                      test_dataloader=test_dataloader, 
                      strategy=strategy, 
-                     results_path=results_path_for_randomization)
+                     save_to_path=os.path.join(testing_dir_path, 'preds_test_data.csv'))
 
         #   Concatenate predictions for train and test cases
 
