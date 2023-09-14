@@ -1,0 +1,199 @@
+% Version History
+% 2020-10-27  	    Holger Graf
+%                   Licence CC BY 4.0
+%					Link: https://www.overleaf.com/latex/templates/thesis-template-microeconomics-at-fsu-jena/shqhkgcqtvsn
+%					Accessed 18.01.2023
+% 2023-02-01		Adapted by Ines Rieger
+%					Licence CC BY 4.0
+%					Lehrstuhl für Erklärbares Maschinelles Lernen
+%					Universität Bamberg
+% Please adapt this tex file for your thesis
+
+\documentclass{xai-thesis}
+
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{hyperref} % use \usepackage[hidelinks]{hyperref} to hide boxes
+\usepackage[utf8]{inputenc} % depends on the font encoding that you are using
+\usepackage[round]{natbib}
+
+\input{math_commands.tex}
+
+\begin{document}
+% ----------------------------------------------------------------------------
+% Details for the titlepage
+% ----------------------------------------------------------------------------
+\thesisTitle{Title of your Thesis}
+\thesisType{Master Thesis} % 'Master Thesis' or 'Bachelor Thesis'
+\thesisAuthor{Aleksej Kucerenko}
+\thesisGrade{Master of Science in Applied Computer Science}
+\thesisFirstSupervisor{The name of your first supervisor} % your supervising professor
+\thesisSecondSupervisor{The name of your second supervisor, if applicable} % if you are supervised by additional advisors, e.g phd students at the chair or a  supervisor in a company (write company after the name of the supervisor)
+\thesisDate{\today}
+
+% Print titlepage
+\thesisMakeTitle
+
+% ----------------------------------------------------------------------------
+% Abstract
+% ----------------------------------------------------------------------------
+\clearpage
+\pagenumbering{roman}
+\pagestyle{plain}
+
+\subsection*{Abstract}
+Short summary of your thesis (max. 1 page) \ldots
+
+\clearpage
+\subsection*{Abstract}
+Kurze Zusammenfassung Ihrer Abschlussarbeit (max. 1 Seite) \ldots
+
+% ----------------------------------------------------------------------------
+% Acknowledgements
+% ----------------------------------------------------------------------------
+\clearpage
+\subsection*{Acknowledgements}
+If you want to thank anyone (optional) \ldots
+
+% ----------------------------------------------------------------------------
+% Table of contents
+% ----------------------------------------------------------------------------
+\clearpage
+%\thispagestyle{empty}
+\tableofcontents
+
+% ----------------------------------------------------------------------------
+% List of figures/tables/acronyms
+% ----------------------------------------------------------------------------
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+% --------------------------
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+% --------------------------
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Acronyms}
+\section*{List of Acronyms}
+\begin{tabular}{@{}ll}
+AI & Artificial Intelligence\\
+\end{tabular}
+
+% ----------------------------------------------------------------------------
+% Notation
+% ----------------------------------------------------------------------------
+\clearpage
+\section*{Notation}
+\input{math_notation.tex}
+
+% --------------------------
+
+% ----------------------------------------------------------------------------
+% Contents
+% ----------------------------------------------------------------------------
+\cleardoublepage
+\pagestyle{headings}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Hint: It is advisable to split the thesis into several tex files organized by sections. You can use thesis.tex as the main file and include any other tex file with \input(introduction.tex)
+
+\section{Introduction}
+\label{sec:intro}
+
+Some of your text.
+
+\section{First Section}
+\label{sec:first}
+
+
+\subsection{First Subsection}
+\label{subsec:first}
+
+
+\subsection{Second Subsection}
+\label{subsec:second}
+
+Some more of your text. For citations, use the command \verb+\citep{lecun2015deep}+ which produces~\citep{lecun2015deep} or \verb+\cite{lecun2015deep}+ which produces~\cite{lecun2015deep}.
+
+
+\section{Second Section}
+\label{sec:second}
+
+\subsection{Another Subsection}
+\label{subsec:another}
+Here is a reference to Table~\ref{t1:sample}. Figure~\ref{fig:xai_logo} shows \ldots
+
+
+\begin{table}[ht]
+	\caption{Sample table title}
+	\centering
+	\begin{tabular}{lll}
+		\hline
+		Name     & Description     & Size ($\mu$m) \\
+		\hline
+		Dendrite & Input terminal  & $\sim$100     \\
+		Axon     & Output terminal & $\sim$10      \\
+		Soma     & Cell body       & up to $10^6$  \\
+		\hline
+	\end{tabular}
+   \label{t1:sample}
+\end{table}
+
+
+\begin{figure}[ht]
+  \centering
+   \includegraphics[width=.5\textwidth]{xaiLogo.png}
+  \caption{Logo of the chair of Explainable Machine Learning}   
+  \label{fig:xai_logo}
+\end{figure}  
+
+\subsection{Yet another Subsection}
+\label{subsec:yetanother}
+
+If you want to typeset formulas, there is the inline version $ y = x_1^{0.5} x_2^{0.5}$, centered like this
+\[
+y = x_1^{0.5} x_2^{0.5}
+\]
+or numbered:
+\begin{equation}\label{eq:prod}
+y = x_1^{0.5} x_2^{0.5}	
+\end{equation}
+so that you can refer to equation~\ref{eq:prod} in the text.
+
+\subsection{Last Subsection}
+\label{subsec:last}
+
+\section{Conclusion}
+
+
+
+% --------------------------
+\clearpage
+\begin{appendix}
+	\section{Appendix}
+	If needed for supplementary material, such as detailed description of data collection, tables, or figures.
+	
+\end{appendix}
+
+% ----------------------------------------------------------------------------
+% Bibliography
+% ----------------------------------------------------------------------------
+\clearpage
+\renewcommand\refname{Bibliography}
+\addcontentsline{toc}{section}{Bibliography}
+\bibliography{bibliography}
+\bibliographystyle{plainnat}
+
+% ----------------------------------------------------------------------------
+% Statutory declaration
+% ----------------------------------------------------------------------------
+\clearpage
+\makeThesisDeclaration
+
+\end{document}
+
