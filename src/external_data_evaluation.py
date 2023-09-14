@@ -11,24 +11,30 @@ from data import PPMIDataset, MPHDataset
 
 def evaluate_on_external_dataset(results_dir: str, dataset: Dataset, batch_size, strategy, target_dir_name: str):
 
-    #   Create dir for preds and performance metrics on PPMI dataset
+    print(f'--- Evaluation of "{os.path.basename(results_dir)}" on "{target_dir_name}" started.---')
 
-    ppmi_preds_path = os.path.join(results_dir, target_dir_name)
+    #   Create dir for preds and performance metrics on external dataset
 
-    if os.path.exists(ppmi_preds_path):
-        shutil.rmtree(ppmi_preds_path)
-    os.makedirs(ppmi_preds_path)  
+    external_data_preds_path = os.path.join(results_dir, target_dir_name)
+
+    if os.path.exists(external_data_preds_path):
+        shutil.rmtree(external_data_preds_path)
+    os.makedirs(external_data_preds_path)  
     
-    ppmi_dataloader = DataLoader(dataset=dataset,
-                                 batch_size=batch_size,
-                                 shuffle=False)
+    dataloader = DataLoader(dataset=dataset,
+                            batch_size=batch_size,
+                            shuffle=False)
 
     results_dir_subdirs = os.listdir(results_dir)
     randomization_dirs = [dir_string for dir_string in results_dir_subdirs if dir_string.startswith('randomization')]
 
 
     for subdir in randomization_dirs:
+        print(f'   ... randomization "{subdir}"')
+
         randomization_dir_path = os.path.join(results_dir, subdir)
+
+        preds_save_to_path = os.path.join(external_data_preds_path, f'preds_{os.path.basename(results_dir)}_{subdir}.csv')
         
         if strategy == 'baseline' or strategy == 'regression':
 
@@ -37,22 +43,21 @@ def evaluate_on_external_dataset(results_dir: str, dataset: Dataset, batch_size,
             model = torch.load(model_path)
             model.eval()
 
-            ids_ppmi, preds_ppmi, labels_ppmi = _get_predictions(model, ppmi_dataloader)
+            ids, preds, labels = _get_predictions(model, dataloader)
 
             #   Save preds 
 
-            _save_preds(ids=ids_ppmi, preds=preds_ppmi, trues=labels_ppmi,
-                        save_to=os.path.join(ppmi_preds_path, f'preds_ppmi_{os.path.basename(results_dir)}_{subdir}.csv'))
+            _save_preds(ids=ids, preds=preds, trues=labels, save_to=preds_save_to_path)
             
             #   Save performance stats
 
-            preds_ppmi_thresholded = np.where(np.array(preds_ppmi) >= 0.5, 1, 0)
+            preds_thresholded = np.where(np.array(preds) >= 0.5, 1, 0)
 
             performance_stats = {
-                'acc_score': accuracy_score(y_true=labels_ppmi, y_pred=preds_ppmi_thresholded)
+                'acc_score': accuracy_score(y_true=labels, y_pred=preds_thresholded)
             }
 
-            performance_stats_path = os.path.join(ppmi_preds_path, f'performance_ppmi_{os.path.basename(results_dir)}_{subdir}.json')
+            performance_stats_path = os.path.join(external_data_preds_path, f'performance_{os.path.basename(results_dir)}_{subdir}.json')
             
             with open(performance_stats_path, 'w') as f:
                 json.dump(performance_stats, f)
@@ -63,9 +68,11 @@ def evaluate_on_external_dataset(results_dir: str, dataset: Dataset, batch_size,
 
             evaluate_rfc(rfc_path=rfc_path, 
                          pca_path=pca_path, 
-                         test_dataloader=ppmi_dataloader,
+                         test_dataloader=dataloader,
                          strategy=strategy,
-                         save_to_path=os.path.join(ppmi_preds_path, f'preds_ppmi_{os.path.basename(results_dir)}_{subdir}.csv'))
+                         save_to_path=preds_save_to_path)
+    
+    print(f'--- Evaluation of "{os.path.basename(results_dir)}" on "{target_dir_name}" finished.---')
 
 
 if __name__ == "__main__":
@@ -91,7 +98,7 @@ if __name__ == "__main__":
     for i in results_dirs:
         #   -----------------------------------------------------------------------------
 
-        #   Load config params needed for creating PPMIDataset
+        #   Load config params needed for creating external dataset
 
         with open(os.path.join(i, 'config_used.yaml'), 'r') as f:
             config = yaml.safe_load(f)
