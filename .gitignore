@@ -9,3 +9,10 @@ MPH_30min_20230824
 *.mat
 *.nii
 results*
+# thesis related
+thesis/*.aux
+**/*.log
+**/*.*.gz
+**/*.bbl
+**/*.blg
+**/*.out
