@@ -10,16 +10,17 @@ from evaluation import _save_preds
 from data import _choose_label_from_available_labels
 
 
-def __create_pca_components_plot(pca_components, num_cols, save_to_path):
+def __create_pca_components_plot(pca_components, num_cols, explained_variance_ratio, save_to_path):
 
     num_rows = int(np.ceil(len(pca_components) / num_cols))
 
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 6))
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(14, 7))
 
     for i, ax in enumerate(axes.ravel()):
         if i < len(pca_components):
             ax.imshow(pca_components[i]) # , cmap='gray'
-            ax.set_title(f"PCA component {i + 1}")
+            ax.set_title(f"PCA component {i + 1}\n" 
+                         f"(explains {round(explained_variance_ratio[i]*100, 2)}% of variance)")
         else:
             ax.axis('off')
     
@@ -40,6 +41,8 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
     #   Flatten ndarray of images to shape (num_samples, num_features)
 
     X_train = X_train.reshape(len(X_train), -1)
+
+    #####################################################################################################
     
     #   Fit PCA model on train split and transform the subset
 
@@ -55,10 +58,19 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
     pca_components = pca.components_.reshape((num_pca_components, 
                                               img_dim_original[0], 
                                               img_dim_original[1]))
+    
+    #   Variance ratio per component
+
+    explained_variance_ratio = pca.explained_variance_ratio_
 
     #   Create plot of pca components
-    __create_pca_components_plot(pca_components, num_cols=5, 
+    
+    __create_pca_components_plot(pca_components, 
+                                 num_cols=5, 
+                                 explained_variance_ratio=explained_variance_ratio,
                                  save_to_path=os.path.join(results_training_path, 'pca_components.png'))
+
+    #####################################################################################################
 
     rfc = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED)
 
@@ -70,6 +82,8 @@ def fit_rfc(train_dataloader: DataLoader, num_pca_components, results_path):
     preds_train = preds_train[:, 1]
 
     # preds_train_thresholded = rfc.predict(X_train_pca_transformed)
+
+    #####################################################################################################
 
     #   Save rfc and pca model
 
