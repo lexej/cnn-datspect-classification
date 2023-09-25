@@ -16,6 +16,7 @@
 \usepackage{hyperref} % use \usepackage[hidelinks]{hyperref} to hide boxes
 \usepackage[utf8]{inputenc} % depends on the font encoding that you are using
 \usepackage[round]{natbib}
+\usepackage{comment}
 
 \input{math_commands.tex}
 
@@ -103,75 +104,17 @@ AI & Artificial Intelligence\\
 
 % Hint: It is advisable to split the thesis into several tex files organized by sections. You can use thesis.tex as the main file and include any other tex file with \input(introduction.tex)
 
-\section{Introduction}
-\label{sec:intro}
+\input{content/1_introduction.tex}
 
-Some of your text.
+\input{content/2_background.tex}
 
-\section{First Section}
-\label{sec:first}
+\input{content/3_methods.tex}
 
+\input{content/4_evaluation.tex}
 
-\subsection{First Subsection}
-\label{subsec:first}
+\input{content/5_discussion.tex}
 
-
-\subsection{Second Subsection}
-\label{subsec:second}
-
-Some more of your text. For citations, use the command \verb+\citep{lecun2015deep}+ which produces~\citep{lecun2015deep} or \verb+\cite{lecun2015deep}+ which produces~\cite{lecun2015deep}.
-
-
-\section{Second Section}
-\label{sec:second}
-
-\subsection{Another Subsection}
-\label{subsec:another}
-Here is a reference to Table~\ref{t1:sample}. Figure~\ref{fig:xai_logo} shows \ldots
-
-
-\begin{table}[ht]
-	\caption{Sample table title}
-	\centering
-	\begin{tabular}{lll}
-		\hline
-		Name     & Description     & Size ($\mu$m) \\
-		\hline
-		Dendrite & Input terminal  & $\sim$100     \\
-		Axon     & Output terminal & $\sim$10      \\
-		Soma     & Cell body       & up to $10^6$  \\
-		\hline
-	\end{tabular}
-   \label{t1:sample}
-\end{table}
-
-
-\begin{figure}[ht]
-  \centering
-   \includegraphics[width=.5\textwidth]{xaiLogo.png}
-  \caption{Logo of the chair of Explainable Machine Learning}   
-  \label{fig:xai_logo}
-\end{figure}  
-
-\subsection{Yet another Subsection}
-\label{subsec:yetanother}
-
-If you want to typeset formulas, there is the inline version $ y = x_1^{0.5} x_2^{0.5}$, centered like this
-\[
-y = x_1^{0.5} x_2^{0.5}
-\]
-or numbered:
-\begin{equation}\label{eq:prod}
-y = x_1^{0.5} x_2^{0.5}	
-\end{equation}
-so that you can refer to equation~\ref{eq:prod} in the text.
-
-\subsection{Last Subsection}
-\label{subsec:last}
-
-\section{Conclusion}
-
-
+\input{content/6_conclusion.tex}
 
 % --------------------------
 \clearpage

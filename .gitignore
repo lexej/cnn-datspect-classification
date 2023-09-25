@@ -11,8 +11,9 @@ MPH_30min_20230824
 results*
 # thesis related
 thesis/*.aux
-**/*.log
-**/*.*.gz
-**/*.bbl
-**/*.blg
-**/*.out
+thesis/*.log
+thesis/*.*.gz
+thesis/*.bbl
+thesis/*.blg
+thesis/*.toc
+thesis/*.out
