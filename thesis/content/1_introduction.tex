@@ -1,4 +1,50 @@
 \section{Introduction}
 \label{sec:intro}
 
-Some of your text. Some other stuff
+
+
+
+% Deep Learning advancements in field of medical AI
+
+
+% Binary classification of medical images -> skin cancer, brain cancer, parkinson
+
+
+%  Problem domain
+
+There is a variety of quality metrics which can be computed to evaluate the performance of a binary classifier 
+given a certain decision boundary or inconclusive range.
+In practice, the area under curve (AUC) for a receiver operating characteristic (ROC) curve is a commonly used metric 
+for assessing the overall performance of a binary classifier.
+Alternatively, the AUC value for the precision-recall curve can be computed as a quality metric. 
+
+For a binary classification problem in the medical domain, it is of particular interest to train both the most confident and 
+accurate classifier.
+A classifier with high decision confidence applied in clinical practice would require less manual inspection by the
+physician which reduces both effort and costs.
+Therefore one practically important optimization problem is to minimize the number of cases predicted within the inconclusive range 
+by the classifier while maximizing its performance.
+
+% related work? not found such framework
+
+This thesis contributes a model-agnostic and robust evaluation metric for the diagnostic decision confidence of a classifier 
+as well as an implementation for producing these evaluation results.
+We define the decision confidence to be maximized where the performance of the classifier on consensus test cases 
+is maximized over a broad scale of determined inconclusive ranges.
+Therefore, as the benchmark method, the specific binding ratio (SBR) of 123I-FP-CIT in the putamen was employed and 
+compared to conventional classification methods and convolutional neural network (CNN) approaches.
+The different models are trained and tested on subsets of a DAT-SPECT dataset consisting of 1740 slices of 
+volumetric DAT-SPECT images.
+Data augmentation is applied to the DAT-SPECT dataset to increase the heterogeneity of the training and testing data.
+Additionally, the methods are evaluated on the Parkinson's Progression Markers Initiative (PPMI) dataset ZITAT and 
+the multiple-pinhole (MPH) dataset ZITAT.
+
+% hypothesis -> CNN based methods should outperform 
+
+
+% research questions
+
+
+% thesis structure
+
+
