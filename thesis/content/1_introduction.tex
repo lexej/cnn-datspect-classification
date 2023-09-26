@@ -6,8 +6,9 @@
 
 % Deep Learning advancements in field of medical AI
 
-
 % Binary classification of medical images -> skin cancer, brain cancer, parkinson
+
+% DAT-SPECT introduction
 
 
 %  Problem domain
@@ -38,11 +39,19 @@ volumetric DAT-SPECT images.
 Data augmentation is applied to the DAT-SPECT dataset to increase the heterogeneity of the training and testing data.
 Additionally, the methods are evaluated on the Parkinson's Progression Markers Initiative (PPMI) dataset ZITAT and 
 the multiple-pinhole (MPH) dataset ZITAT.
-
 % hypothesis -> CNN based methods should outperform 
-
-
+This study hypothesizes that the state-of-the-art CNN approaches outperform both the benchmark SBR method and conventional 
+classification methods when using the evaluation metric proposed in this work.
+% @Ralph: Other expecations?
 % research questions
+The following research questions are addressed: 
+\begin{itemize}
+    \item Can a human interpretable and model-agnostic evaluation metric be constructed that allows 
+    to evaluate and compare the decision confidence of binary classification models?
+    \item How do different binary classification models trained on DAT-SPECT imaging data perform on 
+    diverse testing data regarding this metric? 
+    \item What are the limitations of such a custom metric?
+\end{itemize}
 
 
 % thesis structure
