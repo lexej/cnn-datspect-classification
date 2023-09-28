@@ -42,15 +42,23 @@ the multiple-pinhole (MPH) dataset ZITAT.
 % hypothesis -> CNN based methods should outperform 
 This study hypothesizes that the state-of-the-art CNN approaches outperform both the benchmark SBR method and conventional 
 classification methods when using the evaluation metric proposed in this work.
+- more stable and robust; more generalizable to external datasets
+Randomness "eintrainierbar" bei CNN random
+
 % @Ralph: Other expecations?
 % research questions
 The following research questions are addressed: 
 \begin{itemize}
     \item Can a human interpretable and model-agnostic evaluation metric be constructed that allows 
     to evaluate and compare the decision confidence of binary classification models?
+
+    how to automatically define inconclusive ranges given requirements w.r.t. accuracy/performance?
+
+    How to train a method which replicates the uncertainty w.r.t. label of the data
+
     \item How do different binary classification models trained on DAT-SPECT imaging data perform on 
     diverse testing data regarding this metric? 
-    \item What are the limitations of such a custom metric?
+
 \end{itemize}
 
 
