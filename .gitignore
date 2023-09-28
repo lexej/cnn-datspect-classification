@@ -17,3 +17,7 @@ thesis/*.bbl
 thesis/*.blg
 thesis/*.toc
 thesis/*.out
+thesis/*.lof
+thesis/*.lot
+thesis/*.fdb_latexmk
+thesis/*.fls

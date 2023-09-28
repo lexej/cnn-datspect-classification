@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.7)  25 SEP 2023 10:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.7)  28 SEP 2023 16:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -333,12 +333,12 @@ LaTeX Info: Redefining \nameref on input line 23.
 \@outlinefile=\write4
 \openout4 = `thesis.out'.
 
-<xaiLogo.png, id=51, 304.4976pt x 152.7306pt>
+<xaiLogo.png, id=83, 304.4976pt x 152.7306pt>
 File: xaiLogo.png Graphic file (type png)
 <use xaiLogo.png>
 Package pdftex.def Info: xaiLogo.png  used on input line 37.
 (pdftex.def)             Requested size: 170.71652pt x 85.63109pt.
-<Otto-Friedrich-University_Bamberg_logo.png, id=53, 903.375pt x 903.375pt>
+<Otto-Friedrich-University_Bamberg_logo.png, id=85, 903.375pt x 903.375pt>
 File: Otto-Friedrich-University_Bamberg_logo.png Graphic file (type png)
 <use Otto-Friedrich-University_Bamberg_logo.png>
 Package pdftex.def Info: Otto-Friedrich-University_Bamberg_logo.png  used on input line 37.
@@ -409,24 +409,24 @@ Underfull \hbox (badness 1237) in paragraph at lines 152--153
 []|\OT1/cmr/m/n/12 The em-pir-i-cal dis-tri-bu-tion de-fined by the
  []
 
-[11]) (./content/1_introduction.tex) (./content/2_background.tex) (./content/3_methods.tex) (./content/4_evaluation.tex Excluding 'comment' comment.) (./content/5_discussion.tex) (./content/6_conclusion.tex) [1
+[11]) (./content/1_introduction.tex) (./content/2_background.tex) (./content/3_methods.tex) (./content/4_data.tex) (./content/5_evaluation.tex Excluding 'comment' comment.) (./content/6_discussion.tex [1
 
 
-] [2
+]) (./content/7_conclusion.tex) [2] [3
 
-] (./thesis.bbl) [3
+] (./thesis.bbl) [4
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 140--140
+Underfull \hbox (badness 10000) in paragraph at lines 142--142
 
  []
 
-[4
+[5
 
 
 ] (./thesis.aux)
 Package rerunfilecheck Info: File `thesis.out' has not changed.
-(rerunfilecheck)             Checksum: 834366A38D9010CD13824B86EE31BE7C;1254.
+(rerunfilecheck)             Checksum: 639EBB8F8CBCF1E1106CECCCB42E379F;2295.
  )
 (\end occurred inside a group at level 8)
 
@@ -440,18 +440,18 @@ Package rerunfilecheck Info: File `thesis.out' has not changed.
 ### simple group (level 1) entered at line 15 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 10864 strings out of 478268
- 163633 string characters out of 5846348
- 475548 words of memory out of 5000000
- 28837 multiletter control sequences out of 15000+600000
+ 10895 strings out of 478268
+ 164113 string characters out of 5846348
+ 475898 words of memory out of 5000000
+ 28856 multiletter control sequences out of 15000+600000
  481638 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,16n,65p,582b,478s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 60i,16n,65p,582b,481s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on thesis.pdf (16 pages, 366785 bytes).
+Output written on thesis.pdf (17 pages, 377142 bytes).
 PDF statistics:
- 264 PDF objects out of 1000 (max. 8388607)
- 203 compressed objects within 3 object streams
- 40 named destinations out of 1000 (max. 500000)
- 107 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 310 PDF objects out of 1000 (max. 8388607)
+ 248 compressed objects within 3 object streams
+ 49 named destinations out of 1000 (max. 500000)
+ 171 words of extra memory for PDF output out of 10000 (max. 10000000)
 
