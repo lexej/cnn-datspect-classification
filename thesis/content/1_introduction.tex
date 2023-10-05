@@ -11,10 +11,10 @@ Thus, there are up to 100,000 new PD cases per year in the EU and up to 50,000 i
 
 % PD symptoms and diagnosis
 PD is characterized by bradykinesia and variable expression of cardinal symptoms: resting tremor, rigidity, and postural instability [3, 4]. 
-However, this combination of symptoms, often referred to as 'parkinsonism' or 'parkinsonian syndrome' (PS), 
-occurs not only in PD (and some rare 'atypical' neurodegenerative PS such as multiple system atrophy, progressive 
+However, this combination of symptoms, often referred to as `parkinsonism' or `parkinsonian syndrome' (PS), 
+occurs not only in PD (and some rare `atypical' neurodegenerative PS such as multiple system atrophy, progressive 
 supranuclear palsy and corticobasal degeneration). 
-It also occurs in so-called 'secondary' (non-neurodegenerative) PS that can be induced by drugs, head trauma, 
+It also occurs in so-called `secondary' (non-neurodegenerative) PS that can be induced by drugs, head trauma, 
 inflammatory or metabolic disorder, as well as other diseases such as essential tremor, dystonic tremor, or normal pressure hydrocephalus [3, 5]. 
 A particularly frequent cause of secondary PS is cerebrovascular disease [6]. 
 The differentiation between PD and secondary PS is highly relevant, 
@@ -24,7 +24,7 @@ particularly at early disease stages with mild symptoms and in patients with aty
 These cases are often referred to as "clinical uncertain parkinsonian syndromes" (CUPS) [9].
 
 % PD medical background
-PD, as well as the 'atypical' neurodegenerative PS, is associated with progressive loss of substantia nigra pars compacta (SNpc) dopaminergic neurons 
+PD, as well as the `atypical' neurodegenerative PS, is associated with progressive loss of substantia nigra pars compacta (SNpc) dopaminergic neurons 
 projecting to the striatum [10]. 
 Reduced availability of dopamine transporters (DAT) in the striatum is well-validated as a biomarker for 
 nigrostriatal degeneration in PD [11-13]. 
@@ -65,7 +65,7 @@ Thus, DAT-SPECT would benefit from methods for the automatic classification of t
 Convolutional neural networks (CNNs) appear particularly promising for this purpose [29-47].
 
 % Difficulty of classification of borderline cases
-Yet, there are also 'true' borderline cases that cannot be classified with high certainty even by expert readers. 
+Yet, there are also `true' borderline cases that cannot be classified with high certainty even by expert readers. 
 In DAT-SPECT of CUPS, the proportion of visually inconclusive borderline cases ranges between 5 and 10\% [48, 49]. 
 Automatic binary classification of these cases by a CNN might pretend a certainty of the diagnosis that is not actually given. 
 It is important, therefore, to identify these cases in order to make sure that the user visually inspects these SPECT images 
@@ -98,7 +98,7 @@ In the latter,  the majority vote across the three readers was consistently used
 The MVT obviously “hides” the uncertainty associated with between-readers discrepancy from the network. 
 
 The primary hypothesis put to test in this work was that the sigmoid output of the CNN is more appropriate for the identification of inconclusive cases 
-(by an 'inconclusive' range around the decision threshold) when the network is trained with the RLT approach compared to MVT.
+(by an `inconclusive' range around the decision threshold) when the network is trained with the RLT approach compared to MVT.
 
 As a performance metric to test this hypothesis, we propose the proportion of inconclusive cases required to achieve a given balanced accuracy in the 
 remaining conclusive cases. More precisely, the area under the curve (AUC) of balanced accuracy in conclusive cases versus the proportion of 
@@ -125,6 +125,10 @@ associated with the use of different acquisition hardware (different SPECT camer
 To test this hypothesis, the classification methods were compared in two test datasets fully independent of the training dataset.
 
 
+
+
+
+%% My part:
 
 % Binary classification of DAT-SPECT image data
 % - SBR
