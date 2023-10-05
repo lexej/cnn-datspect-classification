@@ -21,7 +21,7 @@ The differentiation between PD and secondary PS is highly relevant,
 because secondary PS might be treated more effectively than PD and some secondary PS may be fully cured.
 Yet, the clinical, that is, symptom-based differentiation between PD and secondary PS is challenging in a significant fraction of patients, 
 particularly at early disease stages with mild symptoms and in patients with atypical presentation [7, 8]. 
-These cases are often referred to as "clinical uncertain parkinsonian syndromes" (CUPS) [9].
+These cases are often referred to as `clinical uncertain parkinsonian syndromes' (CUPS) [9].
 
 % PD medical background
 PD, as well as the `atypical' neurodegenerative PS, is associated with progressive loss of substantia nigra pars compacta (SNpc) dopaminergic neurons 
@@ -78,17 +78,17 @@ The most obvious approach to identify borderline cases in CNN-based classificati
 However, empirically, sigmoid outputs of CNN for classification of DAT-SPECT tend to cluster at the extreme values so that their utility for the identification of borderline cases seems limited.  
 As a consequence, this approach is not recommended among practitioners, as it tends to overestimate the certainty of CNN-based classification [51-53].
 
-% Aim of work, hypotheses
+% Aim of work and approach
 
-Against this background, the aim of the current work was to propose and validate a CNN-based approach for the automatic classification of DAT-SPECT 
-that allows reliable identification of inconclusive cases that might be misclassified by the CNN when the decision threshold is strictly applied. 
-
+Against this background, the current work aimed to propose and validate a CNN-based approach for the automatic classification of DAT-SPECT 
+that allows reliable identification of inconclusive cases that might be misclassified by the CNN when the decision threshold is strictly applied.
+The `decision confidence' of the classifier is evaluated on a metric, proposed in the following, that aims to maximize the performance of the classifier
+while minimizing the potential effort of manual inspection originating from inconclusive cases.
 
 Starting from the assumption that between-readers discrepancy in the binary visual interpretation of DAT-SPECT is much more likely in inconclusive cases 
 than in conclusive cases, a standard CNN structure was trained for automatic classification of DAT-SPECT using a large training dataset in which each 
 SPECT image had been visually classified by three independent readers. 
-During the training phase, the standard-of-truth label was selected randomly 
-from the three independent reads. 
+During the model training phase, the standard-of-truth label was selected randomly from the three independent available reads. 
 This way, the same inconclusive image could be presented to the network with different standard-of-truth labels. 
 The rationale was that this could allow the network to learn about the uncertainty of these cases, 
 and that this would result in sigmoid outputs close to the decision threshold.
@@ -97,17 +97,21 @@ This “random label” training (RLT) approach was compared with the convention
 In the latter,  the majority vote across the three readers was consistently used as standard-of-truth during the training phase. 
 The MVT obviously “hides” the uncertainty associated with between-readers discrepancy from the network. 
 
+% Hypotheses
+
 The primary hypothesis put to test in this work was that the sigmoid output of the CNN is more appropriate for the identification of inconclusive cases 
 (by an `inconclusive' range around the decision threshold) when the network is trained with the RLT approach compared to MVT.
 
-As a performance metric to test this hypothesis, we propose the proportion of inconclusive cases required to achieve a given balanced accuracy in the 
-remaining conclusive cases. More precisely, the area under the curve (AUC) of balanced accuracy in conclusive cases versus the proportion of 
-inconclusive cases (observed in the test set) was used as a quality metric. 
+To test this hypothesis, the proportion of inconclusive cases required to achieve a given balanced accuracy in the conclusive cases 
+was used as a performance metric.
+More precisely, the area under the curve (AUC) of balanced accuracy in conclusive cases versus the proportion of inconclusive cases 
+(observed in the test set) was used as a quality metric. 
 The AUC does not depend on a specific working point (target balanced accuracy).  
-The rationale for this performance metric was that the utility of the CNN for widespread use in clinical practice depends of the proportion of 
-inconclusive cases to be accepted in order to achieve a predefined balanced accuracy in the remaining conclusive cases. 
-This is because inconclusive cases require more attention by the user and, therefore, are ‘expensive’ 
-(“90\% inconclusive cases to achieve the required accuracy in the remaining 10\% of cases is clearly useless”). 
+The rationale for this performance metric is that more inconclusive cases would require more attention and manual inspection 
+by the attending physician which is considered `expensive'
+(“90\% inconclusive cases to achieve the required accuracy in the remaining 10\% of cases is clearly useless”).
+Therefore the utility of the classifier for widespread use in clinical practice depends on its `decision confidence', 
+e.g. the proportion of inconclusive cases to be accepted to achieve a predefined balanced accuracy in the remaining conclusive cases. 
 
 The following secondary hypotheses were put to test. First, CNN-based classification outperforms conventional methods with respect to balanced accuracy, 
 both univariate and multivariate conventional methods. 
@@ -119,7 +123,8 @@ The putaminal SBR is assumed to be proportional to the density of DAT in the put
 As a multivariate benchmark method, a random forest approach was implemented using the expression profile of a set of covariance patterns as input. 
 The covariance patterns were identified by principal component analysis in the training dataset. 
 
-Second, we hypothesized that CNN-based classification is more robust with respect varying image characterstics (e.g., spatial resolution) 
+% 2nd hypothesis
+Second, CNN-based classification is more robust with respect varying image characterstics (e.g., spatial resolution) 
 associated with the use of different acquisition hardware (different SPECT cameras, different collimators…) and different reconstruction/correction methods 
 (with versus without resolution recovery, with versus without attenuation correction…). 
 To test this hypothesis, the classification methods were compared in two test datasets fully independent of the training dataset.
@@ -136,15 +141,6 @@ To test this hypothesis, the classification methods were compared in two test da
 % - deep learning based approaches (CNN)
 
 
-%  Problem domain
-
-For a binary classification problem in the medical domain, it is of particular interest to train both the most confident and 
-accurate classifier.
-A classifier with high decision confidence applied in clinical practice would require less manual inspection by the
-physician which reduces both effort and costs.
-Therefore one practically important optimization problem is to minimize the number of cases predicted within the inconclusive range 
-by the classifier while maximizing its performance.
-
 % related work? not found such framework
 
 This thesis contributes a model-agnostic and robust evaluation metric for the diagnostic decision confidence of a classifier 
@@ -158,6 +154,7 @@ volumetric DAT-SPECT images.
 Data augmentation is applied to the DAT-SPECT dataset to increase the heterogeneity of the training and testing data.
 Additionally, the methods are evaluated on the Parkinson's Progression Markers Initiative (PPMI) dataset ZITAT and 
 the multiple-pinhole (MPH) dataset ZITAT.
+
 % hypothesis -> CNN based methods should outperform 
 This study hypothesizes that the state-of-the-art CNN approaches outperform both the benchmark SBR method and conventional 
 classification methods when using the evaluation metric proposed in this work.
