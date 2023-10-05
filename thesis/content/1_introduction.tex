@@ -78,12 +78,12 @@ The most obvious approach to identify borderline cases in CNN-based classificati
 However, empirically, sigmoid outputs of CNN for classification of DAT-SPECT tend to cluster at the extreme values so that their utility for the identification of borderline cases seems limited.  
 As a consequence, this approach is not recommended among practitioners, as it tends to overestimate the certainty of CNN-based classification [51-53].
 
-% Aim of work and approach
+% Aim of work and overview on the approach
 
 Against this background, the current work aimed to propose and validate a CNN-based approach for the automatic classification of DAT-SPECT 
 that allows reliable identification of inconclusive cases that might be misclassified by the CNN when the decision threshold is strictly applied.
 The `decision confidence' of the classifier is evaluated on a metric, proposed in the following, that aims to maximize the performance of the classifier
-while minimizing the potential effort of manual inspection originating from inconclusive cases.
+on between-reader consensus cases while minimizing the potential effort of manual inspection originating from inconclusive cases.
 
 Starting from the assumption that between-readers discrepancy in the binary visual interpretation of DAT-SPECT is much more likely in inconclusive cases 
 than in conclusive cases, a standard CNN structure was trained for automatic classification of DAT-SPECT using a large training dataset in which each 
@@ -97,15 +97,19 @@ This “random label” training (RLT) approach was compared with the convention
 In the latter,  the majority vote across the three readers was consistently used as standard-of-truth during the training phase. 
 The MVT obviously “hides” the uncertainty associated with between-readers discrepancy from the network. 
 
+To be able to better assess the performance of the CNN-based approaches, univariate and multivariate conventional methods were employed as 
+benchmark methods. In addition, the performance of the approaches is also evaluated on independent external datasets.
+
 % Hypotheses
 
+% 1st hypothesis
 The primary hypothesis put to test in this work was that the sigmoid output of the CNN is more appropriate for the identification of inconclusive cases 
 (by an `inconclusive' range around the decision threshold) when the network is trained with the RLT approach compared to MVT.
 
 To test this hypothesis, the proportion of inconclusive cases required to achieve a given balanced accuracy in the conclusive cases 
-was used as a performance metric.
+was proposed and used as a performance metric.
 More precisely, the area under the curve (AUC) of balanced accuracy in conclusive cases versus the proportion of inconclusive cases 
-(observed in the test set) was used as a quality metric. 
+(observed in the test set) was used as a model-agnostic quality metric. 
 The AUC does not depend on a specific working point (target balanced accuracy).  
 The rationale for this performance metric is that more inconclusive cases would require more attention and manual inspection 
 by the attending physician which is considered `expensive'
@@ -113,7 +117,8 @@ by the attending physician which is considered `expensive'
 Therefore the utility of the classifier for widespread use in clinical practice depends on its `decision confidence', 
 e.g. the proportion of inconclusive cases to be accepted to achieve a predefined balanced accuracy in the remaining conclusive cases. 
 
-The following secondary hypotheses were put to test. First, CNN-based classification outperforms conventional methods with respect to balanced accuracy, 
+% 2nd hypothesis
+The following secondary hypotheses were put to test. First, CNN-based classification outperforms conventional methods in terms of balanced accuracy, 
 both univariate and multivariate conventional methods. 
 The specific binding ratio (SBR) of the tracer uptake in the putamen was used for the univariate analyses. 
 Current procedure guidelines recommend the putaminal SBR to support the visual interpretation of DAT-SPECT in everyday clinical patient care [54]. 
@@ -123,58 +128,23 @@ The putaminal SBR is assumed to be proportional to the density of DAT in the put
 As a multivariate benchmark method, a random forest approach was implemented using the expression profile of a set of covariance patterns as input. 
 The covariance patterns were identified by principal component analysis in the training dataset. 
 
-% 2nd hypothesis
-Second, CNN-based classification is more robust with respect varying image characterstics (e.g., spatial resolution) 
-associated with the use of different acquisition hardware (different SPECT cameras, different collimators…) and different reconstruction/correction methods 
-(with versus without resolution recovery, with versus without attenuation correction…). 
+% 3rd hypothesis
+Second, CNN-based classification demonstrates enhanced generalizability, such as being more robust regarding varying image characteristics 
+(e.g., spatial resolution) 
+associated with the use of different acquisition hardware 
+(different SPECT cameras, different collimators\dots) 
+and different reconstruction and correction methods (application of resolution recovery, application of attenuation correction\dots). 
 To test this hypothesis, the classification methods were compared in two test datasets fully independent of the training dataset.
 
-
-
-
-
-%% My part:
-
-% Binary classification of DAT-SPECT image data
-% - SBR
-% - Conventional methods (random forest)
-% - deep learning based approaches (CNN)
-
-
-% related work? not found such framework
-
-This thesis contributes a model-agnostic and robust evaluation metric for the diagnostic decision confidence of a classifier 
-as well as an implementation for producing these evaluation results.
-We define the decision confidence to be maximized where the performance of the classifier on consensus test cases 
-is maximized over a broad scale of determined inconclusive ranges.
-Therefore, as the benchmark method, the specific binding ratio (SBR) of 123I-FP-CIT in the putamen was employed and 
-compared to conventional classification methods and convolutional neural network (CNN) approaches.
-The different models are trained and tested on subsets of a DAT-SPECT dataset consisting of 1740 slices of 
-volumetric DAT-SPECT images.
-Data augmentation is applied to the DAT-SPECT dataset to increase the heterogeneity of the training and testing data.
-Additionally, the methods are evaluated on the Parkinson's Progression Markers Initiative (PPMI) dataset ZITAT and 
-the multiple-pinhole (MPH) dataset ZITAT.
-
-% hypothesis -> CNN based methods should outperform 
-This study hypothesizes that the state-of-the-art CNN approaches outperform both the benchmark SBR method and conventional 
-classification methods when using the evaluation metric proposed in this work.
-- more stable and robust; more generalizable to external datasets
-Randomness "eintrainierbar" bei CNN random
-
-% @Ralph: Other expecations?
-% research questions
+% Summary of research questions
 The following research questions are addressed: 
 \begin{itemize}
-    \item Can a human interpretable and model-agnostic evaluation metric be constructed that allows 
-    to evaluate and compare the decision confidence of binary classification models?
+    \item When comparing the CNN-based approaches, how does the RLT approach perform compared to the MVT approach? 
+    Is the performance metric proposed in this work practically suitable for the comparison of different approaches?
 
-    how to automatically define inconclusive ranges given requirements w.r.t. accuracy/performance?
-
-    How to train a method which replicates the uncertainty w.r.t. label of the data
-
-    \item How do different binary classification models trained on DAT-SPECT imaging data perform on 
-    diverse testing data regarding this metric? 
-
+    \item How do the CNN-based approaches perform on diverse testing data compared to conventional approaches?
+    What conclusions can be made regarding the generalizability of the approaches under test?
+    
 \end{itemize}
 
 
