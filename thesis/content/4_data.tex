@@ -1,16 +1,48 @@
-\section{Data Sources and Preprocessing}
+\section{Data Sources}
 \label{sec:data}
 
-\subsection{SPECT dataset}
+The study retrospectively included 3 different datasets with a total of 3025 DAT-SPECT images.
+The primary dataset (``development dataset") was used for both training and testing the models associated with the respective method, 
+whereas the other two datasets, the \textit{PPMI} dataset and the \textit{MPH} dataset were used for testing only, not for training.
+
+\subsection{Development dataset}
 \label{subsec:spect_dataset}
 
-The different models are trained and tested on subsets of a DAT-SPECT dataset consisting of 1740 slices of 
-volumetric DAT-SPECT images.
+The development dataset comprised 1740 consecutive DAT-SPECT from clinical routine at our site as described in [56]. 
+In brief, DAT-SPECT with [$^{123}$I]FP-CIT had been performed according to common procedures guidelines [57, 58] with different double-head cameras 
+equipped with low-energy-high-resolution or fan-beam collimators. 
+The projection data were reconstructed using the iterative ordered-subsets-expectation-maximization [59] with attenuation and simulation-based scatter correction 
+as well as collimator-detector response modeling as implemented in the Hybrid Recon-Neurology tool of the Hermes SMART workstation v1.6 (Hermes Medical Solutions, Stockholm, Sweden) [60-63]. 
+All parameter settings were as recommended by Hermes [60] for the EANM / EANM Research Ltd (EARL) ENC-DAT project (European Normal Control Database of DaTSCAN) [64-68]. 
+More precisely, ordered-subsets-expectation-maximization was performed with 5 iterations and 15/16 subsets for 120/128 views. 
+For noise suppression, reconstructed images were postfiltered by convolution with a 3-dimensional Gaussian kernel of 7 mm full-width-at-half-maximum. 
+The development dataset was used for both, training and testing. For this purpose, the dataset was randomly split into ??? training cases and ??? test cases. 
+The gold standard label as either “normal” or Parkinson-typical reduction (“reduced”) of the striatal signal had been obtained by visual interpretation of the DAT-SPECT images by 3 independent readers [56]. 
+% Ralph: Belongs to Methods?
+TODO Data augmentation (without attenuation and scatter correction, gaussian filtering): to be described.
 
-Data augmentation is applied to the DAT-SPECT dataset to increase the heterogeneity of the training and testing data.
-
-\subsection{External datasets}
+\subsection{External testing datasets}
 \label{subsec:external_dataset}
 
-Parkinson's Progression Markers Initiative (PPMI) dataset ZITAT and 
-the multiple-pinhole (MPH) dataset ZITAT.
+The second dataset comprised 645 DAT-SPECT with [$^{123}$I]FP-CIT from the Parkinson's Progression Markers Initiative (PPMI) (www.ppmi-info.org/data) [69]. 
+The dataset included 438 patients with Parkinson's disease and 207 healthy controls as described in [46]. 
+Details of the PPMI DAT-SPECT protocol are given at http://www.ppmi-info.org/study-design/research-documents-and-sops/ [69]. 
+Raw projection data has been transferred to the PPMI imaging core lab for central image reconstruction using an iterative (HOSEM) algorithm on a HERMES workstation. 
+The clinical diagnosis was used as gold standard label (Parkinson's disease = ``reduced", healthy control = ``normal"). 
+
+The third dataset (``MPH dataset") comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE that had been acquired with a triple-head camera equipped with brain-specific multiple pinhole collimators. 
+Multiple pinhole SPECT concurrently improves count sensitivity and spatial resolution compared to SPECT with parallel-hole and fan-beam collimators [70, 71]. 
+The projection data were reconstructed with the Monte Carlo photon simulation engine and iterative one-step-late maximum-a-posteriori expectation-maximization implemented in the camera software (24 iterations, 2 subsets) [71, 72]. 
+Neither attenuation nor scatter correction was applied. 
+The gold standard label (``normal" or ``reduced") was obtained by visual interpretation by an experienced reader 
+(about 20 years of experience in clinical DAT-SPECT reading, $\geq$3,000 cases).
+All SPECT images were interpreted twice (with different randomization) by the same reader. 
+The delay between the reading sessions was 14 days. 
+Cases with discrepant interpretations between the two reading sessions were read a third time by the same reader to obtain an intra-reader consensus as the gold standard label. 
+The MPH test dataset has not been described previously.
+
+Image characteristics were quite different between the datasets (Figure ???). 
+Compared to the development dataset, the internal test dataset was characterized by better spatial resolution 
+(resulting in higher striatum-to-background contrast) and less statistical noise. 
+The external test dataset showed lower spatial resolution than the development dataset (lower striatum-to-background contrast).
+

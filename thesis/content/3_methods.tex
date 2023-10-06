@@ -1,14 +1,55 @@
 \section{Methods}
 \label{sec:methods}
 
-\subsection{SBR}
+\subsection{Development Data Preparation}
+
+In the following, the data preparation techniques applied to the development dataset are explained in detail.
+
+\subsubsection{Data Preprocessing}
+\label{subsubsec:img_preprocess_dev}
+
+% Preprocessing of development dataset
+
+% TODO -> wo "as described previously" -> näher beschreiben
+
+Individual DAT-SPECT images were stereotactically normalized to the anatomical space of the Montreal Neurological Institute 
+using the Normalize tool of the Statistical Parametric Mapping software package (version SPM12) and a set of custom DAT-SPECT templates 
+representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target [73]. 
+The voxel size of the stereotactically normalized images was 2x2x2 mm$^{3}$. 
+Intensity normalization was achieved by voxelwise scaling to the individual 75th percentile of the voxel intensity in a reference region 
+comprising the whole brain without striata, thalamus, brainstem, cerebellum, and ventricles [74]. 
+The resulting images are distribution volume (DVR) images. 
+A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 mm edge length was obtained by averaging 6 transversal slices through the striatum [75]. 
+
+\subsubsection{Data Augmentation}
+\label{subsec:augment}
+
+%   Data augmentation - 
+Data augmentation was applied to the development dataset to increase the heterogeneity of the data.
+
+
+\subsubsection{Dataset Splitting}
+\label{subsec:split}
+
+% How was development dataset split
+
+
+\subsection{Univariate benchmark: Specific Binding Ratio}
 \label{subsec:sbr}
 
+% TODO -> wo "as described previously" -> näher beschreiben
 
-\subsection{CNN - Majority}
-\label{subsec:cnn_majority}
+The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) in left and right putamen was obtained by hottest voxels analysis 
+of the stereotactically normalized DVR image using large unilateral putamen masks predefined in MNI space as described previously [46]. 
+The minimum of both hemispheres was used for the analyses.
 
 
-\subsection{CNN - Random}
-\label{subsec:cnn_random}
+\subsection{Multivariate benchmark: PCA-enhanced Random Forest}
+\label{subsec:pca_rfc}
+
+
+\subsection{CNN-based classification - MVT and RLT}
+\label{subsec:cnn_based_classification}
+
+
 
