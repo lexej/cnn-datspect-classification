@@ -12,7 +12,7 @@ In the following, the data preparation techniques applied to the development dat
 
 % TODO -> wo "as described previously" -> näher beschreiben
 
-Individual DAT-SPECT images were stereotactically normalized to the anatomical space of the Montreal Neurological Institute 
+Individual DAT-SPECT images were stereotactically normalized to the anatomical space of the Montreal Neurological Institute (MNI) 
 using the Normalize tool of the Statistical Parametric Mapping software package (version SPM12) and a set of custom DAT-SPECT templates 
 representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target [73]. 
 The voxel size of the stereotactically normalized images was 2x2x2 mm$^{3}$. 
@@ -24,15 +24,34 @@ A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 
 \subsubsection{Data Augmentation}
 \label{subsec:augment}
 
-%   Data augmentation - 
 Data augmentation was applied to the development dataset to increase the heterogeneity of the data.
+To enhance robustness across various attenuation correction and scatter correction methods, 
+each image was generated both with and without applying attenuation and scatter corrections.
+Also 3D-smoothing was employed for augmentation using an isotropic Gaussian kernel with various 
+Full Width at Half Maximum (FWHM) values (FWHM = 10, 12, 14, 16, 18mm).
+Thereby an augmented dataset of 20,880 images in total was constructed based on 1,740 cases.
+An example of two cases augmented using the described techniques is depicted in Figure~\ref{fig:dev_dataset}.
 
+\begin{figure}[t]
+    \centering
+    \colorbox{black}{%
+     \includegraphics[width=0.9\textwidth]{content/figures/dev_dataset.png}%
+     }
+    \caption{Images obtained through augmentation of two sample cases from the development dataset. 
+    Normal case (above) and case with reduced availability of dopamine transporters (DAT) in the striatum (below).} 
+    \label{fig:dev_dataset}
+  \end{figure} 
 
 \subsubsection{Dataset Splitting}
 \label{subsec:split}
 
 % How was development dataset split
-
+The augmented development dataset was split into three subsets: train set (60\%), validation set (20\%) 
+and test set (20\%).
+While splitting the data it was ensured that the augmented images belonging to a concrete patient were put 
+only into one subset.
+Thereby inter-subset data leakage was prohibited.
+Ten different random splits were created to train and test each of the methods.
 
 \subsection{Univariate benchmark: Specific Binding Ratio}
 \label{subsec:sbr}
