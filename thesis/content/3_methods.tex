@@ -26,7 +26,7 @@ A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 
 
 Data augmentation was applied to the development dataset to increase the heterogeneity of the data.
 To enhance robustness across various attenuation correction and scatter correction methods, 
-each image was generated both with and without applying attenuation and scatter corrections.
+each image was generated in a version with and without attenuation and scatter corrections applied.
 Also 3D-smoothing was employed for augmentation using an isotropic Gaussian kernel with various 
 Full Width at Half Maximum (FWHM) values (FWHM = 10, 12, 14, 16, 18mm).
 Thereby an augmented dataset of 20,880 images in total was constructed based on 1,740 cases.
@@ -45,7 +45,7 @@ An example of two cases augmented using the described techniques is depicted in 
 \subsubsection{Dataset Splitting}
 \label{subsec:split}
 
-% How was development dataset split
+% How was dev dataset split
 The augmented development dataset was split into three subsets: train set (60\%), validation set (20\%) 
 and test set (20\%).
 While splitting the data it was ensured that the augmented images belonging to a concrete patient were put 
@@ -76,17 +76,46 @@ An in-depth elaboration on SBR analysis can be found in [46].
 The SBR-based classifier was obtained as follows.
 First the SBR was calculated for each case in the training set.
 Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
-The optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
-for the SBR of the test set cases.
+The determined optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
+and evaluated on test set cases (SBR values computed for test set cases).
+The described procedure was performed for each of the ten random splits of the development dataset.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
 
+As a further benchmark, a random forest classifier was trained on PCA-transformed features of the training set.
+Therefore first a PCA model with 10 principle components was initialized and fit to the training set features to obtain 
+the principle components of the training set.
+Then the principle components were used to transform the training set to the lower-dimensional space.
+An example of the principle components of the training set for one of the random splits is depicted in Figure~\ref{fig:pca_components}.
 
+The training data transformed by the principle components is then used to train a random forest classifier with 100 decision trees.
+As hyperparameters, the Gini impurity was employed to assess split quality, 
+with a minimum of 2 samples required to split an internal node and 1 sample needed at a leaf node.
+// TODO
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/pca_components_splittrain.png}
+  \caption{Principle components of the training set (development dataset) for one of the random splits.} 
+  \label{fig:pca_components}
+\end{figure} 
 
 \subsection{CNN-based classification - MVT and RLT}
 \label{subsec:cnn_based_classification}
 
 
 
+\subsection{Determination of Inconclusive Ranges on the Probabilistic Output}
+\label{subsec:determinationInconcl}
+
+
+// TODO
+
+On the validation set...
+
+Determination of inconclusive ranges given a set of target percentages of inconclusive cases (0.2\% to 20.0\%, step 0.2\%).
+
+e.g. what is the inconclusive range corresponding to 10\% of test cases being classified as inconclusive?
+
+The determined inconclusive ranges were then used to compute the balanced accuracy on the conclusive cases.
