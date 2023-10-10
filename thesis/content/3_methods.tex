@@ -58,7 +58,7 @@ Ten different random splits were created to train and test each of the methods.
 
 % TODO -> wo "as described previously" -> näher beschreiben
 
-The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) method was used as the main benchmark.
+The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) was used as a benchmark classification method.
 Here, the SBR in left and right putamen was obtained by hottest voxels (HV) analysis of the stereotactically normalized 
 DVR image using large unilateral putamen masks predefined in MNI space [46].
 It can be calculated as 
@@ -71,10 +71,18 @@ where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K
 The voxel intensities of the hottest voxels are normalized to the 75th percentile of the voxel intensities 
 in the reference region associated with non-specific binding [46].
 The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
-An in-depth description of the unilateral SBR method can be found in [46].
+An in-depth elaboration on SBR analysis can be found in [46].
+
+The SBR-based classifier was obtained as follows.
+First the SBR was calculated for each case in the training set.
+Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
+The optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
+for the SBR of the test set cases.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
+
+
 
 
 \subsection{CNN-based classification - MVT and RLT}
