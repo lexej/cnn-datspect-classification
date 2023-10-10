@@ -37,8 +37,8 @@ An example of two cases augmented using the described techniques is depicted in 
     \colorbox{black}{%
      \includegraphics[width=0.9\textwidth]{content/figures/dev_dataset.png}%
      }
-    \caption{Images obtained through augmentation of two sample cases from the development dataset. 
-    Normal case (above) and case with reduced availability of dopamine transporters (DAT) in the striatum (below).} 
+    \caption{Images obtained through augmentation of two sample cases from the development dataset, 
+    a healthy case (above) and a PD case with reduced availability of DAT in the striatum (below).} 
     \label{fig:dev_dataset}
   \end{figure} 
 
@@ -58,10 +58,20 @@ Ten different random splits were created to train and test each of the methods.
 
 % TODO -> wo "as described previously" -> näher beschreiben
 
-The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) in left and right putamen was obtained by hottest voxels analysis 
-of the stereotactically normalized DVR image using large unilateral putamen masks predefined in MNI space as described previously [46]. 
-The minimum of both hemispheres was used for the analyses.
+The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) method was used as the main benchmark.
+Here, the SBR in left and right putamen was obtained by hottest voxels (HV) analysis of the stereotactically normalized 
+DVR image using large unilateral putamen masks predefined in MNI space [46].
+It can be calculated as 
 
+\begin{equation}\label{eq:sbr}
+  \text{HV-SBR}_{unilateral} = \frac{1}{K} \sum_{k} \hat{I}_{k, ROI} \;,
+\end{equation}
+
+where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K$-hottest voxels of the unilateral ROI.
+The voxel intensities of the hottest voxels are normalized to the 75th percentile of the voxel intensities 
+in the reference region associated with non-specific binding [46].
+The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
+An in-depth description of the unilateral SBR method can be found in [46].
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
