@@ -1,6 +1,11 @@
 \section{Methods}
 \label{sec:methods}
 
+\subsection{Software Tools and Libraries}
+\label{subsec:libs}
+
+//TODO
+
 \subsection{Development Data Preparation}
 
 In the following, the data preparation techniques applied to the development dataset are explained in detail.
@@ -77,8 +82,8 @@ The SBR-based classifier was obtained as follows.
 First the SBR was calculated for each case in the training set.
 Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
 The determined optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
-and evaluated on test set cases (SBR values computed for test set cases).
-The described procedure was performed for each of the ten random splits of the development dataset.
+and evaluated on the test split of the development dataset for each of the 10 random splits.
+Also the determined cutoff was evaluated on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
@@ -90,9 +95,10 @@ Then the principle components were used to transform the training set to the low
 An example of the principle components of the training set for one of the random splits is depicted in Figure~\ref{fig:pca_components}.
 
 The training data transformed by the principle components is then used to train a random forest classifier with 100 decision trees.
-As hyperparameters, the Gini impurity was employed to assess split quality, 
+As hyperparameters, the Gini impurity was used to assess split quality, 
 with a minimum of 2 samples required to split an internal node and 1 sample needed at a leaf node.
-// TODO
+The trained random forest classifier was evaluated on the test split of the development dataset for each of the 10 random splits.
+In addition the trained model was tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
 \begin{figure}[ht]
   \centering
@@ -102,7 +108,12 @@ with a minimum of 2 samples required to split an internal node and 1 sample need
 \end{figure} 
 
 \subsection{CNN-based classification - MVT and RLT}
-\label{subsec:cnn_based_classification}
+\label{subsec:cnn_based_classification_mvt_rlt}
+
+
+
+\subsection{CNN-based classification - Regression}
+\label{subsec:cnn_based_classification_regression}
 
 
 
