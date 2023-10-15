@@ -88,17 +88,24 @@ Also the determined cutoff was evaluated on the PPMI and MPH datasets described 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
 
-As a further benchmark, a random forest classifier was trained on PCA-transformed features of the training set.
-Therefore first a PCA model with 10 principle components was initialized and fit to the training set features to obtain 
+As a further benchmark, a random forest classifier was trained on PCA-transformed features of the training set 
+of the development dataset.
+
+To be comparable with CNN-based approaches, first, a 91x91 pixel square-shaped region of interest 
+was defined within the 91x109 pixel DVR slab, and each development data image (of each subset) was cropped to this region.
+The square-shaped region was determined by cropping an equal number of pixels from the top and bottom 
+of the DVR slab along its height dimension.
+
+Then a PCA model with 10 principle components was initialized and fit to the training set features to obtain 
 the principle components of the training set.
-Then the principle components were used to transform the training set to the lower-dimensional space.
+The determined principle components were used to transform the training set to the lower-dimensional space.
 An example of the principle components of the training set for one of the random splits is depicted in Figure~\ref{fig:pca_components}.
 
-The training data transformed by the principle components is then used to train a random forest classifier with 100 decision trees.
+The training data transformed by the principle components was then used to train a random forest classifier with 100 decision trees.
 As hyperparameters, the Gini impurity was used to assess split quality, 
 with a minimum of 2 samples required to split an internal node and 1 sample needed at a leaf node.
 The trained random forest classifier was evaluated on the test split of the development dataset for each of the 10 random splits.
-In addition the trained model was tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
+In addition, the trained model was tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
 \begin{figure}[ht]
   \centering
@@ -107,13 +114,49 @@ In addition the trained model was tested on the PPMI and MPH datasets described 
   \label{fig:pca_components}
 \end{figure} 
 
-\subsection{CNN-based classification - MVT and RLT}
-\label{subsec:cnn_based_classification_mvt_rlt}
+\subsection{CNN-based classification}
+\label{subsec:cnn_based_classification}
+
+% Model architecture
+The models of CNN-based classifiers were based on a Residual Network \\(ResNet) architecture.
+More precisely, the \textit{ResNet-18}~\citep{resnet2015} model architecture consisting of 18 layers was used as basis.
+The non-pretrained weights of the ResNet-18 were used as initial weights.
+The ResNet-18 architecture expects input tensors of size (3, 224, 224), 
+denoting images with 3 channels and spatial dimensions of 224 by 224 pixels.
+Since the development data has one color channel, the architecture was modified to expect one input channel at its 
+first convolutional layer.
+Also the dimensions of the last fully-connected layer of the architecture were modified to produce one output node 
+in the output layer.
+The modified ResNet-18 model is depicted in Figure~\ref{fig:resnet}.
+To obtain a probabilistic model output the sigmoid function was applied to the output layer.
+
+% Required preprocessing for CNN: ROI cropping and interpolation to (224, 224)
+Further development data preprocessing was performed to comply with the spatial input 
+dimensions required by the model architecture.
+First, a 91x91 pixel square-shaped region of interest was defined within the 91x109 pixel DVR slab, 
+and each development data image (of each subset) was cropped to this region.
+The square-shaped region was determined by cropping an equal number of pixels from the top and bottom 
+of the DVR slab along its height dimension.
+Then the square-shaped images were resized to 224x224 pixels using bicubic interpolation.
 
 
 
-\subsection{CNN-based classification - Regression}
-\label{subsec:cnn_based_classification_regression}
+
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/cnn_architecture.png}
+  \caption{Model architecture.} 
+  \label{fig:resnet}
+\end{figure} 
+
+\subsubsection{MVT and RLT approaches}
+\label{subsubsec:cnn_based_classification_mvt_rlt}
+
+
+
+\subsubsection{Regression approach}
+\label{subsubsec:cnn_based_classification_regression}
 
 
 
