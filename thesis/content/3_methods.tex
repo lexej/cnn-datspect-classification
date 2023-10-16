@@ -150,7 +150,7 @@ During the training of the model, the weights of the best epoch are saved for fu
 Each CNN-based approach was trained and evaluated using identical $10$ random splits of the development data.
 Additionally, the trained models were tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
-\begin{figure}[ht]
+\begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/cnn_architecture.png}
   \caption{Overview of the architecture of CNN-based approaches.} 
@@ -164,8 +164,10 @@ When training a CNN using the BCE loss function,
 one has to provide the ground truth label of each instance to the optimization algorithm.
 Given that each instance in the development data is labeled by three independent readers, 
 a selection strategy must be determined.
-The following two strategies are used for training the neural networks: 
+The following two label selection strategies are used for training the CNNs: 
 Majority Vote training (MVT) and “Random Label” training (RLT).
+The labels chosen using one of the two strategies are then used, together with the model predictions, 
+to compute the BCE loss.
 
 % MVT
 Majority vote training involved selecting the label that received the majority of votes from the readers as the 
@@ -187,6 +189,23 @@ Here the random label selection strategy is applied both to the training and val
 \subsubsection{Regression approach}
 \label{subsubsec:cnn_based_classification_regression}
 
+The regression-based approach aimed to incorporate the uncertainty regarding the ground truth label 
+into the training algorithm.
+Therefore, the ground-truth label was derived from the combination of the three available labels, 
+resulting in a floating-point number.
+Each of the following states of certainty about the label was mapped to a distinct 
+floating-point valued ground-truth label: 
+\emph{all readers agree on `normal' } (ground-truth label: 0.0), 
+\emph{majority of readers (two out of three) agree on `normal'} (ground-truth label: 1.0/3.0), 
+\emph{majority of readers (two out of three) agree on `reduced'} (ground-truth label: 2.0/3.0) 
+and \emph{all readers agree on `reduced'} (ground-truth label: 1.0).
+This mapping of available labels to the ground-truth label was used for both the training 
+and validation data during the model training phase.
+
+During model training the loss was computed using the Mean Square Error loss function 
+which aims to minimize the mean of the squared differences between the model predictions and the ground-truth labels.
+Thereby the optimization algorithm aimed to seperate cases where no consensus was reached from those where 
+consensus was achieved.
 
 
 \subsection{Evaluation Methods and Metrics}
