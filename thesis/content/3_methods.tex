@@ -146,13 +146,14 @@ the Binary Cross Entropy (BCE) loss was employed for optimization,
 whereas for the Regression approach (described in Section~\ref{subsubsec:cnn_based_classification_regression}) 
 the Mean Squared Error (MSE) loss function was used.
 The Adam optimization algorithm was utilized with an initial learning rate of $0.0001$.
+During the training of the model, the weights of the best epoch are saved for future evaluation.
 Each CNN-based approach was trained and evaluated using identical $10$ random splits of the development data.
 Additionally, the trained models were tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/cnn_architecture.png}
-  \caption{Model architecture.} 
+  \caption{Overview of the architecture of CNN-based approaches.} 
   \label{fig:resnet}
 \end{figure} 
 
@@ -166,16 +167,29 @@ a selection strategy must be determined.
 The following two strategies are used for training the neural networks: 
 Majority Vote training (MVT) and “Random Label” training (RLT).
 
-% TODO
+% MVT
+Majority vote training involved selecting the label that received the majority of votes from the readers as the 
+ground truth label.
+Since there are three available labels, 
+a majority is reached when two out of the three readers agree on a particular label (e.g., the normal case (NC)).
+During the model training phase, the majority vote strategy was employed to select the labels for both the training 
+and validation data instances.
 
-
+% RLT
+In contrast to MVT, random label training involved choosing a random label from the three available options
+as the ground truth label.
+The seed of the random number generator (responsible for the random selection) is set only once at the start of the
+algorithm and is not reset between the model training epochs.
+Thereby a different label could be chosen as the ground truth label for each distinct training epoch.
+Here the random label selection strategy is applied both to the training and validation data.
+% majority on validation better?
 
 \subsubsection{Regression approach}
 \label{subsubsec:cnn_based_classification_regression}
 
 
 
-\subsection{Evaluation Methods}
+\subsection{Evaluation Methods and Metrics}
 \label{subsec:determinationInconcl}
 
 % Determination of Inconclusive Ranges on the Probabilistic Output
