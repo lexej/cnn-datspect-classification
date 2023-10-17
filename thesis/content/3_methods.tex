@@ -204,20 +204,45 @@ and validation data during the model training phase.
 
 During model training the loss was computed using the Mean Square Error loss function 
 which aims to minimize the mean of the squared differences between the model predictions and the ground-truth labels.
-Thereby the optimization algorithm aimed to seperate cases where no consensus was reached from those where 
+Thereby the optimization algorithm aimed to separate cases where no consensus was reached from those where 
 consensus was achieved.
 
 
 \subsection{Evaluation Methods and Metrics}
 \label{subsec:determinationInconcl}
 
-% Determination of Inconclusive Ranges on the Probabilistic Output
-// TODO
+In the following the performance metrics used for the evaluation of the different classification methods 
+are explained in more detail.
 
-On the validation set...
+\subsubsection{Performance metrics}
+\label{subsubsec:}
 
-Determination of inconclusive ranges given a set of target percentages of inconclusive cases (0.2\% to 20.0\%, step 0.2\%).
 
-e.g. what is the inconclusive range corresponding to 10\% of test cases being classified as inconclusive?
+\subsubsection{AUC for balanced accuracy vs. inconclusive case proportion}
+\label{subsubsec:auc_bal_acc}
 
-The determined inconclusive ranges were then used to compute the balanced accuracy on the conclusive cases.
+
+% AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
+The main performance metric used in this work to evaluate and compare the classification approaches was 
+the area under the curve (AUC) of balanced accuracy in conclusive cases as a function of the proportion of inconclusive cases
+that has been taken into account. 
+In this context, inconclusive cases are defined as cases predicted within the pre-defined inconclusive interval, 
+while conclusive cases are those predicted outside this interval.
+The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
+
+In order to compute the balanced accuracy in conclusive cases for a certain percentage of inconclusive cases, 
+the corresponding inconclusive interval was first determined 
+for each element in the considered set of percentages of inconclusive cases.
+The determination of the inconclusive interval was exclusively performed using the validation set 
+for each random split and classification approach independently.
+The lower and upper bounds of each inconclusive interval were independently determined
+to ensure a similar number of inconclusive cases both below and above the pre-defined cutoff (decision threshold).
+For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
+multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
+For the the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}) the optimal cutoff 
+obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
+
+
+% e.g. what is the inconclusive range corresponding to 10\% of test cases being classified as inconclusive?
+
+% The determined inconclusive ranges were then used to compute the balanced accuracy on the conclusive cases.
