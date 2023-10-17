@@ -208,29 +208,22 @@ Thereby the optimization algorithm aimed to separate cases where no consensus wa
 consensus was achieved.
 
 
-\subsection{Evaluation Methods and Metrics}
+\subsection{Performance Evaluation and Metrics}
 \label{subsec:determinationInconcl}
 
 In the following the performance metrics used for the evaluation of the different classification methods 
 are explained in more detail.
 
-\subsubsection{Performance metrics}
-\label{subsubsec:}
-
-
-\subsubsection{AUC for balanced accuracy vs. inconclusive case proportion}
-\label{subsubsec:auc_bal_acc}
-
-
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
 The main performance metric used in this work to evaluate and compare the classification approaches was 
 the area under the curve (AUC) of balanced accuracy in conclusive cases as a function of the proportion of inconclusive cases
 that has been taken into account. 
-In this context, inconclusive cases are defined as cases predicted within the pre-defined inconclusive interval, 
-while conclusive cases are those predicted outside this interval.
+In this context, inconclusive cases are defined as cases predicted within an inconclusive interval 
+(defined by lower and upper bound), while conclusive cases are those predicted outside this interval.
 The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
 
-In order to compute the balanced accuracy in conclusive cases for a certain percentage of inconclusive cases, 
+% Determination of inconclusive intervals given set of percentages of inconclusive cases
+To compute the balanced accuracy in conclusive cases for a certain percentage of inconclusive cases, 
 the corresponding inconclusive interval was first determined 
 for each element in the considered set of percentages of inconclusive cases.
 The determination of the inconclusive interval was exclusively performed using the validation set 
@@ -239,10 +232,19 @@ The lower and upper bounds of each inconclusive interval were independently dete
 to ensure a similar number of inconclusive cases both below and above the pre-defined cutoff (decision threshold).
 For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
 multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
-For the the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}) the optimal cutoff 
-obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
+For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
+the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
 
 
-% e.g. what is the inconclusive range corresponding to 10\% of test cases being classified as inconclusive?
+% Stability of inconclusive interval -> Ralph fragen: Stability of inconclusive interval on validation or test set?
+Furthermore, the stability of the inconclusive interval as a function of the proportion of inconclusive cases is evaluated.
+Therefore the $\text{mean} \pm \text{SD}$ (standard deviation) of the determined upper and lower bounds 
+of the inconclusive interval, 
+calculated from the proportion of inconclusive cases in the validation set across different random splits, 
+were plotted against the corresponding proportion of inconclusive cases.
+The functions were created separately for each classification approach.
 
-% The determined inconclusive ranges were then used to compute the balanced accuracy on the conclusive cases.
+% Proportion of in inconclusive cases in test set vs. 
+Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set is calculated 
+as a function of the proportion of inconclusive cases in the validation set.
+
