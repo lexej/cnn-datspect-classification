@@ -214,10 +214,15 @@ consensus was achieved.
 In the following the performance metrics used for the evaluation of the different classification methods 
 are explained in more detail.
 
+First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
+the different random splits for each classification approach: 
+Balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV.
+The natural cutoff of 0.5 was used for each classification approach except the SBR (for SBR: determined optimal cutoff).
+
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
 The main performance metric used in this work to evaluate and compare the classification approaches was 
-the area under the curve (AUC) of balanced accuracy in conclusive cases as a function of the proportion of inconclusive cases
-that has been taken into account. 
+the area under the curve (AUC) of balanced accuracy in conclusive cases (in test set) as a function of 
+the proportion of inconclusive cases (in test set).
 In this context, inconclusive cases are defined as cases predicted within an inconclusive interval 
 (defined by lower and upper bound), while conclusive cases are those predicted outside this interval.
 The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
@@ -238,13 +243,12 @@ the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Y
 
 % Stability of inconclusive interval -> Ralph fragen: Stability of inconclusive interval on validation or test set?
 Furthermore, the stability of the inconclusive interval as a function of the proportion of inconclusive cases is evaluated.
-Therefore the $\text{mean} \pm \text{SD}$ (standard deviation) of the determined upper and lower bounds 
-of the inconclusive interval, 
+Therefore the $\text{mean} \pm \text{SD}$ of the determined upper and lower bounds of the inconclusive interval, 
 calculated from the proportion of inconclusive cases in the validation set across different random splits, 
 were plotted against the corresponding proportion of inconclusive cases.
 The functions were created separately for each classification approach.
 
-% Proportion of in inconclusive cases in test set vs. 
-Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set is calculated 
-as a function of the proportion of inconclusive cases in the validation set.
+% Proportion of inconclusive cases in test set vs. 
+Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set is plotted 
+against the proportion of inconclusive cases in the validation set.
 
