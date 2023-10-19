@@ -181,11 +181,21 @@ def uncertainty_sigmoid(n_splits=1, target_balanced_accuracy=98.0):
     print(f'\tInconclusive SBR range: {mean_lower_bound_at_target:.3f} +/- {std_lower_bound_at_target:.3f} - '
           f'{mean_upper_bound_at_target:.3f} +/- {std_upper_bound_at_target:.3f}')
 
-    #   TODO
     if ppmi_flg:
         # PPMI dataset (n = 645)
         # Get filenames of CSV tables with sigmoid outputs (one table per random split)
-        ppmi_file_names = []  # Replace this with the list of file paths to your PPMI dataset CSV files
+        ppmi_file_names = [
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split4.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split5.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split6.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split7.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split8.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_split9.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_splittest.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_splittrain.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_splittrain0.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi/preds_baseline_majority_randomization_splitvalid.csv",
+        ]
 
         # Do the work for PPMI dataset
         bacc_incon_ppmi = np.zeros((n_splits, n_prop))
@@ -194,6 +204,10 @@ def uncertainty_sigmoid(n_splits=1, target_balanced_accuracy=98.0):
 
         for i in range(n_splits):
             ppmi_score, ppmi_true_label = importCSVother(ppmi_file_names[i])
+
+            ppmi_score = np.array(ppmi_score)
+            ppmi_true_label = np.array(ppmi_true_label)
+
             ppmi_score = -ppmi_score
             observed_percent_incon_ppmi[i, :], bacc_incon_ppmi[i, :], bacc_con_ppmi[i, :] = testInconInterval(ppmi_score, ppmi_true_label, cutoff[i], percent_incon, lower_bound[[i], :], upper_bound[[i], :])
 
@@ -211,7 +225,18 @@ def uncertainty_sigmoid(n_splits=1, target_balanced_accuracy=98.0):
     if mph_flg:
         # MPH dataset (n = 640)
         # Get filenames of CSV tables with sigmoid outputs (one table per random split)
-        mph_file_names = []  # Replace this with the list of file paths to your MPH dataset CSV files
+        mph_file_names = [
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split4.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split5.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split6.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split7.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split8.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_split9.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_splittest.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_splittrain.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_splittrain0.csv",
+            "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph/preds_baseline_majority_randomization_splitvalid.csv",
+        ]
 
         # Do the work for MPH dataset
         bacc_incon_mph = np.zeros((n_splits, n_prop))
@@ -220,6 +245,10 @@ def uncertainty_sigmoid(n_splits=1, target_balanced_accuracy=98.0):
 
         for i in range(n_splits):
             mph_score, mph_true_label = importCSVother(mph_file_names[i])
+
+            mph_score = np.array(mph_score)
+            mph_true_label = np.array(mph_true_label)
+
             mph_score = -mph_score
             observed_percent_incon_mph[i, :], bacc_incon_mph[i, :], bacc_con_mph[i, :] = testInconInterval(mph_score, mph_true_label, cutoff[i], percent_incon, lower_bound[[i], :], upper_bound[[i], :])
 
@@ -328,12 +357,12 @@ def crossTable(cutoff, score, trueLabel):
 
 
 def accMetrics(TP, FP, TN, FN):
-    acc = (TP + TN) / (TP + FP + TN + FN)
-    sens = TP / (TP + FN)
-    spec = TN / (FP + TN)
+    acc = np.divide((TP + TN) , (TP + FP + TN + FN))
+    sens = np.divide(TP, (TP + FN))
+    spec = np.divide(TN, (FP + TN))
     bacc = 0.5 * (sens + spec)
-    PPV = TP / (TP + FP)
-    NPV = TN / (TN + FN)
+    PPV = np.divide(TP, (TP + FP))
+    NPV = np.divide(TN, (TN + FN))
 
     return bacc, acc, sens, spec, PPV, NPV
 
