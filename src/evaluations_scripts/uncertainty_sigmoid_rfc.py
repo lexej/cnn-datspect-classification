@@ -4,7 +4,6 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 
-
 def uncertainty_sigmoid(n_splits=1, target_balanced_accuracy=98.0):
     ppmi_flg = True
     mph_flg = True
