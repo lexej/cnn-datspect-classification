@@ -10,7 +10,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
     ppmi_flg = True
     mph_flg = True
 
-    # Defaults
     cutoff_natural = 0.5  # natural cutoff on sigmoid output
     natural_cutoff_flg = True  # use natural cutoff
 
@@ -43,7 +42,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
 
     # Loop through the random splits
     for i in range(n_splits):
-        # Replace the importCSVdevelopment and other functions with your data loading logic
         # Import the data from CSV files
         sample, majority_vote, prediction = importCSVdevelopment(file_names[i])
 
@@ -56,7 +54,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         score = -prediction[m]
         true_label = majority_vote[m]
 
-        # Replace the following lines with your calculations for TP, FP, TN, FN, and acc_metrics
         TP, FP, TN, FN = crossTable(-cutoff_natural, score, true_label)
         bacc[i, 0], acc[i, 0], sens[i, 0], spec[i, 0], ppv[i, 0], npv[i, 0] = accMetrics(TP, FP, TN, FN)
 
@@ -65,7 +62,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         score = -prediction[m]
         true_label = majority_vote[m]
 
-        # Replace the following lines with your calculations for AUC, cutoff, and acc_metrics
         AUC[i], cutoff[i] = ROC(score, true_label, False)
         if natural_cutoff_flg:
             cutoff[i] = -cutoff_natural
@@ -78,7 +74,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         score = -prediction[m]
         true_label = majority_vote[m]
 
-        # Replace the following lines with your calculations for TP, FP, TN, FN, and acc_metrics
         TP, FP, TN, FN = crossTable(cutoff[i], score, true_label)
         bacc[i, 2], acc[i, 2], sens[i, 2], spec[i, 2], ppv[i, 2], npv[i, 2] = accMetrics(TP, FP, TN, FN)
 
@@ -87,7 +82,6 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         score = -prediction[m]
         true_label = majority_vote[m]
 
-        # Replace the following lines with your calculations for observed_percent_incon, bacc_incon, and bacc_con
         #   lower_bound and upper_bound -> slice and preserve first dimension 
         observed_percent_incon[i, :], bacc_incon[i, :], bacc_con[i, :] = testInconInterval(score, true_label, cutoff[i], percent_incon, lower_bound[[i], :], upper_bound[[i], :])
 
@@ -107,7 +101,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
 
     
     # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots(figsize=(16, 8))
+    _, ax = plt.subplots(figsize=(16, 8))
 
     ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                 y=mean_lower_bound[:ind_percent_incon_max], 
@@ -132,12 +126,19 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
     ax.legend()
     ax.set_xlabel('Percent inconclusive cases (%)')
     ax.set_ylabel('Sigmoid')
-    #plt.axis([0, percent_incon[ind_percent_incon_max], 0, 1])
     plt.show()
 
     # Primary quality metric (relF): area under the curve of balanced accuracy in conclusive cases
     # versus proportion of inconclusive cases (scaled to the maximum possible area)
-    relF = plotBacc(percent_incon, ind_percent_incon_max, mean_observed_percent_incon, std_observed_percent_incon, mean_bacc_incon, std_bacc_incon, mean_bacc_con, std_bacc_con, 'development')
+    plotBacc(x=percent_incon, 
+             n=ind_percent_incon_max, 
+             obx=mean_observed_percent_incon, 
+             dobx=std_observed_percent_incon, 
+             y=mean_bacc_incon, 
+             dy=std_bacc_incon, 
+             z=mean_bacc_con, 
+             dz=std_bacc_con, 
+             setID='development')
 
     # Get proportion of inconclusives at target balanced accuracy in conclusive cases
     ind = np.where(mean_bacc_con >= target_balanced_accuracy)[0]
@@ -202,7 +203,15 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         std_bacc_con_ppmi = 100 * np.std(bacc_con_ppmi, axis=0, where=~np.isnan(bacc_con_ppmi))
 
         # Scaled area under balanced accuracy in cnclusive cases
-        relFppmi = plotBacc(percent_incon, ind_percent_incon_max, mean_observed_percent_incon_ppmi, std_observed_percent_incon_ppmi, mean_bacc_incon_ppmi, std_bacc_incon_ppmi, mean_bacc_con_ppmi, std_bacc_con_ppmi, 'PPMI')
+        plotBacc(x=percent_incon, 
+                 n=ind_percent_incon_max, 
+                 obx=mean_observed_percent_incon_ppmi, 
+                 dobx=std_observed_percent_incon_ppmi, 
+                 y=mean_bacc_incon_ppmi, 
+                 dy=std_bacc_incon_ppmi, 
+                 z=mean_bacc_con_ppmi, 
+                 dz=std_bacc_con_ppmi,
+                 setID='PPMI')
 
     if mph_flg:
         # MPH dataset (n = 640)
@@ -232,10 +241,16 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
         mean_bacc_con_mph = 100 * np.mean(bacc_con_mph, axis=0, where=~np.isnan(bacc_con_mph))
         std_bacc_con_mph = 100 * np.std(bacc_con_mph, axis=0, where=~np.isnan(bacc_con_mph))
 
-        # Scaled area under balanced accuracy in cnclusive cases
-        relFmph = plotBacc(percent_incon, ind_percent_incon_max, mean_observed_percent_incon_mph, std_observed_percent_incon_mph, mean_bacc_incon_mph, std_bacc_incon_mph, mean_bacc_con_mph, std_bacc_con_mph, 'MPH')
-
-
+        # Scaled area under balanced accuracy in conclusive cases
+        plotBacc(x=percent_incon, 
+                 n=ind_percent_incon_max, 
+                 obx=mean_observed_percent_incon_mph, 
+                 dobx=std_observed_percent_incon_mph, 
+                 y=mean_bacc_incon_mph, 
+                 dy=std_bacc_incon_mph, 
+                 z=mean_bacc_con_mph, 
+                 dz=std_bacc_con_mph, 
+                 setID='MPH')
 
 
 def importCSVdevelopment(fn):
@@ -340,6 +355,9 @@ def accMetrics(TP, FP, TN, FN):
 
 
 def inconInterval(score, cutoff, percent_incon):
+    """Gets the score (negated predictions), cutoff (negative) and percent_incon. 
+    Returns lower_bound and upper_bound of same length as percent_incon."""
+
     # Gives sorted negated preds, so that: reduced cases (e.g. -0.92) smaller normal cases (e.g. -0.01)
     score = np.sort(score)
 
@@ -360,10 +378,12 @@ def inconInterval(score, cutoff, percent_incon):
         # "Middle" of nin -> Assume nin=7 ???
         k = round((nin - 1) / 2)
 
-        #   Access lower_bound by indexing score
+        #   lower_bound and upper_bound w.r.t. cutoff (which is negative here)
+        
+        #   Access lower_bound by indexing score (lower_bound tends to reduced class)
         lower_bound.append(score[ind_cutoff - k])
 
-        #   Access upper_bound by indexing score
+        #   Access upper_bound by indexing score (upper bound tends to normal class)
         upper_bound.append(score[ind_cutoff + k])
     
     return lower_bound, upper_bound
@@ -378,19 +398,27 @@ def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upp
     baccCon = np.zeros((nSplits, nProp))  # overall accuracy in conclusive cases
 
     for i in range(nSplits):
+        # For each percentage of inconclusive cases...
         for j in range(nProp):
+            # ...compute binary mask of length=len(score); for each score element: True if inconclusive, else False
             m = ( (score >= lower_bound[i,j]) & (score <= upper_bound[i,j]) )
 
+            #   Calculate percentage of inconclusive cases given current lower_bound and upper_bound
             observedPercentIncon[i, j] = 100 * np.sum(m) / len(m)
 
             scoreIncon = score[m]
             trueLabelIncon = true_label[m]
+
+            #   Calculate balanced accuracy on inconclusive cases
             
             TP, FP, TN, FN = crossTable(cutoff, scoreIncon, trueLabelIncon)
             baccIncon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
             scoreCon = score[~m]
             trueLabelCon = true_label[~m]
+
+            #   Calculate balanced accuracy on conclusive cases
+
             TP, FP, TN, FN = crossTable(cutoff, scoreCon, trueLabelCon)
             baccCon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
@@ -409,6 +437,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     x_clipped = np.clip(x, min(obxc), max(obxc)) 
     iz = spline(x_clipped[:n])
 
+    #   TODO -> Check boundaries
     # Calculate the relative area under the curve scaled to maximum area
     relF = 100 * np.trapz(iz, x=x[:n]) / (100 * (x[n - 1] - x[0]))
 
