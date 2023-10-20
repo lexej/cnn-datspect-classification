@@ -340,54 +340,58 @@ def accMetrics(TP, FP, TN, FN):
 
 
 def inconInterval(score, cutoff, percent_incon):
-    # Sort the score array
+    # Gives sorted negated preds, so that: reduced cases (e.g. -0.92) smaller normal cases (e.g. -0.01)
     score = np.sort(score)
+
+    # cutoff is negated! (e.g. -0.5)
     
-    # Find the index of the cutoff
+    # Find the index of the score-value nearest to cutoff
     ind_cutoff = np.argmin(np.abs(score - cutoff))
     
     n = len(score)
     lower_bound = []
     upper_bound = []
     
+    # For each target percentage of inconclusive cases: determine lower and upper bound of inconclusive interval
     for p in percent_incon:
+        # number of cases required within inconclusive interval
         nin = round(p / 100 * n)
+
+        # "Middle" of nin -> Assume nin=7 ???
         k = round((nin - 1) / 2)
+
+        #   Access lower_bound by indexing score
         lower_bound.append(score[ind_cutoff - k])
+
+        #   Access upper_bound by indexing score
         upper_bound.append(score[ind_cutoff + k])
     
     return lower_bound, upper_bound
 
 
 
-def testInconInterval(score, trueLabel, cutoff, percentIncon, lowerBound, upperBound):
-    nSplits = lowerBound.shape[0]
-    nProp = len(percentIncon)
+def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upper_bound):
+    nSplits = lower_bound.shape[0]
+    nProp = len(percent_incon)
     observedPercentIncon = np.zeros((nSplits, nProp))
     baccIncon = np.zeros((nSplits, nProp))  # overall accuracy in inconclusive cases
     baccCon = np.zeros((nSplits, nProp))  # overall accuracy in conclusive cases
 
-    if (nSplits > 1) and (isinstance(cutoff, (int, float, np.float64, np.int64))):
-        cutoff = np.array([cutoff] * nSplits)
-    else:
-        # since cutoff is accessed via index (matlab erlaubts..)
-        cutoff = [cutoff]
-
     for i in range(nSplits):
         for j in range(nProp):
-            m = ( (score >= lowerBound[i,j]) & (score <= upperBound[i,j]) )
+            m = ( (score >= lower_bound[i,j]) & (score <= upper_bound[i,j]) )
 
             observedPercentIncon[i, j] = 100 * np.sum(m) / len(m)
 
             scoreIncon = score[m]
-            trueLabelIncon = trueLabel[m]
+            trueLabelIncon = true_label[m]
             
-            TP, FP, TN, FN = crossTable(cutoff[i], scoreIncon, trueLabelIncon)
+            TP, FP, TN, FN = crossTable(cutoff, scoreIncon, trueLabelIncon)
             baccIncon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
             scoreCon = score[~m]
-            trueLabelCon = trueLabel[~m]
-            TP, FP, TN, FN = crossTable(cutoff[i], scoreCon, trueLabelCon)
+            trueLabelCon = true_label[~m]
+            TP, FP, TN, FN = crossTable(cutoff, scoreCon, trueLabelCon)
             baccCon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
     return observedPercentIncon, baccIncon, baccCon
@@ -455,9 +459,9 @@ def cleanX(x, y):
 
 
 if __name__ == '__main__':
-    dir_preds_dev = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_baseline_majority"
-    dir_preds_ppmi = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_ppmi"
-    dir_preds_mph = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_majority/preds_mph"
+    dir_preds_dev = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_pca_rfc"
+    dir_preds_ppmi = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_ppmi"
+    dir_preds_mph = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_mph"
 
 
     uncertainty_sigmoid(dir_preds_dev=dir_preds_dev, 
