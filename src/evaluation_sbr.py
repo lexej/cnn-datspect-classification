@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 
-def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
+def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
 
     nASC = 2
     nFWHM = 6
@@ -116,12 +116,15 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
     ax.set_xlabel('percent inconclusive cases (%)')
     ax.set_ylabel('SBR')
 
+    fig.savefig(os.path.join(path_to_results_dir, "sbr_percInconclCases.png"), dpi=300)
+
     plt.show()
 
 
     # Primary quality metric (relF)
     relF = plotBacc(percentIncon, indPercentInconMax, meanObservedPercentIncon,
-                    stdObservedPercentIncon, meanBaccIncon, stdBaccIncon, meanBaccCon, stdBaccCon, 'development')
+                    stdObservedPercentIncon, meanBaccIncon, stdBaccIncon, meanBaccCon, stdBaccCon, 
+                    'development', path_to_results_dir)
 
     # Get proportion of inconclusives at target balanced accuracy in conclusive cases
     ind = np.where(meanBaccCon >= targetBalancedAccuracy)[0]
@@ -132,30 +135,35 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
     stdUpperBoundAtTarget = stdUpperBound[ind[0]]
 
     # Display results
-    print('\n\nResults:')
-    print(f'\tAUC = {np.mean(AUC):.3f}+/-{np.std(AUC):.3f}')
-    print(f'\tcutoff = {meanCutoff:.3f}+/-{stdCutoff:.3f}')
-    print(f'\tbACC: train = {np.mean(bacc[:, 0]):.3f}+/-{np.std(bacc[:, 0]):.3f} \t'
-          f'valid = {np.mean(bacc[:, 1]):.3f}+/-{np.std(bacc[:, 1]):.3f} \t'
-          f'test = {np.mean(bacc[:, 2]):.3f}+/-{np.std(bacc[:, 2]):.3f}')
-    print(f'\tACC:  train = {np.mean(acc[:, 0]):.3f}+/-{np.std(acc[:, 0]):.3f} \t'
-          f'valid = {np.mean(acc[:, 1]):.3f}+/-{np.std(acc[:, 1]):.3f} \t'
-          f'test = {np.mean(acc[:, 2]):.3f}+/-{np.std(acc[:, 2]):.3f}')
-    print(f'\tSENS: train = {np.mean(sens[:, 0]):.3f}+/-{np.std(sens[:, 0]):.3f} \t'
-          f'valid = {np.mean(sens[:, 1]):.3f}+/-{np.std(sens[:, 1]):.3f} \t'
-          f'test = {np.mean(sens[:, 2]):.3f}+/-{np.std(sens[:, 2]):.3f}')
-    print(f'\tSPEC: train = {np.mean(spec[:, 0]):.3f}+/-{np.std(spec[:, 0]):.3f} \t'
-          f'valid = {np.mean(spec[:, 1]):.3f}+/-{np.std(spec[:, 1]):.3f} \t'
-          f'test = {np.mean(spec[:, 2]):.3f}+/-{np.std(spec[:, 2]):.3f}')
-    print(f'\tPPV:  train = {np.mean(PPV[:, 0]):.3f}+/-{np.std(PPV[:, 0]):.3f} \t'
-          f'valid = {np.mean(PPV[:, 1]):.3f}+/-{np.std(PPV[:, 1]):.3f} \t'
-          f'test = {np.mean(PPV[:, 2]):.3f}+/-{np.std(PPV[:, 2]):.3f}')
-    print(f'\tNPV:  train = {np.mean(NPV[:, 0]):.3f}+/-{np.std(NPV[:, 0]):.3f} \t'
-          f'valid = {np.mean(NPV[:, 1]):.3f}+/-{np.std(NPV[:, 1]):.3f} \t'
-          f'test = {np.mean(NPV[:, 2]):.3f}+/-{np.std(NPV[:, 2]):.3f}')
-    print(f'\tinconclusives at {targetBalancedAccuracy:.1f}% balanced accuracy: {percentInconAtTarget:.1f}%')
-    print(f'\tinconclusive SBR range:  {meanLowerBoundAtTarget:.3f}+/-{stdLowerBoundAtTarget:.3f} - '
+    performance_dev = (f'\n\nResults:'
+    f'\n\tAUC = {np.mean(AUC):.3f}+/-{np.std(AUC):.3f}'
+    f'\n\tcutoff = {meanCutoff:.3f}+/-{stdCutoff:.3f}'
+    f'\n\tbACC: train = {np.mean(bacc[:, 0]):.3f}+/-{np.std(bacc[:, 0]):.3f} \t'
+                f'valid = {np.mean(bacc[:, 1]):.3f}+/-{np.std(bacc[:, 1]):.3f} \t'
+                f'test = {np.mean(bacc[:, 2]):.3f}+/-{np.std(bacc[:, 2]):.3f}'
+    f'\n\tACC:  train = {np.mean(acc[:, 0]):.3f}+/-{np.std(acc[:, 0]):.3f} \t'
+                f'valid = {np.mean(acc[:, 1]):.3f}+/-{np.std(acc[:, 1]):.3f} \t'
+                f'test = {np.mean(acc[:, 2]):.3f}+/-{np.std(acc[:, 2]):.3f}'
+    f'\n\tSENS: train = {np.mean(sens[:, 0]):.3f}+/-{np.std(sens[:, 0]):.3f} \t'
+                f'valid = {np.mean(sens[:, 1]):.3f}+/-{np.std(sens[:, 1]):.3f} \t'
+                f'test = {np.mean(sens[:, 2]):.3f}+/-{np.std(sens[:, 2]):.3f}'
+    f'\n\tSPEC: train = {np.mean(spec[:, 0]):.3f}+/-{np.std(spec[:, 0]):.3f} \t'
+                f'valid = {np.mean(spec[:, 1]):.3f}+/-{np.std(spec[:, 1]):.3f} \t'
+                f'test = {np.mean(spec[:, 2]):.3f}+/-{np.std(spec[:, 2]):.3f}'
+    f'\n\tPPV:  train = {np.mean(PPV[:, 0]):.3f}+/-{np.std(PPV[:, 0]):.3f} \t'
+                f'valid = {np.mean(PPV[:, 1]):.3f}+/-{np.std(PPV[:, 1]):.3f} \t'
+                f'test = {np.mean(PPV[:, 2]):.3f}+/-{np.std(PPV[:, 2]):.3f}'
+    f'\n\tNPV:  train = {np.mean(NPV[:, 0]):.3f}+/-{np.std(NPV[:, 0]):.3f} \t'
+                f'valid = {np.mean(NPV[:, 1]):.3f}+/-{np.std(NPV[:, 1]):.3f} \t'
+                f'test = {np.mean(NPV[:, 2]):.3f}+/-{np.std(NPV[:, 2]):.3f}'
+    f'\n\tinconclusives at {targetBalancedAccuracy:.1f}% balanced accuracy: {percentInconAtTarget:.1f}%'
+    f'\n\tinconclusive SBR range:  {meanLowerBoundAtTarget:.3f}+/-{stdLowerBoundAtTarget:.3f} - '
           f'{meanUpperBoundAtTarget:.3f}+/-{stdUpperBoundAtTarget:.3f}')
+
+    print(performance_dev)
+
+    with open(os.path.join(path_to_results_dir, "performance_dev.txt"), "w") as f:
+        f.write(performance_dev)
 
     #   --------------------------------------------------------------------------------------------------------
     # PPMI dataset
@@ -180,7 +188,7 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
     # Scaled area under balanced accuracy in conclusive cases
     relFppmi = plotBacc(
         percentIncon, indPercentInconMax, meanObservedPercentInconPPMI, stdObservedPercentInconPPMI,
-        meanBaccInconPPMI, stdBaccInconPPMI, meanBaccConPPMI, stdBaccConPPMI, 'PPMI'
+        meanBaccInconPPMI, stdBaccInconPPMI, meanBaccConPPMI, stdBaccConPPMI, 'PPMI', path_to_results_dir
     )
 
     #   --------------------------------------------------------------------------------------------------------
@@ -206,7 +214,7 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
     # Scaled area under balanced accuracy in conclusive cases
     relFmph = plotBacc(
         percentIncon, indPercentInconMax, meanObservedPercentInconMPH, stdObservedPercentInconMPH,
-        meanBaccInconMPH, stdBaccInconMPH, meanBaccConMPH, stdBaccConMPH, 'MPH'
+        meanBaccInconMPH, stdBaccInconMPH, meanBaccConMPH, stdBaccConMPH, 'MPH', path_to_results_dir
     )
 
 
@@ -398,7 +406,7 @@ def testInconInterval(score, trueLabel, cutoff, percentIncon, lowerBound, upperB
     return observedPercentIncon, baccIncon, baccCon
 
 
-def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
+def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, path_to_results_dir):
     # Calculate the area under the curve scaled to maximum area
     
     obxc, zc = cleanX(obx, z)
@@ -421,6 +429,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
     plt.title(f'{setID} dataset')
 
+    plt.savefig(os.path.join(path_to_results_dir, f"obsInconclCases_inconclCasesValid_sbr_{setID}.png"), dpi=300)
+
     # Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure()
     no = np.argmin(np.abs(obx - x[n - 1]))
@@ -432,6 +442,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.title(f'{setID} dataset')
     plt.axis([0, x[n - 1], 0, 100])
 
+    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_sbr_{setID}.png"), dpi=300)
+
     # Plot balanced accuracy in conclusive cases
     plt.figure()
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
@@ -439,6 +451,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.ylabel('balanced accuracy (%)')
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
     plt.axis([0, x[n - 1], 90, 100])
+
+    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_concl_sbr_{setID}.png"), dpi=300)
 
     plt.show()
 
@@ -459,4 +473,6 @@ def cleanX(x, y):
 
 if __name__ == '__main__':
 
-    uncertaintySBR(nSplits=10, targetBalancedAccuracy=98.0)
+    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/sbr"
+
+    uncertaintySBR(path_to_results_dir=path_to_results_dir, nSplits=10, targetBalancedAccuracy=98.0)
