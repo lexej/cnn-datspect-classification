@@ -1,5 +1,4 @@
 import os
-import glob
 import datetime
 import numpy as np
 import pandas as pd
@@ -12,7 +11,7 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
     nASC = 2
     nFWHM = 6
     nID = 1740
-    sameID = np.arange(nASC * nFWHM - 1) * nID
+    sameID = np.arange(1, nASC * nFWHM) * nID
 
     # Load development data
     ID, ASC, aFWHM, SBRHVputMin, Rmajority = getDevelopment()
@@ -85,7 +84,7 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
         # Test inconclusive range in the test set
         score = SBRHVputMin[indTest]
         trueLabel = Rmajority[indTest]
-        observedPercentIncon[i, :], baccIncon[i, :], baccCon[i, :] = testInconInterval(score, trueLabel, cutoff[i], percentIncon, lowerBound[i, :], upperBound[i, :])
+        observedPercentIncon[i, :], baccIncon[i, :], baccCon[i, :] = testInconInterval(score, trueLabel, cutoff[i], percentIncon, lowerBound[[i], :], upperBound[[i], :])
 
     # Average over random splits
     meanCutoff = np.mean(cutoff)
@@ -212,19 +211,11 @@ def uncertaintySBR(nSplits=1, targetBalancedAccuracy=98.0):
 
 
 def getDevelopment():
-    #   Path to excel file -> TODO
-    excel_file = 'F:\\DaTSCAN_data\\uncertainty_detection_Aleksej\\with_smoothing_ROI_analysis_20230725.xlsx'
+    #   Path to excel file
+    excel_file = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/excel_tabellen/with_smoothing_ROI_analysis_20230725.xlsx"
 
-    df = pd.read_excel(excel_file, sheet_name='results_fpcit_ROI_plus_analysis', header=None, skiprows=1)
+    df = pd.read_excel(excel_file, sheet_name='results_fpcit_ROI_plus_analysis')
 
-    # Renaming of columns
-    df.columns = [
-        'ID', 'ASC', 'aFWHM', 'R1S1', 'R1S2', 'R2S1', 'R2S2', 'R3S1', 'R3S2', 'R1', 'R2', 'R3', 'Rmajority',
-        'sumR', 'SBRHVputMin', 'SBRAALputMin', 'SBRHVcaudateL', 'SBRHVputamenL', 'SBRHVcaudateR', 'SBRHVputamenR',
-        'SBRAALcauL', 'SBRAALputL', 'SBRAALcauR', 'SBRAALputR'
-    ]
-
-    # Extraction of relevant columns
     ID = df['ID'].to_numpy()
     ASC = df['ASC'].to_numpy()
     aFWHM = df['aFWHM'].to_numpy()
@@ -239,10 +230,10 @@ def getPPMI():
     file_path = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/PPMI_dataset/PPMI645.xlsx"
     sheet_name = 'Sheet1'
 
-    df = pd.read_excel(file_path, sheet_name=sheet_name, header=None, skiprows=1)
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
 
-    PPMIscore = df["SBRputMin"]
-    PPMItrueLabel = df["trueLabel"]
+    PPMIscore = df["SBRputMin"].to_numpy()
+    PPMItrueLabel = df["trueLabel"].to_numpy()
 
     return PPMIscore, PPMItrueLabel
 
@@ -252,10 +243,10 @@ def getMPH():
     file_path = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/MPH_30min_20230824/MPH_30min_20230824.xlsx"
     sheet_name = 'DAT_SPECT_MPH_duration_normaliz'
 
-    df = pd.read_excel(file_path, sheet_name=sheet_name, header=None, skiprows=1)
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
     
-    MPHscore = df["SBRHVputMin"]
-    MPHtrueLabel = df["scoreConsensus"]
+    MPHscore = df["SBRHVputMin"].to_numpy()
+    MPHtrueLabel = df["scoreConsensus"].to_numpy()
 
     return MPHscore, MPHtrueLabel
 
@@ -263,17 +254,16 @@ def getMPH():
 def get_randomSplits(n):
     # Path to excel file
     
-    file_path = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/randomSplits03-Aug-2023-17-47-32.xlsx"
-    sheet_name = 'randomSplits03-Aug-2023-17-47-3'
+    file_path = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/excel_tabellen/randomSplits03-Aug-2023-17-47-32.xlsx"
+    sheet_name = 'splits'
 
-    df = pd.read_excel(file_path, sheet_name=sheet_name, header=None, skiprows=1)
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
 
     # Replacing non-numeric cells with NaN
     df = df.apply(pd.to_numeric, errors='coerce')
 
-    # Extract ID column and the first n+1 split columns
-    ID = df[0]
-    splits = df.loc[:, 1:n+1]
+    ID = df["ID"].to_numpy()
+    splits = df.iloc[:, 1:n+1].to_numpy()
 
     return ID, splits
 
@@ -384,11 +374,9 @@ def testInconInterval(score, trueLabel, cutoff, percentIncon, lowerBound, upperB
     baccIncon = np.zeros((nSplits, nProp))  # overall accuracy in inconclusive cases
     baccCon = np.zeros((nSplits, nProp))  # overall accuracy in conclusive cases
 
-    if (nSplits > 1) and (isinstance(cutoff, (int, float, np.float64, np.int64))):
-        cutoff = np.array([cutoff] * nSplits)
-    else:
-        # since cutoff is accessed via index (matlab erlaubts..)
-        cutoff = [cutoff]
+    if isinstance(cutoff, (int, float, np.int64, np.float64)):
+        # cutoff is scalar -> convert to list
+        cutoff = cutoff * np.ones(nSplits)
 
     for i in range(nSplits):
         for j in range(nProp):
@@ -467,3 +455,8 @@ def cleanX(x, y):
             i += 1
 
     return xc, yc
+
+
+if __name__ == '__main__':
+
+    uncertaintySBR(nSplits=10, targetBalancedAccuracy=98.0)
