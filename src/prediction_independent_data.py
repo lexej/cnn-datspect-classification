@@ -1,6 +1,5 @@
-from common import os, sys, yaml, shutil, np, json
+from common import os, sys, yaml, shutil
 from common import torch, DataLoader, Dataset
-from common import accuracy_score
 
 from evaluation import _get_predictions, _save_preds
 
@@ -46,21 +45,7 @@ def evaluate_on_external_dataset(results_dir: str, dataset: Dataset, batch_size,
             ids, preds, labels = _get_predictions(model, dataloader)
 
             #   Save preds 
-
             _save_preds(ids=ids, preds=preds, trues=labels, save_to=preds_save_to_path)
-            
-            #   Save performance stats
-
-            preds_thresholded = np.where(np.array(preds) >= 0.5, 1, 0)
-
-            performance_stats = {
-                'acc_score': accuracy_score(y_true=labels, y_pred=preds_thresholded)
-            }
-
-            performance_stats_path = os.path.join(external_data_preds_path, f'performance_{os.path.basename(results_dir)}_{subdir}.json')
-            
-            with open(performance_stats_path, 'w') as f:
-                json.dump(performance_stats, f)
 
         elif strategy == 'pca_rfc':
             rfc_path = os.path.join(randomization_dir_path, 'training', 'rfc_trained.pkl')
@@ -81,8 +66,9 @@ if __name__ == "__main__":
     results_dir_2 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_random'
     results_dir_3 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/regression'
     results_dir_4 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc'
+    results_dir_5 = '/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/baseline_random_train_majority_valid'
 
-    results_dirs = [results_dir_1, results_dir_2, results_dir_3, results_dir_4]
+    results_dirs = [results_dir_1, results_dir_2, results_dir_3, results_dir_4, results_dir_5]
 
     #   Paths to PPMI data
 
