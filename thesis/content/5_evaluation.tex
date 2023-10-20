@@ -1,55 +1,100 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
+The preceding chapters have detailed the research methodology, data collection and sources, and the application of classification techniques 
+to address the research questions posed in this study. 
 
-\begin{comment}
+This chapter embarks on the evaluation of the research results, focusing on the performance and effectiveness of the methods employed, 
+and the attainment of the research objectives.
 
-For citations, use the command \verb+\citep{lecun2015deep}+ which produces~\citep{lecun2015deep} or \verb+\cite{lecun2015deep}+ which produces~\cite{lecun2015deep}.
+The structure of this chapter has been designed to systematically lead readers through the assessment process. 
+It commences with a discussion of the research objectives that serve as the focal points for subsequent evaluations. 
+Following this, a comprehensive examination of performance metrics is conducted, with an emphasis on their 
+significance within the context of this research, providing detailed insights into the criteria employed 
+to evaluate research outcomes.
+The core of this chapter subsequently unveils the experimental results encompassing various test datasets 
+and classification methods. 
+These findings are presented using graphical representations and supported by a range of statistical measures.
+The chapter culminates with a comparative analysis, which seeks to assess and contrast the effectiveness and 
+limitations of the research methods employed.
 
+\subsection{Research Objectives}
+\label{subsec:research_objectives}
 
+% TODO
 
-\begin{table}[ht]
-	\caption{Sample table title}
-	\centering
-	\begin{tabular}{lll}
-		\hline
-		Name     & Description     & Size ($\mu$m) \\
-		\hline
-		Dendrite & Input terminal  & $\sim$100     \\
-		Axon     & Output terminal & $\sim$10      \\
-		Soma     & Cell body       & up to $10^6$  \\
-		\hline
-	\end{tabular}
-   \label{t1:sample}
-\end{table}
+% Objective 1: Evaluation of Methods on Test set of dev data
 
-
-\begin{figure}[ht]
-  \centering
-   \includegraphics[width=.5\textwidth]{xaiLogo.png}
-  \caption{Logo of the chair of Explainable Machine Learning}   
-  \label{fig:xai_logo}
-\end{figure}  
-
-\subsection{Another Subsection}
-\label{subsec:another}
-Here is a reference to Table~\ref{t1:sample}. Figure~\ref{fig:xai_logo} shows \ldots
+%   Objective 1.1: To compare the "performance" of the methods on Test set of dev data.
+%   Objective 1.2: To assess the suitability of these methods in unseen real-world scenarios
 
 
+% Objective 2: Evaluation of Methods on PPMI and MPH dataset
+%				-> understand the impact of varying dataset characteristics by evaluating on
+
+
+\subsection{Evaluation Metrics}
+\label{subsec:determinationInconcl}
+
+In the following the performance metrics used for the evaluation of the different classification methods 
+are explained in more detail.
+
+First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
+the different random splits for each classification approach: 
+Balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV.
+The natural cutoff of 0.5 was used for each classification approach except the SBR (for SBR: determined optimal cutoff).
+
+% AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
+The main performance metric used in this work to evaluate and compare the classification approaches was 
+the area under the curve (AUC) of balanced accuracy in conclusive cases (in test set) as a function of 
+the proportion of inconclusive cases (in test set).
+In this context, inconclusive cases are defined as cases predicted within an inconclusive interval 
+(defined by lower and upper bound), while conclusive cases are those predicted outside this interval.
+The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
+
+% Determination of inconclusive intervals given set of percentages of inconclusive cases
+To compute the balanced accuracy in conclusive cases for a certain percentage of inconclusive cases, 
+the corresponding inconclusive interval was first determined 
+for each element in the considered set of percentages of inconclusive cases.
+The determination of the inconclusive interval was exclusively performed using the validation set 
+for each random split and classification approach independently.
+The lower and upper bounds of each inconclusive interval were independently determined
+to ensure a similar number of inconclusive cases both below and above the pre-defined cutoff (decision threshold).
+For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
+multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
+For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
+the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
+
+
+% Stability of inconclusive interval -> Ralph fragen: Stability of inconclusive interval on validation or test set?
+Furthermore, the stability of the inconclusive interval as a function of the proportion of inconclusive cases is evaluated.
+Therefore the $\text{mean} \pm \text{SD}$ of the determined upper and lower bounds of the inconclusive interval, 
+calculated from the proportion of inconclusive cases in the validation set across different random splits, 
+were plotted against the corresponding proportion of inconclusive cases.
+The functions were created separately for each classification approach.
+
+% Proportion of inconclusive cases in test set vs. 
+Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set is plotted 
+against the proportion of inconclusive cases in the validation set.
+
+
+\subsection{Methodology}
+\label{subsec:eval_methodology}
+
+\subsubsection{Evaluation on Test Split of Development Dataset}
+\label{subsubsec:eval_dev}
 
 
 
-\subsection{Yet another Subsection}
-\label{subsec:yetanother}
 
-If you want to typeset formulas, there is the inline version $ y = x_1^{0.5} x_2^{0.5}$, centered like this
-\[
-y = x_1^{0.5} x_2^{0.5}
-\]
-or numbered:
-\begin{equation}\label{eq:prod}
-y = x_1^{0.5} x_2^{0.5}	
-\end{equation}
-so that you can refer to equation~\ref{eq:prod} in the text.
 
-\end{comment}
+\subsubsection{Evaluation on Independent datasets}
+\label{subsubsec:eval_independent}
+
+% Per method: PPMI and MPH 
+
+
+
+\subsection{Comparative Analysis}
+\label{subsec:compar_anal}
+
