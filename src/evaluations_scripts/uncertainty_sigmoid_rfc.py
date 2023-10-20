@@ -397,6 +397,10 @@ def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upp
     baccIncon = np.zeros((nSplits, nProp))  # overall accuracy in inconclusive cases
     baccCon = np.zeros((nSplits, nProp))  # overall accuracy in conclusive cases
 
+    if isinstance(cutoff, (int, float, np.int64, np.float64)):
+        # cutoff is scalar -> convert to list
+        cutoff = cutoff * np.ones(nSplits)
+
     for i in range(nSplits):
         # For each percentage of inconclusive cases...
         for j in range(nProp):
@@ -411,7 +415,7 @@ def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upp
 
             #   Calculate balanced accuracy on inconclusive cases
             
-            TP, FP, TN, FN = crossTable(cutoff, scoreIncon, trueLabelIncon)
+            TP, FP, TN, FN = crossTable(cutoff[i], scoreIncon, trueLabelIncon)
             baccIncon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
             scoreCon = score[~m]
@@ -419,7 +423,7 @@ def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upp
 
             #   Calculate balanced accuracy on conclusive cases
 
-            TP, FP, TN, FN = crossTable(cutoff, scoreCon, trueLabelCon)
+            TP, FP, TN, FN = crossTable(cutoff[i], scoreCon, trueLabelCon)
             baccCon[i, j] = accMetrics(TP, FP, TN, FN)[0]
 
     return observedPercentIncon, baccIncon, baccCon
