@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 
-def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
+def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
 
     nASC = 2
     nFWHM = 6
@@ -116,7 +116,9 @@ def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=9
     ax.set_xlabel('percent inconclusive cases (%)')
     ax.set_ylabel('SBR')
 
-    fig.savefig(os.path.join(path_to_results_dir, "sbr_percInconclCases.png"), dpi=300)
+    setID = 'development'
+
+    fig.savefig(os.path.join(path_to_results_dir, methodID, f"sbr_percInconclCases_{setID}.png"), dpi=300)
 
     plt.show()
 
@@ -124,7 +126,9 @@ def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=9
     # Primary quality metric (relF)
     relF = plotBacc(percentIncon, indPercentInconMax, meanObservedPercentIncon,
                     stdObservedPercentIncon, meanBaccIncon, stdBaccIncon, meanBaccCon, stdBaccCon, 
-                    'development', path_to_results_dir)
+                    setID, 
+                    methodID,
+                    path_to_results_dir)
 
     # Get proportion of inconclusives at target balanced accuracy in conclusive cases
     ind = np.where(meanBaccCon >= targetBalancedAccuracy)[0]
@@ -162,7 +166,7 @@ def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=9
 
     print(performance_dev)
 
-    with open(os.path.join(path_to_results_dir, "performance_dev.txt"), "w") as f:
+    with open(os.path.join(path_to_results_dir, methodID, f"performance_{methodID}_{setID}.txt"), "w") as f:
         f.write(performance_dev)
 
     #   --------------------------------------------------------------------------------------------------------
@@ -188,7 +192,7 @@ def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=9
     # Scaled area under balanced accuracy in conclusive cases
     relFppmi = plotBacc(
         percentIncon, indPercentInconMax, meanObservedPercentInconPPMI, stdObservedPercentInconPPMI,
-        meanBaccInconPPMI, stdBaccInconPPMI, meanBaccConPPMI, stdBaccConPPMI, 'PPMI', path_to_results_dir
+        meanBaccInconPPMI, stdBaccInconPPMI, meanBaccConPPMI, stdBaccConPPMI, 'PPMI', methodID, path_to_results_dir
     )
 
     #   --------------------------------------------------------------------------------------------------------
@@ -214,7 +218,7 @@ def uncertaintySBR(path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=9
     # Scaled area under balanced accuracy in conclusive cases
     relFmph = plotBacc(
         percentIncon, indPercentInconMax, meanObservedPercentInconMPH, stdObservedPercentInconMPH,
-        meanBaccInconMPH, stdBaccInconMPH, meanBaccConMPH, stdBaccConMPH, 'MPH', path_to_results_dir
+        meanBaccInconMPH, stdBaccInconMPH, meanBaccConMPH, stdBaccConMPH, 'MPH', methodID, path_to_results_dir
     )
 
 
@@ -406,7 +410,7 @@ def testInconInterval(score, trueLabel, cutoff, percentIncon, lowerBound, upperB
     return observedPercentIncon, baccIncon, baccCon
 
 
-def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, path_to_results_dir):
+def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir):
     # Calculate the area under the curve scaled to maximum area
     
     obxc, zc = cleanX(obx, z)
@@ -429,7 +433,9 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, path_to_results_dir):
     plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
     plt.title(f'{setID} dataset')
 
-    plt.savefig(os.path.join(path_to_results_dir, f"obsInconclCases_inconclCasesValid_sbr_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID, 
+                             f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), dpi=300)
 
     # Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure()
@@ -442,7 +448,9 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, path_to_results_dir):
     plt.title(f'{setID} dataset')
     plt.axis([0, x[n - 1], 0, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_sbr_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID,
+                             f"bacc_obsInconclCases_{methodID}_{setID}.png"), dpi=300)
 
     # Plot balanced accuracy in conclusive cases
     plt.figure()
@@ -452,7 +460,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, path_to_results_dir):
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
     plt.axis([0, x[n - 1], 90, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_concl_sbr_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, methodID, 
+                             f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
 
     plt.show()
 
@@ -473,6 +482,14 @@ def cleanX(x, y):
 
 if __name__ == '__main__':
 
-    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/sbr"
+    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/evaluations"
 
-    uncertaintySBR(path_to_results_dir=path_to_results_dir, nSplits=10, targetBalancedAccuracy=98.0)
+    methodID = "sbr"
+
+    if not os.path.exists(os.path.join(path_to_results_dir, methodID)):
+        os.makedirs(os.path.join(path_to_results_dir, methodID))
+
+    uncertaintySBR(methodID=methodID,
+                   path_to_results_dir=path_to_results_dir,
+                   nSplits=10, 
+                   targetBalancedAccuracy=98.0)

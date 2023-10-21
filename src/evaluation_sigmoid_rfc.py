@@ -6,7 +6,8 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 
-def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1, target_balanced_accuracy=98.0):
+def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, path_to_results_dir, 
+                        n_splits=1, target_balanced_accuracy=98.0):
     ppmi_flg = True
     mph_flg = True
 
@@ -126,6 +127,13 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
     ax.legend()
     ax.set_xlabel('Percent inconclusive cases (%)')
     ax.set_ylabel('Sigmoid')
+
+    setID = 'development'
+
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID, 
+                             f"sigmoid_percInconclCases_{methodID}_{setID}.png"), dpi=300)
+
     plt.show()
 
     # Primary quality metric (relF): area under the curve of balanced accuracy in conclusive cases
@@ -138,7 +146,9 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
              dy=std_bacc_incon, 
              z=mean_bacc_con, 
              dz=std_bacc_con, 
-             setID='development')
+             setID=setID, 
+             methodID=methodID, 
+             path_to_results_dir=path_to_results_dir)
 
     # Get proportion of inconclusives at target balanced accuracy in conclusive cases
     ind = np.where(mean_bacc_con >= target_balanced_accuracy)[0]
@@ -149,30 +159,35 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
     std_upper_bound_at_target = std_upper_bound[ind[0]]
 
     # Display results
-    print('\n\nResults:')
-    print(f'\tAUC = {np.mean(AUC):.3f} +/- {np.std(AUC):.3f}')
-    print(f'\tCutoff = {mean_cutoff:.3f} +/- {std_cutoff:.3f}')
-    print(f'\tbACC: Train = {np.mean(bacc[:, 0]):.3f} +/- {np.std(bacc[:, 0]):.3f}\t'
-          f'Valid = {np.mean(bacc[:, 1]):.3f} +/- {np.std(bacc[:, 1]):.3f}\t'
-          f'Test = {np.mean(bacc[:, 2]):.3f} +/- {np.std(bacc[:, 2]):.3f}')
-    print(f'\tACC: Train = {np.mean(acc[:, 0]):.3f} +/- {np.std(acc[:, 0]):.3f}\t'
-          f'Valid = {np.mean(acc[:, 1]):.3f} +/- {np.std(acc[:, 1]):.3f}\t'
-          f'Test = {np.mean(acc[:, 2]):.3f} +/- {np.std(acc[:, 2]):.3f}')
-    print(f'\tSENS: Train = {np.mean(sens[:, 0]):.3f} +/- {np.std(sens[:, 0]):.3f}\t'
-          f'Valid = {np.mean(sens[:, 1]):.3f} +/- {np.std(sens[:, 1]):.3f}\t'
-          f'Test = {np.mean(sens[:, 2]):.3f} +/- {np.std(sens[:, 2]):.3f}')
-    print(f'\tSPEC: Train = {np.mean(spec[:, 0]):.3f} +/- {np.std(spec[:, 0]):.3f}\t'
-          f'Valid = {np.mean(spec[:, 1]):.3f} +/- {np.std(spec[:, 1]):.3f}\t'
-          f'Test = {np.mean(spec[:, 2]):.3f} +/- {np.std(spec[:, 2]):.3f}')
-    print(f'\tPPV:  Train = {np.mean(ppv[:, 0]):.3f} +/- {np.std(ppv[:, 0]):.3f}\t'
-          f'Valid = {np.mean(ppv[:, 1]):.3f} +/- {np.std(ppv[:, 1]):.3f}\t'
-          f'Test = {np.mean(ppv[:, 2]):.3f} +/- {np.std(ppv[:, 2]):.3f}')
-    print(f'\tNPV:  Train = {np.mean(npv[:, 0]):.3f} +/- {np.std(npv[:, 0]):.3f}\t'
-          f'Valid = {np.mean(npv[:, 1]):.3f} +/- {np.std(npv[:, 1]):.3f}\t'
-          f'Test = {np.mean(npv[:, 2]):.3f} +/- {np.std(npv[:, 2]):.3f}')
-    print(f'\tInconclusives at {target_balanced_accuracy:.1f}% balanced accuracy: {percent_incon_at_target:.1f}%')
-    print(f'\tInconclusive SBR range: {mean_lower_bound_at_target:.3f} +/- {std_lower_bound_at_target:.3f} - '
-          f'{mean_upper_bound_at_target:.3f} +/- {std_upper_bound_at_target:.3f}')
+    performance_dev = (f'\n\nResults:'
+    f'\n\tAUC = {np.mean(AUC):.3f}+/-{np.std(AUC):.3f}'
+    f'\n\tcutoff = {mean_cutoff:.3f}+/-{std_cutoff:.3f}'
+    f'\n\tbACC: train = {np.mean(bacc[:, 0]):.3f}+/-{np.std(bacc[:, 0]):.3f} \t'
+                f'valid = {np.mean(bacc[:, 1]):.3f}+/-{np.std(bacc[:, 1]):.3f} \t'
+                f'test = {np.mean(bacc[:, 2]):.3f}+/-{np.std(bacc[:, 2]):.3f}'
+    f'\n\tACC:  train = {np.mean(acc[:, 0]):.3f}+/-{np.std(acc[:, 0]):.3f} \t'
+                f'valid = {np.mean(acc[:, 1]):.3f}+/-{np.std(acc[:, 1]):.3f} \t'
+                f'test = {np.mean(acc[:, 2]):.3f}+/-{np.std(acc[:, 2]):.3f}'
+    f'\n\tSENS: train = {np.mean(sens[:, 0]):.3f}+/-{np.std(sens[:, 0]):.3f} \t'
+                f'valid = {np.mean(sens[:, 1]):.3f}+/-{np.std(sens[:, 1]):.3f} \t'
+                f'test = {np.mean(sens[:, 2]):.3f}+/-{np.std(sens[:, 2]):.3f}'
+    f'\n\tSPEC: train = {np.mean(spec[:, 0]):.3f}+/-{np.std(spec[:, 0]):.3f} \t'
+                f'valid = {np.mean(spec[:, 1]):.3f}+/-{np.std(spec[:, 1]):.3f} \t'
+                f'test = {np.mean(spec[:, 2]):.3f}+/-{np.std(spec[:, 2]):.3f}'
+    f'\n\tPPV:  train = {np.mean(ppv[:, 0]):.3f}+/-{np.std(ppv[:, 0]):.3f} \t'
+                f'valid = {np.mean(ppv[:, 1]):.3f}+/-{np.std(ppv[:, 1]):.3f} \t'
+                f'test = {np.mean(ppv[:, 2]):.3f}+/-{np.std(ppv[:, 2]):.3f}'
+    f'\n\tNPV:  train = {np.mean(npv[:, 0]):.3f}+/-{np.std(npv[:, 0]):.3f} \t'
+                f'valid = {np.mean(npv[:, 1]):.3f}+/-{np.std(npv[:, 1]):.3f} \t'
+                f'test = {np.mean(npv[:, 2]):.3f}+/-{np.std(npv[:, 2]):.3f}'
+    f'\n\tinconclusives at {target_balanced_accuracy:.1f}% balanced accuracy: {percent_incon_at_target:.1f}%'
+    f'\n\tinconclusive SBR range:  {mean_lower_bound_at_target:.3f}+/-{std_lower_bound_at_target:.3f} - '
+          f'{mean_upper_bound_at_target:.3f}+/-{std_upper_bound_at_target:.3f}')
+
+    print(performance_dev)
+
+    with open(os.path.join(path_to_results_dir, methodID, f"performance_{methodID}_{setID}.txt"), "w") as f:
+        f.write(performance_dev)
 
     if ppmi_flg:
         # PPMI dataset (n = 645)
@@ -211,7 +226,9 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
                  dy=std_bacc_incon_ppmi, 
                  z=mean_bacc_con_ppmi, 
                  dz=std_bacc_con_ppmi,
-                 setID='PPMI')
+                 setID='PPMI', 
+                 methodID=methodID, 
+                 path_to_results_dir=path_to_results_dir)
 
     if mph_flg:
         # MPH dataset (n = 640)
@@ -250,7 +267,9 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, n_splits=1
                  dy=std_bacc_incon_mph, 
                  z=mean_bacc_con_mph, 
                  dz=std_bacc_con_mph, 
-                 setID='MPH')
+                 setID='MPH', 
+                 methodID=methodID, 
+                 path_to_results_dir=path_to_results_dir)
 
 
 def importCSVdevelopment(fn):
@@ -430,7 +449,7 @@ def testInconInterval(score, true_label, cutoff, percent_incon, lower_bound, upp
 
 
 
-def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
+def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir):
     # Calculate the area under the curve scaled to maximum area
     
     obxc, zc = cleanX(obx, z)
@@ -454,6 +473,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
     plt.title(f'{setID} dataset')
 
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID, 
+                             f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), dpi=300)
+
     # Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure()
     no = np.argmin(np.abs(obx - x[n - 1]))
@@ -465,6 +488,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.title(f'{setID} dataset')
     plt.axis([0, x[n - 1], 0, 100])
 
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID, 
+                             f"bacc_obsInconclCases_{methodID}_{setID}.png"), dpi=300)
+
     # Plot balanced accuracy in conclusive cases
     plt.figure()
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
@@ -472,6 +499,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID):
     plt.ylabel('balanced accuracy (%)')
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
     plt.axis([0, x[n - 1], 90, 100])
+
+    plt.savefig(os.path.join(path_to_results_dir, 
+                             methodID, 
+                             f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
 
     plt.show()
 
@@ -496,9 +527,18 @@ if __name__ == '__main__':
     dir_preds_ppmi = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_ppmi"
     dir_preds_mph = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_mph"
 
+    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/evaluations"
+
+    methodID = "pca_rfc"
+
+    if not os.path.exists(os.path.join(path_to_results_dir, methodID)):
+        os.makedirs(os.path.join(path_to_results_dir, methodID))
 
     uncertainty_sigmoid(dir_preds_dev=dir_preds_dev, 
                         dir_preds_ppmi=dir_preds_ppmi,
                         dir_preds_mph=dir_preds_mph,
-                        n_splits=10, target_balanced_accuracy=98)
+                        methodID=methodID,
+                        path_to_results_dir=path_to_results_dir,
+                        n_splits=10, 
+                        target_balanced_accuracy=98)
     
