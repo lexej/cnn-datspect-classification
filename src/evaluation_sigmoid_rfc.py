@@ -1,4 +1,5 @@
 import os
+import shutil
 import glob
 import csv
 import numpy as np
@@ -134,7 +135,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
                              methodID, 
                              f"sigmoid_percInconclCases_{methodID}_{setID}.png"), dpi=300)
 
-    plt.show()
+    #plt.show()
 
     # Primary quality metric (relF): area under the curve of balanced accuracy in conclusive cases
     # versus proportion of inconclusive cases (scaled to the maximum possible area)
@@ -504,7 +505,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
                              methodID, 
                              f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
 
-    plt.show()
+    #plt.show()
 
 
 def cleanX(x, y):
@@ -523,22 +524,51 @@ def cleanX(x, y):
 
 
 if __name__ == '__main__':
-    dir_preds_dev = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_pca_rfc"
-    dir_preds_ppmi = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_ppmi"
-    dir_preds_mph = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/pca_rfc/preds_mph"
+    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results"
 
-    path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/evaluations"
+    path_to_results_evaluations_dir = os.path.join(path_to_results_dir, "evaluations")
 
-    methodID = "pca_rfc"
+    if not os.path.exists(path_to_results_evaluations_dir):
+            os.makedirs(path_to_results_evaluations_dir)
 
-    if not os.path.exists(os.path.join(path_to_results_dir, methodID)):
-        os.makedirs(os.path.join(path_to_results_dir, methodID))
+    #   Methods (with preds) to calculate the evaluations for (EXCEPT SBR!)
+    methods = ["pca_rfc", 
+               "baseline_majority", 
+               "baseline_random", 
+               "baseline_random_train_majority_valid",
+               "regression"]
+    
+    for methodID in methods:
+        print('*' * 100)
 
-    uncertainty_sigmoid(dir_preds_dev=dir_preds_dev, 
-                        dir_preds_ppmi=dir_preds_ppmi,
-                        dir_preds_mph=dir_preds_mph,
-                        methodID=methodID,
-                        path_to_results_dir=path_to_results_dir,
-                        n_splits=10, 
-                        target_balanced_accuracy=98)
+        print(f"----- Started calculation for method {methodID} ------")
+
+        #   Source paths
+
+        dir_preds_dev = os.path.join(path_to_results_dir, methodID, f"preds_{methodID}")
+        dir_preds_ppmi = os.path.join(path_to_results_dir, methodID, "preds_ppmi")
+        dir_preds_mph = os.path.join(path_to_results_dir, methodID, "preds_mph")
+
+        #   Target path
+        
+        path_to_evaluations_for_method = os.path.join(path_to_results_evaluations_dir, methodID)
+
+        if os.path.exists(path_to_evaluations_for_method):
+            # delete old results
+            shutil.rmtree(path_to_evaluations_for_method)
+            
+        os.makedirs(path_to_evaluations_for_method)
+
+        #   Calculate results
+
+        uncertainty_sigmoid(dir_preds_dev=dir_preds_dev, 
+                            dir_preds_ppmi=dir_preds_ppmi,
+                            dir_preds_mph=dir_preds_mph,
+                            methodID=methodID,
+                            path_to_results_dir=path_to_results_evaluations_dir,
+                            n_splits=10, 
+                            target_balanced_accuracy=98)
+        
+        print(f"----- Finished calculation for method {methodID} ------")
+
     
