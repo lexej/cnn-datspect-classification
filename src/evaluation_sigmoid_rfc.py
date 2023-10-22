@@ -476,7 +476,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     relF = 100 * np.trapz(y=iz, x=x[:n]) / (100 * (x[n - 1] - x[0]))
 
     ######################################################################################################
-    # Plot observed proportion of inconclusive cases in the test set
+    # 1. Plot observed proportion of inconclusive cases in the test set
     plt.figure(figsize=(12, 9))
 
     plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='observed')
@@ -498,7 +498,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     no = np.argmin(np.abs(obx - x[n - 1]))
 
     ######################################################################################################
-    # Plot balanced accuracy in conclusive and inconclusive cases
+    # 2. Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure(figsize=(12, 9))
 
     plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='inconclusive')
@@ -519,10 +519,11 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
                 dpi=300)
 
     ######################################################################################################
-    # Plot balanced accuracy in conclusive cases
+    # 3. Plot balanced accuracy in conclusive cases
     plt.figure(figsize=(12, 9))
 
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
+    
     plt.xlabel('mean observed inconclusive cases in the test set (%)')
     plt.ylabel('balanced accuracy (%)')
     plt.title(f'{setID} dataset: relF = {relF:.1f}')

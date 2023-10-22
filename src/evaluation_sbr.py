@@ -102,22 +102,26 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
     stdBaccCon = 100 * np.nanstd(baccCon, axis=0)
 
     # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12, 9))  # 4:3 ratio
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
-                yerr=stdLowerBound[:indPercentInconMax], fmt='ro', label='lower bound')
+                yerr=stdLowerBound[:indPercentInconMax], fmt='ro', label='Lower bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
-                yerr=stdUpperBound[:indPercentInconMax], fmt='b*', label='upper bound')
+                yerr=stdUpperBound[:indPercentInconMax], fmt='b*', label='Upper bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
-                yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='cutoff')
+                yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')
 
-    ax.legend()
-    ax.set_xlabel('percent inconclusive cases (%)')
+    ax.legend(loc='upper left')
+    ax.set_xlabel('Percentage of inconclusive cases (%)')
     ax.set_ylabel('SBR')
+    ax.set_xlim(0, percentIncon[indPercentInconMax])
+    ax.set_xticks(np.arange(0, percentIncon[indPercentInconMax], 1.0))
 
     setID = 'development'
+
+    fig.tight_layout()
 
     fig.savefig(os.path.join(path_to_results_dir, f"sbr_percInconclCases_{setID}.png"), dpi=300)
 
@@ -425,39 +429,65 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     # Calculate the relative area under the curve scaled to maximum area
     relF = 100 * np.trapz(iz, x=x[:n]) / (100 * (x[n - 1] - x[0]))
 
-    # Plot observed proportion of inconclusive cases in the test set
-    plt.figure()
+    ######################################################################################################
+    # 1. Plot observed proportion of inconclusive cases in the test set
+    plt.figure(figsize=(12, 9))
+
     plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='observed')
     plt.plot(x[:n], x[:n], '-k', label='identity line')
-    plt.legend()
+
+    plt.legend(loc='upper left')
     plt.xlabel('inconclusive cases in validation set (%)')
     plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
     plt.title(f'{setID} dataset')
 
+    plt.xlim(0, x[n])
+    plt.xticks(np.arange(0, x[n], 1.0))
+
+    plt.tight_layout()
+
     plt.savefig(os.path.join(path_to_results_dir, 
                              f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), dpi=300)
 
-    # Plot balanced accuracy in conclusive and inconclusive cases
-    plt.figure()
+    ######################################################################################################
+    # 2. Plot balanced accuracy in conclusive and inconclusive cases
+    plt.figure(figsize=(12, 9))
+
     no = np.argmin(np.abs(obx - x[n - 1]))
     plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='inconclusive')
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', label='conclusive')
-    plt.legend()
+
+    plt.legend(loc='lower right')
     plt.xlabel('mean observed inconclusive cases in the test set (%)')
     plt.ylabel('balanced accuracy (%)')
     plt.title(f'{setID} dataset')
-    plt.axis([0, x[n - 1], 0, 100])
+
+    plt.xlim(0, x[n])
+    plt.ylim(0, 100)
+    plt.xticks(np.arange(0, x[n], 1.0))
+    plt.yticks(np.arange(0, 110, 10.0))
+
+    plt.tight_layout()
 
     plt.savefig(os.path.join(path_to_results_dir,
                              f"bacc_obsInconclCases_{methodID}_{setID}.png"), dpi=300)
 
-    # Plot balanced accuracy in conclusive cases
-    plt.figure()
+    ######################################################################################################
+    # 3. Plot balanced accuracy in conclusive cases
+    plt.figure(figsize=(12, 9))
+
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
+
     plt.xlabel('mean observed inconclusive cases in the test set (%)')
     plt.ylabel('balanced accuracy (%)')
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
-    plt.axis([0, x[n - 1], 90, 100])
+    
+    plt.xlim(0, x[n])
+    plt.ylim(90, 100)
+    plt.xticks(np.arange(0, x[n], 1.0))
+    plt.yticks(np.arange(90, 101, 1.0))
+
+    plt.tight_layout()
 
     plt.savefig(os.path.join(path_to_results_dir, 
                              f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
