@@ -131,9 +131,8 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
 
     setID = 'development'
 
-    plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID, 
-                             f"sigmoid_percInconclCases_{methodID}_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, f"sigmoid_percInconclCases_{methodID}_{setID}.png"), 
+                dpi=300)
 
     #plt.show()
 
@@ -187,7 +186,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
 
     print(performance_dev)
 
-    with open(os.path.join(path_to_results_dir, methodID, f"performance_{methodID}_{setID}.txt"), "w") as f:
+    with open(os.path.join(path_to_results_dir, f"performance_{methodID}_{setID}.txt"), "w") as f:
         f.write(performance_dev)
 
     if ppmi_flg:
@@ -474,9 +473,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
     plt.title(f'{setID} dataset')
 
-    plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID, 
-                             f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), 
+                dpi=300)
 
     # Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure()
@@ -489,9 +487,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.title(f'{setID} dataset')
     plt.axis([0, x[n - 1], 0, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID, 
-                             f"bacc_obsInconclCases_{methodID}_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_{methodID}_{setID}.png"), 
+                dpi=300)
 
     # Plot balanced accuracy in conclusive cases
     plt.figure()
@@ -501,9 +498,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
     plt.axis([0, x[n - 1], 90, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID, 
-                             f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
+    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), 
+                dpi=300)
 
     #plt.show()
 
@@ -565,7 +561,7 @@ if __name__ == '__main__':
                             dir_preds_ppmi=dir_preds_ppmi,
                             dir_preds_mph=dir_preds_mph,
                             methodID=methodID,
-                            path_to_results_dir=path_to_results_evaluations_dir,
+                            path_to_results_dir=path_to_evaluations_for_method,
                             n_splits=10, 
                             target_balanced_accuracy=98)
         

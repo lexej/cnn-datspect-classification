@@ -1,4 +1,5 @@
 import os
+import shutil
 import datetime
 import numpy as np
 import pandas as pd
@@ -118,9 +119,9 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
 
     setID = 'development'
 
-    fig.savefig(os.path.join(path_to_results_dir, methodID, f"sbr_percInconclCases_{setID}.png"), dpi=300)
+    fig.savefig(os.path.join(path_to_results_dir, f"sbr_percInconclCases_{setID}.png"), dpi=300)
 
-    plt.show()
+    #plt.show()
 
 
     # Primary quality metric (relF)
@@ -166,7 +167,7 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
 
     print(performance_dev)
 
-    with open(os.path.join(path_to_results_dir, methodID, f"performance_{methodID}_{setID}.txt"), "w") as f:
+    with open(os.path.join(path_to_results_dir, f"performance_{methodID}_{setID}.txt"), "w") as f:
         f.write(performance_dev)
 
     #   --------------------------------------------------------------------------------------------------------
@@ -434,7 +435,6 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.title(f'{setID} dataset')
 
     plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID, 
                              f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), dpi=300)
 
     # Plot balanced accuracy in conclusive and inconclusive cases
@@ -448,8 +448,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.title(f'{setID} dataset')
     plt.axis([0, x[n - 1], 0, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, 
-                             methodID,
+    plt.savefig(os.path.join(path_to_results_dir,
                              f"bacc_obsInconclCases_{methodID}_{setID}.png"), dpi=300)
 
     # Plot balanced accuracy in conclusive cases
@@ -460,10 +459,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
     plt.axis([0, x[n - 1], 90, 100])
 
-    plt.savefig(os.path.join(path_to_results_dir, methodID, 
+    plt.savefig(os.path.join(path_to_results_dir, 
                              f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), dpi=300)
 
-    plt.show()
+    #plt.show()
 
 
 def cleanX(x, y):
@@ -484,12 +483,20 @@ if __name__ == '__main__':
 
     path_to_results_dir = "/Users/aleksej/IdeaProjects/master-thesis-kucerenko/src/results/evaluations"
 
+    if not os.path.exists(path_to_results_dir):
+            os.makedirs(path_to_results_dir)
+
     methodID = "sbr"
 
-    if not os.path.exists(os.path.join(path_to_results_dir, methodID)):
-        os.makedirs(os.path.join(path_to_results_dir, methodID))
+    path_to_evaluations_for_method = os.path.join(path_to_results_dir, methodID)
+
+    if os.path.exists(path_to_evaluations_for_method):
+            # delete old results
+            shutil.rmtree(path_to_evaluations_for_method)
+        
+    os.makedirs(path_to_evaluations_for_method)
 
     uncertaintySBR(methodID=methodID,
-                   path_to_results_dir=path_to_results_dir,
+                   path_to_results_dir=path_to_evaluations_for_method,
                    nSplits=10, 
                    targetBalancedAccuracy=98.0)
