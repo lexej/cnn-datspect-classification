@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from evaluation_sigmoid_rfc import inconInterval, testInconInterval, ROC, crossTable, accMetrics, plotBacc, cleanX
+from evaluation_sigmoid_rfc import inconInterval, testInconInterval, ROC, crossTable, accMetrics, plotBacc
 
 
 def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
@@ -102,13 +102,19 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
     stdBaccCon = 100 * np.nanstd(baccCon, axis=0)
 
     # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots(figsize=(12, 9))  # 4:3 ratio
+    fig, ax = plt.subplots(figsize=(8, 6))  # 4:3 ratio
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
-                yerr=stdLowerBound[:indPercentInconMax], fmt='ro', label='Lower Bound')
+                yerr=stdLowerBound[:indPercentInconMax], 
+                fmt='ro', 
+                markerfacecolor='none', 
+                label='Lower Bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
-                yerr=stdUpperBound[:indPercentInconMax], fmt='b*', label='Upper Bound')
+                yerr=stdUpperBound[:indPercentInconMax], 
+                fmt='b*', 
+                markerfacecolor='none', 
+                label='Upper Bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
                 yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')

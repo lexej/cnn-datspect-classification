@@ -103,7 +103,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
 
     
     # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots(figsize=(12, 9))  # 4:3 ratio
+    fig, ax = plt.subplots(figsize=(8, 6))  # 4:3 ratio
 
     #   ATTENTION: Here lower bound and upper bound are switched 
     #               since the computation was performed on negated pred values
@@ -112,12 +112,12 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
                 y=mean_lower_bound[:ind_percent_incon_max], 
                 yerr=std_lower_bound[:ind_percent_incon_max], 
                 label='Upper Bound',
-                marker='*', color='blue')
+                fmt='b*', markerfacecolor='none')
     ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                 y=mean_upper_bound[:ind_percent_incon_max], 
                 yerr=std_upper_bound[:ind_percent_incon_max],
                 label='Lower Bound',
-                marker='o', color='red')
+                fmt='ro', markerfacecolor='none')
 
     ax.set_xlim(0, percent_incon[ind_percent_incon_max])
     ax.set_ylim(0, 1)
@@ -497,10 +497,16 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     relF = 100 * np.trapz(y=iz, x=x[:n]) / (100 * (x[n - 1] - x[0]))
 
     ######################################################################################################
-    # 1. Plot observed proportion of inconclusive cases in the test set
-    plt.figure(figsize=(12, 9))
+    #   Global plot parameters
 
-    plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='Observed')
+    figsize = (8, 6)
+
+    ######################################################################################################
+
+    # 1. Plot observed proportion of inconclusive cases in the test set
+    plt.figure(figsize=figsize)
+
+    plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', markerfacecolor='none', label='Observed')
     plt.plot(x[:n], x[:n], '-k', label='Identity Line')
 
     plt.legend(loc='upper left')
@@ -521,10 +527,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
     ######################################################################################################
     # 2. Plot balanced accuracy in conclusive and inconclusive cases
-    plt.figure(figsize=(12, 9))
+    plt.figure(figsize=figsize)
 
-    plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='Inconclusive Cases')
-    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', label='Conclusive Cases')
+    plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', markerfacecolor='none', label='Inconclusive Cases')
+    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
 
     plt.legend(loc='lower right')
     plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
@@ -543,9 +549,9 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
     ######################################################################################################
     # 3. Plot balanced accuracy in conclusive cases
-    plt.figure(figsize=(12, 9))
+    plt.figure(figsize=figsize)
 
-    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
+    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none')
 
     plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
     plt.ylabel('Balanced Accuracy (%)')
