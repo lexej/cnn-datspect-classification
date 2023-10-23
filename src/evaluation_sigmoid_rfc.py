@@ -111,12 +111,12 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
     ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                 y=mean_lower_bound[:ind_percent_incon_max], 
                 yerr=std_lower_bound[:ind_percent_incon_max], 
-                label='Upper bound',
+                label='Upper Bound',
                 marker='*', color='blue')
     ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                 y=mean_upper_bound[:ind_percent_incon_max], 
                 yerr=std_upper_bound[:ind_percent_incon_max],
-                label='Lower bound',
+                label='Lower Bound',
                 marker='o', color='red')
 
     ax.set_xlim(0, percent_incon[ind_percent_incon_max])
@@ -500,8 +500,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     # 1. Plot observed proportion of inconclusive cases in the test set
     plt.figure(figsize=(12, 9))
 
-    plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='observed')
-    plt.plot(x[:n], x[:n], '-k', label='identity line')
+    plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='Observed')
+    plt.plot(x[:n], x[:n], '-k', label='Identity Line')
 
     plt.legend(loc='upper left')
     plt.xlabel('Inconclusive Cases in Validation Set (%)')
@@ -523,8 +523,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     # 2. Plot balanced accuracy in conclusive and inconclusive cases
     plt.figure(figsize=(12, 9))
 
-    plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='inconclusive')
-    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', label='conclusive')
+    plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='Inconclusive Cases')
+    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', label='Conclusive Cases')
 
     plt.legend(loc='lower right')
     plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')

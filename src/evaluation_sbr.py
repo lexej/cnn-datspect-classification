@@ -105,16 +105,16 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
     fig, ax = plt.subplots(figsize=(12, 9))  # 4:3 ratio
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
-                yerr=stdLowerBound[:indPercentInconMax], fmt='ro', label='Lower bound')
+                yerr=stdLowerBound[:indPercentInconMax], fmt='ro', label='Lower Bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
-                yerr=stdUpperBound[:indPercentInconMax], fmt='b*', label='Upper bound')
+                yerr=stdUpperBound[:indPercentInconMax], fmt='b*', label='Upper Bound')
 
     ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
                 yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')
 
     ax.legend(loc='upper left')
-    ax.set_xlabel('Percentage of inconclusive cases (%)')
+    ax.set_xlabel('Percentage of Inconclusive Cases (%)')
     ax.set_ylabel('SBR')
     ax.set_xlim(0, percentIncon[indPercentInconMax])
     ax.set_xticks(np.arange(0, percentIncon[indPercentInconMax], 1.0))
