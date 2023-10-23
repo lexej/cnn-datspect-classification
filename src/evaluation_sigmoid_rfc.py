@@ -134,7 +134,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
                     label='Cutoff',
                     color='black', linestyle='-')
 
-    ax.legend(loc='upper left')
+    ax.legend(loc='best')
     ax.set_xlabel('Percentage of Inconclusive Cases (%)')
     ax.set_ylabel('Sigmoid Output')
 
