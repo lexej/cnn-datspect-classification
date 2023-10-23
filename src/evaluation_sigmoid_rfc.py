@@ -135,8 +135,8 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
                     color='black', linestyle='-')
 
     ax.legend(loc='upper left')
-    ax.set_xlabel('Percentage of inconclusive cases (%)')
-    ax.set_ylabel('Sigmoid output')
+    ax.set_xlabel('Percentage of Inconclusive Cases (%)')
+    ax.set_ylabel('Sigmoid Output')
 
     setID = 'development'
 
@@ -326,10 +326,8 @@ def importCSVother(fn):
     return prediction, true_label
 
 
-def ROC(score, trueLabel, doPlot=1):
+def ROC(score, trueLabel, doPlot=False):
     # Calculate ROC metrics
-    if doPlot != 0:
-        print("Plotting ROC is not implemented in this Python conversion.")
 
     class1 = [i for i, label in enumerate(trueLabel) if label == 1]
     class0 = [i for i, label in enumerate(trueLabel) if label == 0]
@@ -357,6 +355,29 @@ def ROC(score, trueLabel, doPlot=1):
     maxJ = Youden[maxJind]
 
     cutoff = thresh[maxJind]
+
+    if doPlot:
+        h = plt.figure(figsize=(10.75, 4.2))
+    
+        localpth = os.path.dirname(os.path.realpath(__file__))
+        fname = os.path.join(localpth, 'ROC', datetime.now().strftime('%Y-%m-%d-%H-%M-%S').replace(' ', '-').replace(':', '-'))
+        
+        plt.subplot(1, 2, 1)
+        plt.plot(1 - spec, sens, '-')
+        e = 0.05
+        plt.axis([0 - e, 1 + e, 0 - e, 1 + e])
+        plt.xlabel('1 - specificity')
+        plt.ylabel('sensitivity')
+        plt.grid(True)
+        plt.title(f'AUC={AUC:.3f}')
+        
+        plt.subplot(1, 2, 2)
+        bacc = (sens + spec) / 2
+        plt.plot(thresh, bacc, '-')
+        plt.xlabel('SBR')
+        plt.ylabel('bacc')
+        plt.grid(True)
+        plt.title(f'cutoff={cutoff:.3f}')
 
     return AUC, cutoff
 
@@ -481,9 +502,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
     plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', label='observed')
     plt.plot(x[:n], x[:n], '-k', label='identity line')
+
     plt.legend(loc='upper left')
-    plt.xlabel('inconclusive cases in validation set (%)')
-    plt.ylabel('observed inconclusive cases in the test set (%, mean+/-SD)')
+    plt.xlabel('Inconclusive Cases in Validation Set (%)')
+    plt.ylabel('Observed Inconclusive Cases in Test Set (%, mean ± SD)')
     plt.title(f'{setID} dataset')
 
     plt.xlim(0, x[n])
@@ -503,9 +525,10 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
     plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', label='inconclusive')
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', label='conclusive')
+
     plt.legend(loc='lower right')
-    plt.xlabel('mean observed inconclusive cases in the test set (%)')
-    plt.ylabel('balanced accuracy (%)')
+    plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
+    plt.ylabel('Balanced Accuracy (%)')
     plt.title(f'{setID} dataset')
 
     plt.xlim(0, x[n])
@@ -523,9 +546,9 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     plt.figure(figsize=(12, 9))
 
     plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None')
-    
-    plt.xlabel('mean observed inconclusive cases in the test set (%)')
-    plt.ylabel('balanced accuracy (%)')
+
+    plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
+    plt.ylabel('Balanced Accuracy (%)')
     plt.title(f'{setID} dataset: relF = {relF:.1f}')
 
     plt.xlim(0, x[n])
