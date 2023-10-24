@@ -78,12 +78,72 @@ Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases i
 against the proportion of inconclusive cases in the validation set.
 
 
+% TODO
+Erklärung Algorithmus zum Inconclusive interval bestimmung hier / zu Methods? 
+
+
+
+
 \subsection{Evaluation on Test Split of Development Dataset}
 \label{subsec:eval_dev}
 
 
-\subsubsection{Evaluation of Univariate and Multivariate Benchmark Methods}
-\label{subsubsec:eval_dev}
+\subsubsection{Evaluation of SBR Method}
+\label{subsubsec:eval_sbr}
+
+
+% SBR - sbr_percInconclCases_development
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/sbr_percInconclCases_development.png}
+    \caption{Evaluation of the SBR method. Determined upper and lower bounds of the inconclusive interval 
+    as a function of the percentage of inconclusive cases.} 
+    \label{fig:sbr_percInconclCases_development}
+\end{figure} 
+
+
+% SBR - obsInconclCases_inconclCasesValid_sbr_development
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/obsInconclCases_inconclCasesValid_sbr_development.png}
+    \caption{Evaluation of the SBR method. Observed percentage of inconclusive cases in the test set 
+    for a given set of percentages of inconclusive cases in the validation set.
+    Each of the percentages of inconclusive cases in the validation set is associated 
+    with an inconclusive range (determined in the validation set).} 
+    \label{fig:obsInconclCases_inconclCasesValid_sbr_development}
+\end{figure} 
+
+
+% SBR - bacc_obsInconclCases_sbr_development_full
+\begin{figure}[t]
+    \begin{subfigure}{0.9\textwidth}
+      \centering
+      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/bacc_obsInconclCases_sbr_development.png}
+      \subcaption{}
+      \label{fig:bacc_obsInconclCases_sbr_development}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.9\textwidth}
+      \centering
+      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/bacc_obsInconclCases_concl_sbr_development.png}
+      \subcaption{}
+      \label{fig:bacc_obsInconclCases_concl_sbr_development}
+    \end{subfigure}
+
+    \caption{Evaluation of the SBR method. Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
+    (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+    Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+    \label{fig:bacc_obsInconclCases_sbr_development_full}
+\end{figure}
+
+
+
+
+
+\subsubsection{Evaluation of Random Forest Method}
+\label{subsubsec:eval_rfc}
+
+
 
 
 \subsubsection{Evaluation of MVT-based Method}
@@ -99,7 +159,7 @@ against the proportion of inconclusive cases in the validation set.
 
 
 
-\subsection{Evaluation on Independent datasets}
+\subsection{Evaluation on Independent Datasets}
 \label{subsec:eval_independent}
 
 % Per method: PPMI and MPH 
