@@ -82,31 +82,30 @@ against the proportion of inconclusive cases in the validation set.
 Erklärung Algorithmus zum Inconclusive interval bestimmung hier / zu Methods? 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Evaluation of SBR Method}
+\label{subsec:eval_sbr}
 
 
-\subsection{Evaluation on Test Split of Development Dataset}
-\label{subsec:eval_dev}
+% Evaluation on Development dataset
 
-
-\subsubsection{Evaluation of SBR Method}
-\label{subsubsec:eval_sbr}
-
-
-% SBR - sbr_percInconclCases_development
+% sbr_percInconclCases_development
 \begin{figure}[t]
     \centering
-    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/sbr_percInconclCases_development.png}
-    \caption{Evaluation of the SBR method. Determined upper and lower bounds of the inconclusive interval 
-    as a function of the percentage of inconclusive cases.} 
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/sbr_percInconclCases_development.png}
+    \caption{Evaluation of the SBR method on Test Set of Development Dataset. 
+    Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
     \label{fig:sbr_percInconclCases_development}
-\end{figure} 
+\end{figure}
 
 
-% SBR - obsInconclCases_inconclCasesValid_sbr_development
+% obsInconclCases_inconclCasesValid_sbr_development
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/obsInconclCases_inconclCasesValid_sbr_development.png}
-    \caption{Evaluation of the SBR method. Observed percentage of inconclusive cases in the test set 
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_development.png}
+    \caption{Evaluation of the SBR method on Test Set of Development Dataset.
+    Observed percentage of inconclusive cases in the test set 
     for a given set of percentages of inconclusive cases in the validation set.
     Each of the percentages of inconclusive cases in the validation set is associated 
     with an inconclusive range (determined in the validation set).} 
@@ -114,78 +113,184 @@ Erklärung Algorithmus zum Inconclusive interval bestimmung hier / zu Methods?
 \end{figure} 
 
 
-% SBR - bacc_obsInconclCases_sbr_development_full
+% bacc_obsInconclCases_sbr_development_full
 \begin{figure}[t]
     \begin{subfigure}{0.9\textwidth}
       \centering
-      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/bacc_obsInconclCases_sbr_development.png}
+      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_development.png}
       \subcaption{}
       \label{fig:bacc_obsInconclCases_sbr_development}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.9\textwidth}
       \centering
-      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/bacc_obsInconclCases_concl_sbr_development.png}
+      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_development.png}
       \subcaption{}
       \label{fig:bacc_obsInconclCases_concl_sbr_development}
     \end{subfigure}
 
-    \caption{Evaluation of the SBR method. Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
+    \caption{Evaluation of the SBR method on Test Set of Development Dataset.
+    Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
     (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
     Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
     \label{fig:bacc_obsInconclCases_sbr_development_full}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Evaluation on Independent datasets
+
+% ---------------- PPMI ---------------------
+
+% obsInconclCases_inconclCasesValid_sbr_ppmi
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_ppmi.png}
+  \caption{Evaluation of the SBR method on PPMI Dataset.
+  Observed percentage of inconclusive cases in the PPMI dataset 
+  for a given set of percentages of inconclusive cases in the validation set (Development Dataset).
+  Each of the percentages of inconclusive cases in the validation set is associated 
+  with an inconclusive range (determined in the validation set).} 
+  \label{fig:obsInconclCases_inconclCasesValid_sbr_ppmi}
+\end{figure} 
+
+
+% bacc_obsInconclCases_sbr_ppmi_full
+\begin{figure}[t]
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_ppmi.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_sbr_ppmi}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_ppmi.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_concl_sbr_ppmi}
+  \end{subfigure}
+
+  \caption{Evaluation of the SBR method on PPMI Dataset.
+  Balanced accuracy for a given mean percentage of inconclusive cases observed in the PPMI dataset on 
+  (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+  Each of the mean percentages of observed inconclusive cases is associated 
+  with an inconclusive range (determined in the validation set). }
+  \label{fig:bacc_obsInconclCases_sbr_ppmi_full}
+\end{figure}
 
 
 
-
-\subsubsection{Evaluation of Random Forest Method}
-\label{subsubsec:eval_rfc}
+% -------------- MPH -----------------
 
 
+% obsInconclCases_inconclCasesValid_sbr_mph
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_mph.png}
+  \caption{Evaluation of the SBR method on MPH Dataset.
+  Observed percentage of inconclusive cases in the MPH dataset 
+  for a given set of percentages of inconclusive cases in the validation set (Development Dataset).
+  Each of the percentages of inconclusive cases in the validation set is associated 
+  with an inconclusive range (determined in the validation set).} 
+  \label{fig:obsInconclCases_inconclCasesValid_sbr_mph}
+\end{figure} 
 
 
-\subsubsection{Evaluation of MVT-based Method}
-\label{subsubsec:eval_mvt}
+% bacc_obsInconclCases_sbr_mph_full
+\begin{figure}[t]
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_mph.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_sbr_mph}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_mph.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_concl_sbr_mph}
+  \end{subfigure}
+
+  \caption{Evaluation of the SBR method on MPH Dataset.
+  Balanced accuracy for a given mean percentage of inconclusive cases observed in the MPH dataset on 
+  (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+  Each of the mean percentages of observed inconclusive cases is associated 
+  with an inconclusive range (determined in the validation set). }
+  \label{fig:bacc_obsInconclCases_sbr_mph_full}
+\end{figure}
 
 
-\subsubsection{Evaluation of RLT-based Method}
-\label{subsubsec:eval_rlt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Evaluation of Random Forest Method}
+\label{subsec:eval_rfc}
 
 
-\subsubsection{Evaluation of Regression-based Method}
-\label{subsubsec:eval_regression}
+\subsection{Evaluation of MVT-based Method}
+\label{subsec:eval_mvt}
 
 
-
-\subsection{Evaluation on Independent Datasets}
-\label{subsec:eval_independent}
-
-% Per method: PPMI and MPH 
-
-\subsubsection{Evaluation of Univariate and Multivariate Benchmark Methods}
-\label{subsubsec:eval_dev_indep}
+\subsection{Evaluation of RLT-based Method}
+\label{subsec:eval_rlt}
 
 
-\subsubsection{Evaluation of MVT-based Method}
-\label{subsubsec:eval_mvt_indep}
-
-
-\subsubsection{Evaluation of RLT-based Method}
-\label{subsubsec:eval_rlt_indep}
-
-
-\subsubsection{Evaluation of Regression-based Method}
-\label{subsubsec:eval_regression_indep}
-
+\subsection{Evaluation of Regression-based Method}
+\label{subsec:eval_regression}
 
 
 \subsection{Comparative Analysis}
 \label{subsec:compar_anal}
 
+
 \subsubsection{Comparison of Performance on Test Split of Development Dataset}
 \label{subsubsec:perf_comp_dev}
+
+
+
+% Method Comparison of bacc-obsInconclCases-concl 
+\begin{figure}[t]
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_concl_sbr_development.png}
+    \subcaption{SBR method.}
+    \label{fig:test1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_concl_pca_rfc_development.png}
+    \subcaption{PCA-RFC method.}
+    \label{fig:test2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_concl_baseline_majority_development.png}
+    \subcaption{CNN method - MVT}
+    \label{fig:test3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_concl_baseline_random_development.png}
+    \subcaption{CNN method - RLT}
+    \label{fig:test4}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_concl_regression_development.png}
+    \subcaption{CNN method - Regression}
+    \label{fig:test5}
+  \end{subfigure}
+
+  \caption{Comparison of results for different methods.}
+  \label{fig:test}
+\end{figure}
+
 
 
 \subsubsection{Comparison of Performance on Independent datasets}
