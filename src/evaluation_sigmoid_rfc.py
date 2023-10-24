@@ -111,24 +111,28 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
         #   ATTENTION: Here lower bound and upper bound are switched 
         #               since the computation was performed on negated pred values
 
+        xticks_stepsize, markersize, elinewidth, mask = _get_plot_params(target_figsize=target_figsize, 
+                                                                         n_xelements=len(percent_incon[:ind_percent_incon_max]))
+
         ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                     y=mean_lower_bound[:ind_percent_incon_max], 
                     yerr=std_lower_bound[:ind_percent_incon_max], 
                     label='Upper Bound',
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    markevery=mask,
                     fmt='b*', markerfacecolor='none')
         ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
                     y=mean_upper_bound[:ind_percent_incon_max], 
                     yerr=std_upper_bound[:ind_percent_incon_max],
                     label='Lower Bound',
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    markevery=mask,
                     fmt='ro', markerfacecolor='none')
 
         ax.set_xlim(0, percent_incon[ind_percent_incon_max])
         ax.set_ylim(0, 1)
-
-        if target_figsize[0] < 8: 
-             xticks_stepsize = 2.0
-        else:
-             xticks_stepsize = 1.0
 
         ax.set_xticks(np.arange(0, percent_incon[ind_percent_incon_max], xticks_stepsize))
         ax.set_yticks(np.arange(0, 1, 0.1))
@@ -516,19 +520,22 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     relF = 100 * np.trapz(y=iz, x=x[:n]) / (100 * (x[n - 1] - x[0]))
 
     ######################################################################################################
-    #   Global plot parameters
-
-    target_figsizes = [(8,6), (4, 3)]
-
-    ######################################################################################################
 
     # 1. Plot observed proportion of inconclusive cases in the test set
 
-    def create_obx_x_plot(target_figsize, xticks_stepsize):
+    def create_obx_x_plot(target_figsize):
 
         plt.figure(figsize=target_figsize)
 
-        plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', markerfacecolor='none', label='Observed')
+        xticks_stepsize, markersize, elinewidth, mask = _get_plot_params(target_figsize=target_figsize, 
+                                                                         n_xelements=len(x[:n]))
+
+        plt.errorbar(x[:n], obx[:n], dobx[:n],
+                     markersize=markersize,
+                     elinewidth=elinewidth,
+                     markevery=mask,
+                     fmt='b*', linestyle='None', markerfacecolor='none', label='Observed')
+
         plt.plot(x[:n], x[:n], '-k', label='Identity Line')
 
         plt.legend(loc='upper left')
@@ -558,12 +565,23 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     
     # 2. Plot balanced accuracy in conclusive and inconclusive cases
 
-    def create_y_z_obx_plot(target_figsize, xticks_stepsize):
+    def create_y_z_obx_plot(target_figsize):
 
         plt.figure(figsize=target_figsize)
 
-        plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', markerfacecolor='none', label='Inconclusive Cases')
-        plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
+        xticks_stepsize, markersize, elinewidth, mask = _get_plot_params(target_figsize=target_figsize, 
+                                                                         n_xelements=len(obx[:no]))
+
+        plt.errorbar(obx[:no], y[:no], dy[:no],
+                     markersize=markersize,
+                     elinewidth=elinewidth,
+                     markevery=mask,
+                     fmt='ro', linestyle='None', markerfacecolor='none', label='Inconclusive Cases')
+        plt.errorbar(obx[:no], z[:no], dz[:no],
+                     markersize=markersize,
+                     elinewidth=elinewidth,
+                     markevery=mask,
+                     fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
 
         plt.legend(loc='lower right')
         plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
@@ -590,11 +608,18 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     
     # 3. Plot balanced accuracy in conclusive cases
 
-    def create_z_obx_plot(target_figsize, xticks_stepsize):
+    def create_z_obx_plot(target_figsize):
 
         plt.figure(figsize=target_figsize)
 
-        plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none')
+        xticks_stepsize, markersize, elinewidth, mask = _get_plot_params(target_figsize=target_figsize, 
+                                                                         n_xelements=len(obx[:no]))
+
+        plt.errorbar(obx[:no], z[:no], dz[:no], 
+                     markersize=markersize,
+                     elinewidth=elinewidth,
+                     markevery=mask,
+                     fmt='b*', linestyle='None', markerfacecolor='none')
 
         plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
         plt.ylabel('Balanced Accuracy (%)')
@@ -618,14 +643,12 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
         #plt.show()
 
+    target_figsizes = [(8,6), (4, 3)]
+
     for tfsize in target_figsizes:
-        if tfsize[0] < 8: 
-             xticks_stepsize = 2.0
-        else:
-             xticks_stepsize = 1.0
-        create_obx_x_plot(tfsize, xticks_stepsize)
-        create_y_z_obx_plot(tfsize, xticks_stepsize)
-        create_z_obx_plot(tfsize, xticks_stepsize)
+        create_obx_x_plot(tfsize)
+        create_y_z_obx_plot(tfsize)
+        create_z_obx_plot(tfsize)
 
 
 def cleanX(x, y):
@@ -641,6 +664,25 @@ def cleanX(x, y):
 
     return xc, yc
 
+
+def _get_plot_params(target_figsize, n_xelements):
+    #   Defaults (if None -> matplotlib takes default)
+    xticks_stepsize = 1.0
+    markersize = None
+    elinewidth = None
+    mask = None
+    
+    if target_figsize[0] < 8:
+        #   Small sized figure
+        xticks_stepsize = 2.0
+
+        if n_xelements > 50:
+            markersize = 4.0
+            elinewidth = 1.0
+            #   Marker only every second element for better visualization
+            mask = np.arange(n_xelements) % 2 == 0
+    
+    return xticks_stepsize, markersize, elinewidth, mask
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from evaluation_sigmoid_rfc import inconInterval, testInconInterval, ROC, crossTable, accMetrics, plotBacc
+from evaluation_sigmoid_rfc import inconInterval, testInconInterval, ROC, crossTable, accMetrics, plotBacc, _get_plot_params
 
 
 def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
@@ -108,30 +108,39 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
         # Plot lower and upper bound of inconclusive range
         fig, ax = plt.subplots(figsize=target_figsize)
 
+        xticks_stepsize, markersize, elinewidth, mask = _get_plot_params(target_figsize=target_figsize, 
+                                                                         n_xelements=len(percentIncon[:indPercentInconMax]))
+
         ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
                     yerr=stdLowerBound[:indPercentInconMax], 
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    markevery=mask,
                     fmt='ro', 
                     markerfacecolor='none', 
                     label='Lower Bound')
 
         ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
-                    yerr=stdUpperBound[:indPercentInconMax], 
+                    yerr=stdUpperBound[:indPercentInconMax],
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    markevery=mask,
                     fmt='b*', 
                     markerfacecolor='none', 
                     label='Upper Bound')
 
         ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
-                    yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')
+                    yerr=stdCutoff * np.ones(indPercentInconMax),
+                    markersize=markersize,
+                    elinewidth=elinewidth,
+                    markevery=mask,
+                    fmt='k+', 
+                    label='Cutoff')
 
         ax.legend(loc='upper left')
         ax.set_xlabel('Percentage of Inconclusive Cases (%)')
         ax.set_ylabel('SBR')
         ax.set_xlim(0, percentIncon[indPercentInconMax])
-
-        if target_figsize[0] < 8: 
-             xticks_stepsize = 2.0
-        else:
-             xticks_stepsize = 1.0
              
         ax.set_xticks(np.arange(0, percentIncon[indPercentInconMax], xticks_stepsize))
 
