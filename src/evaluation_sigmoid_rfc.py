@@ -620,10 +620,18 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
                      elinewidth=elinewidth,
                      markevery=mask,
                      fmt='b*', linestyle='None', markerfacecolor='none')
+        
+        #   Highlight area under mean bacc
+        plt.fill_between(x=obx[:no], y1=z[:no], y2=0,
+                         label=f'Relative Area Size: {round(relF, 2)}%', 
+                         alpha=0.5, 
+                         hatch='x', 
+                         color='lightblue')
 
         plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
         plt.ylabel('Balanced Accuracy (%)')
-        plt.title(f'{setID} dataset: relF = {relF:.1f}')
+        plt.title(f'{setID} dataset')
+        plt.legend()
 
         plt.xlim(0, x[n])
         plt.ylim(90, 100)
