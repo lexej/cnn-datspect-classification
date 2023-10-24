@@ -101,51 +101,70 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
     mean_bacc_con = 100 * np.mean(bacc_con, axis=0, where=~np.isnan(bacc_con))
     std_bacc_con = 100 * np.std(bacc_con, axis=0, where=~np.isnan(bacc_con))
 
-    
-    # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots(figsize=(8, 6))  # 4:3 ratio
-
-    #   ATTENTION: Here lower bound and upper bound are switched 
-    #               since the computation was performed on negated pred values
-
-    ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
-                y=mean_lower_bound[:ind_percent_incon_max], 
-                yerr=std_lower_bound[:ind_percent_incon_max], 
-                label='Upper Bound',
-                fmt='b*', markerfacecolor='none')
-    ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
-                y=mean_upper_bound[:ind_percent_incon_max], 
-                yerr=std_upper_bound[:ind_percent_incon_max],
-                label='Lower Bound',
-                fmt='ro', markerfacecolor='none')
-
-    ax.set_xlim(0, percent_incon[ind_percent_incon_max])
-    ax.set_ylim(0, 1)
-
-    ax.set_xticks(np.arange(0, percent_incon[ind_percent_incon_max], 1.0))
-    ax.set_yticks(np.arange(0, 1, 0.1))
-
-    if natural_cutoff_flg:
-        ax.axhline(y=mean_cutoff, label='Cutoff', color='black', linestyle='-')
-    else:
-        ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
-                    y=[mean_cutoff] * ind_percent_incon_max, 
-                    yerr=[std_cutoff] * ind_percent_incon_max, 
-                    label='Cutoff',
-                    color='black', linestyle='-')
-
-    ax.legend(loc='best')
-    ax.set_xlabel('Percentage of Inconclusive Cases (%)')
-    ax.set_ylabel('Sigmoid Output')
-
     setID = 'development'
 
-    fig.tight_layout()
+    # Plot lower and upper bound of inconclusive range
+    def create_plot(target_figsize):
+    
+        fig, ax = plt.subplots(figsize=target_figsize)
 
-    fig.savefig(os.path.join(path_to_results_dir, f"sigmoid_percInconclCases_{methodID}_{setID}.png"), 
-                dpi=300)
+        #   ATTENTION: Here lower bound and upper bound are switched 
+        #               since the computation was performed on negated pred values
 
-    #plt.show()
+        ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
+                    y=mean_lower_bound[:ind_percent_incon_max], 
+                    yerr=std_lower_bound[:ind_percent_incon_max], 
+                    label='Upper Bound',
+                    fmt='b*', markerfacecolor='none')
+        ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
+                    y=mean_upper_bound[:ind_percent_incon_max], 
+                    yerr=std_upper_bound[:ind_percent_incon_max],
+                    label='Lower Bound',
+                    fmt='ro', markerfacecolor='none')
+
+        ax.set_xlim(0, percent_incon[ind_percent_incon_max])
+        ax.set_ylim(0, 1)
+
+        if target_figsize[0] < 8: 
+             xticks_stepsize = 2.0
+        else:
+             xticks_stepsize = 1.0
+
+        ax.set_xticks(np.arange(0, percent_incon[ind_percent_incon_max], xticks_stepsize))
+        ax.set_yticks(np.arange(0, 1, 0.1))
+
+        if natural_cutoff_flg:
+            ax.axhline(y=mean_cutoff, label='Cutoff', color='black', linestyle='-')
+        else:
+            ax.errorbar(x=percent_incon[:ind_percent_incon_max], 
+                        y=[mean_cutoff] * ind_percent_incon_max, 
+                        yerr=[std_cutoff] * ind_percent_incon_max, 
+                        label='Cutoff',
+                        color='black', linestyle='-')
+
+        ax.legend(loc='best')
+        ax.set_xlabel('Percentage of Inconclusive Cases (%)')
+        ax.set_ylabel('Sigmoid Output')
+
+        fig.tight_layout()
+
+        leaf_dir = os.path.join(path_to_results_dir, f"{target_figsize[0]}{target_figsize[1]}")
+        
+        if not os.path.exists(leaf_dir):
+            os.makedirs(leaf_dir)
+
+        fig.savefig(os.path.join(leaf_dir,
+                                 f"sigmoid_percInconclCases_{methodID}_{setID}.png"), 
+                    dpi=300)
+
+        #plt.show()
+
+    # 4:3 ratio figsizes (for different use cases)
+    target_figsizes = [(8,6), (4, 3)]
+    
+    for tfsize in target_figsizes:
+         create_plot(tfsize)
+
 
     # Primary quality metric (relF): area under the curve of balanced accuracy in conclusive cases
     # versus proportion of inconclusive cases (scaled to the maximum possible area)
@@ -499,75 +518,114 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
     ######################################################################################################
     #   Global plot parameters
 
-    figsize = (8, 6)
+    target_figsizes = [(8,6), (4, 3)]
 
     ######################################################################################################
 
     # 1. Plot observed proportion of inconclusive cases in the test set
-    plt.figure(figsize=figsize)
 
-    plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', markerfacecolor='none', label='Observed')
-    plt.plot(x[:n], x[:n], '-k', label='Identity Line')
+    def create_obx_x_plot(target_figsize, xticks_stepsize):
 
-    plt.legend(loc='upper left')
-    plt.xlabel('Inconclusive Cases in Validation Set (%)')
-    plt.ylabel('Observed Inconclusive Cases in Test Set (%, mean ± SD)')
-    plt.title(f'{setID} dataset')
+        plt.figure(figsize=target_figsize)
 
-    plt.xlim(0, x[n])
-    plt.xticks(np.arange(0, x[n], 1.0))
+        plt.errorbar(x[:n], obx[:n], dobx[:n], fmt='b*', linestyle='None', markerfacecolor='none', label='Observed')
+        plt.plot(x[:n], x[:n], '-k', label='Identity Line')
 
-    plt.tight_layout()
+        plt.legend(loc='upper left')
+        plt.xlabel('Inconclusive Cases in Validation Set (%)')
+        plt.ylabel('Observed Inconclusive Cases\nin Test Set (%, mean ± SD)', multialignment='center')
+        plt.title(f'{setID} dataset')
 
-    plt.savefig(os.path.join(path_to_results_dir, f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), 
-                dpi=300)
-    
+        plt.xlim(0, x[n])
+
+        plt.xticks(np.arange(0, x[n], xticks_stepsize))
+
+        plt.tight_layout()
+
+        leaf_dir = os.path.join(path_to_results_dir, f"{target_figsize[0]}{target_figsize[1]}")
+        
+        if not os.path.exists(leaf_dir):
+            os.makedirs(leaf_dir)
+
+        plt.savefig(os.path.join(leaf_dir,
+                                 f"obsInconclCases_inconclCasesValid_{methodID}_{setID}.png"), 
+                    dpi=300)
+
     #   index of element in obx nearest to last (considered) element of x
     no = np.argmin(np.abs(obx - x[n - 1]))
 
     ######################################################################################################
+    
     # 2. Plot balanced accuracy in conclusive and inconclusive cases
-    plt.figure(figsize=figsize)
 
-    plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', markerfacecolor='none', label='Inconclusive Cases')
-    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
+    def create_y_z_obx_plot(target_figsize, xticks_stepsize):
 
-    plt.legend(loc='lower right')
-    plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
-    plt.ylabel('Balanced Accuracy (%)')
-    plt.title(f'{setID} dataset')
+        plt.figure(figsize=target_figsize)
 
-    plt.xlim(0, x[n])
-    plt.ylim(0, 100)
-    plt.xticks(np.arange(0, x[n], 1.0))
-    plt.yticks(np.arange(0, 110, 10.0))
+        plt.errorbar(obx[:no], y[:no], dy[:no], fmt='ro', linestyle='None', markerfacecolor='none', label='Inconclusive Cases')
+        plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
 
-    plt.tight_layout()
+        plt.legend(loc='lower right')
+        plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
+        plt.ylabel('Balanced Accuracy (%)')
+        plt.title(f'{setID} dataset')
 
-    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_{methodID}_{setID}.png"), 
-                dpi=300)
+        plt.xlim(0, x[n])
+        plt.ylim(0, 100)
+        plt.xticks(np.arange(0, x[n], xticks_stepsize))
+        plt.yticks(np.arange(0, 110, 10.0))
+
+        plt.tight_layout()
+
+        leaf_dir = os.path.join(path_to_results_dir, f"{target_figsize[0]}{target_figsize[1]}")
+        
+        if not os.path.exists(leaf_dir):
+            os.makedirs(leaf_dir)
+
+        plt.savefig(os.path.join(leaf_dir,
+                                 f"bacc_obsInconclCases_{methodID}_{setID}.png"), 
+                    dpi=300)
 
     ######################################################################################################
+    
     # 3. Plot balanced accuracy in conclusive cases
-    plt.figure(figsize=figsize)
 
-    plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none')
+    def create_z_obx_plot(target_figsize, xticks_stepsize):
 
-    plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
-    plt.ylabel('Balanced Accuracy (%)')
-    plt.title(f'{setID} dataset: relF = {relF:.1f}')
+        plt.figure(figsize=target_figsize)
 
-    plt.xlim(0, x[n])
-    plt.ylim(90, 100)
-    plt.xticks(np.arange(0, x[n], 1.0))
-    plt.yticks(np.arange(90, 101, 1.0))
+        plt.errorbar(obx[:no], z[:no], dz[:no], fmt='b*', linestyle='None', markerfacecolor='none')
 
-    plt.tight_layout()
+        plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
+        plt.ylabel('Balanced Accuracy (%)')
+        plt.title(f'{setID} dataset: relF = {relF:.1f}')
 
-    plt.savefig(os.path.join(path_to_results_dir, f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), 
-                dpi=300)
+        plt.xlim(0, x[n])
+        plt.ylim(90, 100)
+        plt.xticks(np.arange(0, x[n], xticks_stepsize))
+        plt.yticks(np.arange(90, 101, 1.0))
 
-    #plt.show()
+        plt.tight_layout()
+
+        leaf_dir = os.path.join(path_to_results_dir, f"{target_figsize[0]}{target_figsize[1]}")
+        
+        if not os.path.exists(leaf_dir):
+            os.makedirs(leaf_dir)
+
+        plt.savefig(os.path.join(leaf_dir,
+                                 f"bacc_obsInconclCases_concl_{methodID}_{setID}.png"), 
+                    dpi=300)
+
+        #plt.show()
+
+    for tfsize in target_figsizes:
+        if tfsize[0] < 8: 
+             xticks_stepsize = 2.0
+        else:
+             xticks_stepsize = 1.0
+        create_obx_x_plot(tfsize, xticks_stepsize)
+        create_y_z_obx_plot(tfsize, xticks_stepsize)
+        create_z_obx_plot(tfsize, xticks_stepsize)
 
 
 def cleanX(x, y):

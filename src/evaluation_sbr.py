@@ -100,39 +100,59 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
     stdBaccIncon = 100 * np.nanstd(baccIncon, axis=0)
     meanBaccCon = 100 * np.nanmean(baccCon, axis=0)
     stdBaccCon = 100 * np.nanstd(baccCon, axis=0)
-
-    # Plot lower and upper bound of inconclusive range
-    fig, ax = plt.subplots(figsize=(8, 6))  # 4:3 ratio
-
-    ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
-                yerr=stdLowerBound[:indPercentInconMax], 
-                fmt='ro', 
-                markerfacecolor='none', 
-                label='Lower Bound')
-
-    ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
-                yerr=stdUpperBound[:indPercentInconMax], 
-                fmt='b*', 
-                markerfacecolor='none', 
-                label='Upper Bound')
-
-    ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
-                yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')
-
-    ax.legend(loc='upper left')
-    ax.set_xlabel('Percentage of Inconclusive Cases (%)')
-    ax.set_ylabel('SBR')
-    ax.set_xlim(0, percentIncon[indPercentInconMax])
-    ax.set_xticks(np.arange(0, percentIncon[indPercentInconMax], 1.0))
-
+    
     setID = 'development'
 
-    fig.tight_layout()
+    def create_plot(target_figsize):
 
-    fig.savefig(os.path.join(path_to_results_dir, f"sbr_percInconclCases_{setID}.png"), dpi=300)
+        # Plot lower and upper bound of inconclusive range
+        fig, ax = plt.subplots(figsize=target_figsize)
 
-    #plt.show()
+        ax.errorbar(percentIncon[:indPercentInconMax], meanLowerBound[:indPercentInconMax],
+                    yerr=stdLowerBound[:indPercentInconMax], 
+                    fmt='ro', 
+                    markerfacecolor='none', 
+                    label='Lower Bound')
 
+        ax.errorbar(percentIncon[:indPercentInconMax], meanUpperBound[:indPercentInconMax],
+                    yerr=stdUpperBound[:indPercentInconMax], 
+                    fmt='b*', 
+                    markerfacecolor='none', 
+                    label='Upper Bound')
+
+        ax.errorbar(percentIncon[:indPercentInconMax], meanCutoff * np.ones(indPercentInconMax),
+                    yerr=stdCutoff * np.ones(indPercentInconMax), fmt='k+', label='Cutoff')
+
+        ax.legend(loc='upper left')
+        ax.set_xlabel('Percentage of Inconclusive Cases (%)')
+        ax.set_ylabel('SBR')
+        ax.set_xlim(0, percentIncon[indPercentInconMax])
+
+        if target_figsize[0] < 8: 
+             xticks_stepsize = 2.0
+        else:
+             xticks_stepsize = 1.0
+             
+        ax.set_xticks(np.arange(0, percentIncon[indPercentInconMax], xticks_stepsize))
+
+        fig.tight_layout()
+
+        leaf_dir = os.path.join(path_to_results_dir, f"{target_figsize[0]}{target_figsize[1]}")
+        
+        if not os.path.exists(leaf_dir):
+            os.makedirs(leaf_dir)
+
+        fig.savefig(os.path.join(leaf_dir,
+                                 f"sbr_percInconclCases_{setID}.png"), dpi=300)
+
+        #plt.show()
+    
+    # 4:3 ratio figsizes (for different use cases)
+    target_figsizes = [(8,6), (4, 3)]
+    
+    for tfsize in target_figsizes:
+         create_plot(tfsize)
+    
 
     # Primary quality metric (relF)
     relF = plotBacc(percentIncon, indPercentInconMax, meanObservedPercentIncon,
