@@ -584,7 +584,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
                      fmt='b*', linestyle='None', markerfacecolor='none', label='Conclusive Cases')
 
         plt.legend(loc='lower right')
-        plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
+        plt.xlabel('Inconclusive Cases in Test Set (%, mean)')
         plt.ylabel('Balanced Accuracy (%)')
         plt.title(f'{setID} dataset')
 
@@ -628,8 +628,8 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
                          hatch='x', 
                          color='lightblue')
 
-        plt.xlabel('Mean Observed Inconclusive Cases in Test Set (%)')
-        plt.ylabel('Balanced Accuracy (%)')
+        plt.xlabel('Inconclusive Cases in Test Set (%, mean)')
+        plt.ylabel('Balanced Accuracy\non Conclusive Cases (%)',  multialignment='center')
         plt.title(f'{setID} dataset')
         plt.legend()
 
