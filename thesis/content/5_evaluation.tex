@@ -69,6 +69,10 @@ the determined upper and lower bounds ($\text{mean} \pm \text{SD}$) of the incon
 were plotted against the corresponding proportion of inconclusive cases (\%) in the validation set.
 The $\text{mean} \pm \text{SD}$ of determined upper and lower bounds was calculated across the measures for 
 different random splits.
+The rate at which the lower (upper) bound decreases (increases) in relation to the proportion of inconclusive 
+cases reflects the density of inconclusive cases around the cutoff.
+Specifically, higher function gradients indicate lower concentration of predictions around the cutoff, 
+and vice versa.
 The measurement was conducted separately for each classification approach.
 
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
@@ -76,7 +80,9 @@ The measurement was conducted separately for each classification approach.
 The main performance metric used in this work to evaluate and compare the classification approaches was 
 the area under the curve (AUC) of mean balanced accuracy (\%) on conclusive test cases as a function of 
 the proportion of inconclusive test cases (\%, mean).
-Therefore first the mean balanced accuracy function was interpolated using cubic spline interpolation.
+More precisely the relative AUC (\%) normalized to the maximum achievable area was used for the comparison.
+To obtain the relative AUC, 
+first, the mean balanced accuracy function was interpolated using cubic spline interpolation.
 Then the area under the mean balanced accuracy curve was computed using the trapezoidal rule 
 and then normalized to the maximum achievable area.
 The evaluation of each classification method with respect to this metric was conducted on the test set of the 
