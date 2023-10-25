@@ -4,7 +4,24 @@
 \subsection{Software Tools and Libraries}
 \label{subsec:libs}
 
-//TODO
+% Add versions of libraries!!!
+
+The project was built on \textit{Python 3.10}.
+A variety of widely adopted open-source libraries were used in the project.
+\textit{NumPy} was utilized to perform efficient array operations and numerical calculations.
+The \textit{NIBabel} library was used for reading and writing of medical image data stored in the
+Neuroimaging Informatics Technology Initiative (NIfTI) file format.
+\textit{PyTorch}, a widely adopted deep learning framework, was employed for building 
+and training the neural networks.
+The \textit{Torchvision} package provided the machine learning models and image transformation capabilities 
+utilized in this project.
+\textit{Pandas} was used for efficient structured data manipulation and analysis.
+\textit{Matplotlib} and \textit{Seaborn} were employed for the creation of customized data visualizations.
+The \textit{Scikit-Learn} library provided machine learning models and model evaluation tools utilized in this project, 
+whereas Scipy was used for data interpolation.
+
+% seeds were set 
+The seeds of the random number generators in each package were initialized to ensure reproducibility.
 
 \subsection{Development Data Preparation}
 
@@ -51,17 +68,16 @@ An example of two cases augmented using the described techniques is depicted in 
 \label{subsec:split}
 
 % How was dev dataset split
-The augmented development dataset was split into three subsets: train set (60\%), validation set (20\%) 
-and test set (20\%).
-While splitting the data it was ensured that the augmented images belonging to a concrete patient were put 
+Ten distinct random splits were created from the augmented development dataset, 
+resulting in ten unique combinations of training, validation, and test sets for the conducted experiments.
+In each random split, the data distribution was as follows: 
+60\% for the training set, 20\% for the validation set, and 20\% for the test set.
+While splitting the data it was ensured that the augmented images associated with a concrete patient were put 
 only into one subset.
 Thereby inter-subset data leakage was prohibited.
-Ten different random splits were created to train and test each of the methods.
 
 \subsection{Univariate benchmark: Specific Binding Ratio}
 \label{subsec:sbr}
-
-% TODO -> wo "as described previously" -> näher beschreiben
 
 The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) was used as a benchmark classification method.
 Here, the SBR in left and right putamen was obtained by hottest voxels (HV) analysis of the stereotactically normalized 
@@ -82,7 +98,7 @@ The SBR-based classifier was obtained as follows.
 First the SBR was calculated for each case in the training set.
 Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
 The determined optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
-and evaluated on the test split of the development dataset for each of the 10 random splits.
+and evaluated on the test split of the development dataset for each of the random splits.
 Also the determined cutoff was evaluated on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}

@@ -33,7 +33,7 @@ limitations of the research methods employed.
 %				-> understand the impact of varying dataset characteristics by evaluating on
 
 
-\subsection{Evaluation Metrics}
+\subsection{Evaluation Metrics and Procedure}
 \label{subsec:determinationInconcl}
 
 In the following the performance metrics used for the evaluation of the different classification methods 
@@ -51,12 +51,13 @@ calculating the measures.
 Second for each element within a set of considered percentages of inconclusive cases in the validation set 
 the corresponding inconclusive interval was determined.
 Inconclusive cases were defined as cases predicted within an inconclusive interval 
-(defined by lower and upper bound), while conclusive cases were those predicted outside this interval.
+(bounded by lower and upper bound), while conclusive cases were those predicted outside this interval.
 The determination of the inconclusive interval was exclusively performed using the validation set 
 for each random split and classification approach independently.
 The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
-The lower and upper bounds of each inconclusive interval were independently determined
-to ensure a similar number of inconclusive cases both below and above the pre-defined cutoff.
+For each target percentage of inconclusive cases in the set the lower and upper bounds of the inconclusive interval 
+were independently determined in such a way that there was a similar number of inconclusive cases both below and above 
+the pre-defined cutoff.
 For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
 multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
 For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
@@ -68,7 +69,7 @@ the determined upper and lower bounds ($\text{mean} \pm \text{SD}$) of the incon
 were plotted against the corresponding proportion of inconclusive cases (\%) in the validation set.
 The $\text{mean} \pm \text{SD}$ of determined upper and lower bounds was calculated across the measures for 
 different random splits.
-The measure was taken separately for each classification approach.
+The measurement was conducted separately for each classification approach.
 
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
 
@@ -78,14 +79,14 @@ the proportion of inconclusive test cases (\%, mean).
 Therefore first the mean balanced accuracy function was interpolated using cubic spline interpolation.
 Then the area under the mean balanced accuracy curve was computed using the trapezoidal rule 
 and then normalized to the maximum achievable area.
+The evaluation of each classification method with respect to this metric was conducted on the test set of the 
+development dataset as well as on the independent datasets PPMI and MPH."
+
 
 % Proportion of inconclusive cases in test set vs. 
 Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set was plotted 
 against the proportion of inconclusive cases in the validation set.
-% WHY? For what
-
-% TODO
-Erklärung Algorithmus zum Inconclusive interval bestimmung hier / zu Methods? 
+% WHY? Explain what would indicate desired behaviour and what not
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
