@@ -665,6 +665,142 @@ with an inconclusive range (determined in the validation set). }
 \label{subsec:eval_regression}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Evaluation on Development dataset
+
+% regression_percInconclCases_development
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/sigmoid_percInconclCases_regression_development.png}
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset. 
+  Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
+  \label{fig:regression_percInconclCases_development}
+\end{figure}
+
+
+% obsInconclCases_inconclCasesValid_regression_development
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_development.png}
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset.
+  Observed percentage of inconclusive cases in the test set 
+  for a given set of percentages of inconclusive cases in the validation set.
+  Each of the percentages of inconclusive cases in the validation set is associated 
+  with an inconclusive range (determined in the validation set).} 
+  \label{fig:obsInconclCases_inconclCasesValid_regression_development}
+\end{figure} 
+
+
+% bacc_obsInconclCases_regression_development_full
+\begin{figure}[t]
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_regression_development.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_regression_development}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.9\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_development.png}
+    \subcaption{}
+    \label{fig:bacc_obsInconclCases_concl_regression_development}
+  \end{subfigure}
+
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset.
+  Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
+  (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+  \label{fig:bacc_obsInconclCases_regression_development_full}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Evaluation on Independent datasets
+
+% ---------------- PPMI ---------------------
+
+% obsInconclCases_inconclCasesValid_regression_ppmi
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_ppmi.png}
+\caption{Evaluation of the CNN-Regression method on PPMI Dataset.
+Observed percentage of inconclusive cases in the PPMI dataset 
+for a given set of percentages of inconclusive cases in the validation set (Development Dataset).
+Each of the percentages of inconclusive cases in the validation set is associated 
+with an inconclusive range (determined in the validation set).} 
+\label{fig:obsInconclCases_inconclCasesValid_regression_ppmi}
+\end{figure} 
+
+
+% bacc_obsInconclCases_regression_ppmi_full
+\begin{figure}[t]
+\begin{subfigure}{0.9\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_regression_ppmi.png}
+  \subcaption{}
+  \label{fig:bacc_obsInconclCases_regression_ppmi}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.9\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_ppmi.png}
+  \subcaption{}
+  \label{fig:bacc_obsInconclCases_concl_regression_ppmi}
+\end{subfigure}
+
+\caption{Evaluation of the CNN-Regression method on PPMI Dataset.
+Balanced accuracy for a given mean percentage of inconclusive cases observed in the PPMI dataset on 
+(a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+Each of the mean percentages of observed inconclusive cases is associated 
+with an inconclusive range (determined in the validation set). }
+\label{fig:bacc_obsInconclCases_regression_ppmi_full}
+\end{figure}
+
+
+
+% -------------- MPH -----------------
+
+
+% obsInconclCases_inconclCasesValid_regression_mph
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_mph.png}
+\caption{Evaluation of the CNN-Regression method on MPH Dataset.
+Observed percentage of inconclusive cases in the MPH dataset 
+for a given set of percentages of inconclusive cases in the validation set (Development Dataset).
+Each of the percentages of inconclusive cases in the validation set is associated 
+with an inconclusive range (determined in the validation set).} 
+\label{fig:obsInconclCases_inconclCasesValid_regression_mph}
+\end{figure} 
+
+
+% bacc_obsInconclCases_regression_mph_full
+\begin{figure}[t]
+\begin{subfigure}{0.9\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_regression_mph.png}
+  \subcaption{}
+  \label{fig:bacc_obsInconclCases_regression_mph}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.9\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_mph.png}
+  \subcaption{}
+  \label{fig:bacc_obsInconclCases_concl_regression_mph}
+\end{subfigure}
+
+\caption{Evaluation of the CNN-Regression method on MPH Dataset.
+Balanced accuracy for a given mean percentage of inconclusive cases observed in the MPH dataset on 
+(a) both conclusive and inconclusive cases and (b) only conclusive cases. 
+Each of the mean percentages of observed inconclusive cases is associated 
+with an inconclusive range (determined in the validation set). }
+\label{fig:bacc_obsInconclCases_regression_mph_full}
+\end{figure}
+
+
 \subsection{Comparative Analysis}
 \label{subsec:compar_anal}
 
