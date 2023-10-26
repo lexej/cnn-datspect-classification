@@ -894,5 +894,42 @@ with an inconclusive range (determined in the validation set). }
   \label{fig:test_ppmi}
 \end{figure}
 
-% TODO 2: Comparison plot of bacc-obsInconclCases-concl for MPH
+
+
+% Method Comparison of bacc_obsInconclCases_concl - MPH test set
+\begin{figure}[t]
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_concl_sbr_mph.png}
+    \subcaption{SBR method.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_concl_pca_rfc_mph.png}
+    \subcaption{PCA-RFC method.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_concl_baseline_majority_mph.png}
+    \subcaption{CNN method - MVT}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_concl_baseline_random_mph.png}
+    \subcaption{CNN method - RLT}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_concl_regression_mph.png}
+    \subcaption{CNN method - Regression}
+  \end{subfigure}
+
+  \caption{Comparison of different methods on MPH dataset.}
+  \label{fig:test_mph}
+\end{figure}
+
 
