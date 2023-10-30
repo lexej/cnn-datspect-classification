@@ -86,7 +86,7 @@ first, the mean balanced accuracy function was interpolated using cubic spline i
 Then the area under the mean balanced accuracy curve was computed using the trapezoidal rule 
 and then normalized to the maximum achievable area.
 The evaluation of each classification method with respect to this metric was conducted on the test set of the 
-development dataset as well as on the independent datasets PPMI and MPH."
+development dataset as well as on the independent datasets PPMI and MPH.
 
 
 % Proportion of inconclusive cases in test set vs. 
@@ -103,6 +103,28 @@ against the proportion of inconclusive cases in the validation set.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Evaluation on Development dataset
+
+
+\begin{table}[ht]
+  \caption{Evaluation of the SBR method on Test Set of Development Dataset. 
+  For evaluation, the optimal SBR cutoff 0.703$\pm$0.009 was used (variation across random splits).}
+  \centering
+  \begin{tabular}{llll}
+      \hline
+                        & train set         & validation set      & test set             \\
+      \hline
+      Balanced Accuracy & 0.936$\pm$0.003   &   0.929$\pm$0.008   &  0.935$\pm$0.007     \\
+      Accuracy          & 0.936$\pm$0.003   &   0.930$\pm$0.008   &  0.935$\pm$0.007     \\
+      Sensitivity       &  0.934$\pm$0.006  &   0.924$\pm$0.005   &  0.930$\pm$0.014     \\
+      Specificity       & 0.937$\pm$0.003   &   0.935$\pm$0.015   &  0.939$\pm$0.012     \\
+      PPV               &  0.933$\pm$0.005  &   0.929$\pm$0.014   &  0.930$\pm$0.015     \\
+      NPV               &  0.938$\pm$0.005  &   0.930$\pm$0.004   &  0.938$\pm$0.018     \\
+      \hline
+      AUC-ROC          &  \multicolumn{3}{c}{0.983$\pm$0.002 }  \\
+      \hline
+  \end{tabular}
+ \label{t1:sbr_perf_eval_table}
+\end{table}
 
 % sbr_percInconclCases_development
 \begin{figure}[t]
