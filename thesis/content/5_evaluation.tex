@@ -106,7 +106,7 @@ against the proportion of inconclusive cases in the validation set.
 
 
 \begin{table}[ht]
-  \caption{Evaluation of the SBR method on Test Set of Development Dataset. 
+  \caption{Evaluation of the SBR method on Development dataset. 
   For evaluation, the optimal SBR cutoff 0.703$\pm$0.009 was used (variation across random splits).}
   \centering
   \begin{tabular}{llll}
@@ -270,7 +270,7 @@ against the proportion of inconclusive cases in the validation set.
 % Evaluation on Development dataset
 
 \begin{table}[ht]
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development Dataset. 
+  \caption{Evaluation of the PCA-RFC method on Development dataset. 
   For evaluation, the natural sigmoid cutoff $0.5$ was used.}
   \centering
   \begin{tabular}{llll}
@@ -434,7 +434,7 @@ with an inconclusive range (determined in the validation set). }
 
 
 \begin{table}[ht]
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development Dataset. 
+  \caption{Evaluation of the CNN-MVT method on Development dataset. 
   For evaluation, the natural sigmoid cutoff $0.5$ was used.}
   \centering
   \begin{tabular}{llll}
@@ -597,7 +597,7 @@ with an inconclusive range (determined in the validation set). }
 
 
 \begin{table}[ht]
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development Dataset. 
+  \caption{Evaluation of the CNN-RLT method on Development dataset. 
   For evaluation, the natural sigmoid cutoff $0.5$ was used.}
   \centering
   \begin{tabular}{llll}
@@ -757,6 +757,29 @@ with an inconclusive range (determined in the validation set). }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Evaluation on Development dataset
+
+
+\begin{table}[ht]
+  \caption{Evaluation of the CNN-Regression method on Development dataset. 
+  For evaluation, the natural sigmoid cutoff $0.5$ was used.}
+  \centering
+  \begin{tabular}{llll}
+      \hline
+                        & train set         & validation set      & test set             \\
+      \hline
+      Balanced Accuracy & 0.982+/-0.003   &  0.977+/-0.006    &  0.975+/-0.006 \\
+      Accuracy          & 0.980+/-0.003     &   0.977+/-0.007   &  0.976+/-0.006  \\
+      Sensitivity       &  1.000+/-0.000   &   0.983+/-0.009   &  0.961+/-0.011 \\
+      Specificity       &   0.963+/-0.005  &   0.972+/-0.009 &   0.988+/-0.008 \\
+      PPV               &  0.960+/-0.005    &   0.967+/-0.011  &  0.986+/-0.009  \\
+      NPV               &  1.000+/-0.000  &   0.985+/-0.008   & 0.967+/-0.010 \\
+      \hline
+      AUC-ROC          &  \multicolumn{3}{c}{0.998+/-0.001}  \\
+      \hline
+  \end{tabular}
+ \label{t1:cnn_regression_perf_eval_table}
+\end{table}
+
 
 % regression_percInconclCases_development
 \begin{figure}[t]
