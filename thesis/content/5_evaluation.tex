@@ -595,6 +595,29 @@ with an inconclusive range (determined in the validation set). }
 
 % Evaluation on Development dataset
 
+
+\begin{table}[ht]
+  \caption{Evaluation of the CNN-RLT method on Test Set of Development Dataset. 
+  For evaluation, the natural sigmoid cutoff $0.5$ was used.}
+  \centering
+  \begin{tabular}{llll}
+      \hline
+                        & train set         & validation set      & test set             \\
+      \hline
+      Balanced Accuracy & 0.982$\pm$0.003   &  0.967$\pm$0.008    &  0.973$\pm$0.005  \\
+      Accuracy          & 0.982$\pm$0.003    &   0.968$\pm$0.008   &  0.973$\pm$0.005  \\
+      Sensitivity       &  0.980$\pm$0.008  &   0.951$\pm$0.013  &  0.961$\pm$0.014 \\
+      Specificity       &   0.983$\pm$0.008   &   0.984$\pm$0.005  &   0.985$\pm$0.010 \\
+      PPV               &  0.983$\pm$0.009   &   0.982$\pm$0.006   &  0.982$\pm$0.012   \\
+      NPV               &  0.981$\pm$0.008   &   0.956$\pm$0.012   & 0.966$\pm$0.013  \\
+      \hline
+      AUC-ROC          &  \multicolumn{3}{c}{0.994$\pm$0.002}  \\
+      \hline
+  \end{tabular}
+ \label{t1:cnn_rlt_perf_eval_table}
+\end{table}
+
+
 % baseline_random_percInconclCases_development
 \begin{figure}[t]
   \centering
