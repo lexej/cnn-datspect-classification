@@ -178,7 +178,7 @@ against the proportion of inconclusive cases in the validation set.
 
 % ---------------- PPMI ---------------------
 
-% obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_sbr_ppmi_full
+% obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_concl_sbr_ppmi
 \begin{figure}[t]
   \begin{subfigure}{0.9\textwidth}
     \centering
@@ -203,41 +203,24 @@ against the proportion of inconclusive cases in the validation set.
 % -------------- MPH -----------------
 
 
-% obsInconclCases_inconclCasesValid_sbr_mph
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_mph.png}
-  \caption{Evaluation of the SBR method on MPH Dataset.
-  Observed percentage of inconclusive cases in the MPH dataset 
-  for a given set of percentages of inconclusive cases in the validation set (Development Dataset).
-  Each of the percentages of inconclusive cases in the validation set is associated 
-  with an inconclusive range (determined in the validation set).} 
-  \label{fig:obsInconclCases_inconclCasesValid_sbr_mph}
-\end{figure} 
-
-
-% bacc_obsInconclCases_sbr_mph_full
+% obsInconclCases_inconclCasesValid_sbr_mph and bacc_obsInconclCases_concl_sbr_mph
 \begin{figure}[t]
   \begin{subfigure}{0.9\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_mph.png}
-    \subcaption{}
-    \label{fig:bacc_obsInconclCases_sbr_mph}
+    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
+    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \label{fig:obsInconclCases_inconclCasesValid_sbr_mph}
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_mph.png}
-    \subcaption{}
+    \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
+    in the MPH dataset.}
     \label{fig:bacc_obsInconclCases_concl_sbr_mph}
   \end{subfigure}
-
-  \caption{Evaluation of the SBR method on MPH Dataset.
-  Balanced accuracy for a given mean percentage of inconclusive cases observed in the MPH dataset on 
-  (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-  Each of the mean percentages of observed inconclusive cases is associated 
-  with an inconclusive range (determined in the validation set). }
-  \label{fig:bacc_obsInconclCases_sbr_mph_full}
+  \caption{Evaluation of the SBR method on MPH dataset.}
 \end{figure}
 
 
