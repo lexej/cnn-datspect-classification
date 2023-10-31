@@ -194,10 +194,9 @@ is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsIncon
 The mean of the balanced accuracy rises from approximately 94\% 
 when there are around 1\% of inconclusive cases in the test set to about 98\% 
 when there are around 20\% of inconclusive cases in the test set.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
-The SBR baseline method attains a relative AUC of 96.38\% for the mean balanced accuracy 
+The SBR baseline method attains a relative AUC of 96.38\% for the mean balanced accuracy on conclusive cases
 over the mean percentage of observed inconclusive cases in the test set of the development dataset.
-
+For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 % bacc_obsInconclCases_sbr_development_full
 \begin{figure}[ht]
@@ -226,7 +225,28 @@ over the mean percentage of observed inconclusive cases in the test set of the d
 
 % Evaluation on Independent datasets
 
+The SBR method was also evaluated on the independent test datasets PPMI and MPH.
+The performance results for the SBR method on the PPMI test dataset are depicted in Figure~\ref{fig:perf_results_sbr_ppmi} 
+whereas Figure~\ref{fig:perf_results_sbr_mph} presents the results for the SBR method on the MPH test dataset.
+
 % ---------------- PPMI ---------------------
+
+The mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset) 
+is consistently below the identity line, 
+which can be seen in Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_ppmi}.
+That implies that the SBR method produces relatively fewer inconclusive cases for the PPMI dataset  
+in comparison to the validation set and thus exhibits higher prediction confidence on the PPMI dataset, 
+regardless of the prediction accuracy.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_ppmi}.
+The mean of the balanced accuracy rises from approximately 96\% 
+when there are around 1\% of inconclusive cases in the PPMI test set to about 99\% 
+when there are around 20\% of inconclusive cases in the PPMI test set.
+The SBR baseline method achieves a relative AUC of 97.51\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+
 
 % obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_concl_sbr_ppmi
 \begin{figure}[ht]
@@ -246,6 +266,7 @@ over the mean percentage of observed inconclusive cases in the test set of the d
     \label{fig:bacc_obsInconclCases_concl_sbr_ppmi}
   \end{subfigure}
   \caption{Evaluation of the SBR method on PPMI dataset.}
+  \label{fig:perf_results_sbr_ppmi}
 \end{figure}
 
 
@@ -271,6 +292,7 @@ over the mean percentage of observed inconclusive cases in the test set of the d
     \label{fig:bacc_obsInconclCases_concl_sbr_mph}
   \end{subfigure}
   \caption{Evaluation of the SBR method on MPH dataset.}
+  \label{fig:perf_results_sbr_mph}
 \end{figure}
 
 
