@@ -273,6 +273,24 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % -------------- MPH -----------------
 
+The evaluation of the SBR method on the MPH dataset shows the following results.
+Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_mph} demonstrates 
+the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset).
+Similar as in case of the PPMI dataset, here the percentage of inconclusive cases observed in the MPH test dataset
+is also consistently below the identity line.
+Therefore the SBR method produces relatively fewer inconclusive cases for the MPH dataset  
+in comparison to the validation set and thus exhibits higher prediction confidence on the MPH dataset, 
+regardless of the prediction accuracy.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_mph}.
+The mean of the balanced accuracy rises from approximately 91.5\% 
+when there are around 1\% of inconclusive cases in the MPH test set to about 95\% 
+when there are around 20\% of inconclusive cases in the MPH test set.
+The SBR baseline method achieves a relative AUC of 93.46\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the MPH test dataset.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+
 
 % obsInconclCases_inconclCasesValid_sbr_mph and bacc_obsInconclCases_concl_sbr_mph
 \begin{figure}[ht]
@@ -295,6 +313,7 @@ For better illustration the area under the mean of the balanced accuracy is high
   \label{fig:perf_results_sbr_mph}
 \end{figure}
 
+% Write summary of performance on dev test, ppmi and mph and compare
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
