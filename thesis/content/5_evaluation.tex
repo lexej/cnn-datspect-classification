@@ -10,9 +10,9 @@ and the attainment of the research objectives.
 The structure of this chapter has been designed to systematically lead readers through the assessment process. 
 It commences with an examination of the significant performance metrics utilized for the evaluation of 
 the research outcomes.
-The core of this chapter subsequently unveils the experimental results encompassing various test datasets 
-and classification methods. 
-These findings are presented using graphical representations and supported by a range of statistical measures.
+The core of this chapter subsequently unveils the experimental results 
+for baseline and experimental methods evaluated using various test datasets. 
+These findings are presented using performance summary tables for statistical measures and graphical representations.
 The chapter culminates with a comparative analysis, which seeks to assess and contrast the effectiveness and 
 limitations of the research methods employed.
 
@@ -24,12 +24,13 @@ In the following the performance metrics used for the evaluation of the differen
 are explained in more detail.
 
 First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
-the different random splits for each classification approach given a cutoff: 
+the different random splits for each classification approach and subset (training, validation and testing) given a cutoff: 
 Area Under Curve (AUC) for ROC curve, Balanced accuracy, accuracy, sensitivity, specificity, 
 Positive Predictive Value (PPV) and Negative Predictive Value (NPV).
 The natural cutoff of 0.5 was used for each classification approach except the SBR method.
 For the SBR method the optimal cutoff was determined using the Youden criterion~\citep{Youden1950} and was used for
 calculating the measures.
+Majority vote was used as strategy to assign labels for cases in which no between-reader consensus could be achieved.
 
 % Determination of inconclusive intervals given set of percentages of inconclusive cases
 Second for each element within a set of considered percentages of inconclusive cases in the validation set 
@@ -84,6 +85,12 @@ against the proportion of inconclusive cases in the validation set.
 \subsection{Baseline Performance}
 \label{subsec:baseline_performance}
 
+In this section, the performance of the SBR method, a widely recognized technique in the field, 
+is thoroughly evaluated. 
+Furthermore the outcomes for the machine learning method PCA-RFC are also provided.
+The objective of this evaluation is twofold: to comprehend the inherent capabilities of the baseline methods, SBR and
+PCA-RFC, and to establish a clear point of reference for the CNN-based methodologies.
+
 \subsubsection{SBR Method Results}
 \label{subsubsec:eval_sbr}
 
@@ -92,9 +99,22 @@ against the proportion of inconclusive cases in the validation set.
 % Evaluation on Development dataset
 
 
+Table~\ref{t1:sbr_perf_eval_table} presents the quantitative performance 
+(Balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the SBR-based classification on the 
+particular subset of the Development dataset.
+In the evaluation process, the optimal SBR cutoff value of 0.703 (with a variation of $\pm$0.009 across random splits) 
+was employed.
+The SBR method consistently achieves around 93\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
+on the training set, with a variance around 0.5\% across random splits.
+The performance on validation and test set is also around 93\% with respect to all the metrics
+with a slightly higher variance across random splits (0.5-2\%) compared to training set.
+The comparable sensitivity and specificity imply a well-balanced SBR model which 
+identifies both positive and negative cases similarly well.
+The SBR model achieves a stable AUC-ROC of 0.983$\pm$0.002.
+
+
 \begin{table}[ht]
-  \caption{Evaluation of the SBR method on Development dataset. 
-  For evaluation, the optimal SBR cutoff 0.703$\pm$0.009 was used (variation across random splits).}
+  \caption{Evaluation of the SBR method on Development dataset (SBR cutoff mean$\pm$SD: 0.703$\pm$0.009).}
   \centering
   \begin{tabular}{llll}
       \hline
@@ -113,21 +133,46 @@ against the proportion of inconclusive cases in the validation set.
  \label{t1:sbr_perf_eval_table}
 \end{table}
 
+
+As the next step in the course of the evaluation, 
+the respective inconclusive interval bounds were determined 
+for each element within a range of predefined percentages of inconclusive cases 
+in the validation set (development dataset).
+Figure~\ref{fig:sbr_percInconclCases_development} illustrates the determined lower and upper bounds on the SBR 
+as a function of the percentages of inconclusive cases in the validation set, 
+along with the mean$\pm$SD of the optimal cutoff.
+Corroborating the intuitive expectation, the width of the inconclusive interval expands 
+as the percentage of inconclusive cases increases.
+The close resemblance in slopes between the upper and lower bound functions 
+indicates a nearly identical distribution of predictions both below and above the cutoff.
+
+Thereafter the determined inconclusive intervals (mean lower and upper bounds) per percentage of inconclusive cases 
+in validation set (development dataset)
+are used to calculate the corresponding percentage of observed inconclusive cases in the test set (development dataset).
+In Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_development} the correspondence between 
+the percentage of inconclusive cases in the validation set and 
+the mean$\pm$SD percentage of observed inconclusive cases in the test set is demonstrated.
+The plot illustrates that the deviation of the mean percentage of observed inconclusive cases in the test set from the 
+identity line is negligibly small.
+This can be attributed to the nearly identical distribution of data in both the test and validation sets 
+(due to random splitting) which results in a similar distribution of SBR model predictions.
+
+
 % sbr_percInconclCases_development
-\begin{figure}[t]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/sbr_percInconclCases_development.png}
-    \caption{Evaluation of the SBR method on Test Set of Development Dataset. 
+    \caption{Evaluation of the SBR method on Test Set of Development dataset. 
     Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
     \label{fig:sbr_percInconclCases_development}
 \end{figure}
 
 
 % obsInconclCases_inconclCasesValid_sbr_development
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_development.png}
-    \caption{Evaluation of the SBR method on Test Set of Development Dataset.
+    \caption{Evaluation of the SBR method on Test Set of Development dataset.
     Observed percentage of inconclusive cases in the test set 
     for a given set of percentages of inconclusive cases in the validation set.
     Each of the percentages of inconclusive cases in the validation set is associated 
@@ -136,8 +181,26 @@ against the proportion of inconclusive cases in the validation set.
 \end{figure} 
 
 
+After determining the set of mean percentages of observed inconclusive cases in the test set (development dataset), 
+balanced accuracy is computed for each mean percentage corresponding to a specific inconclusive interval.
+Figure~\ref{fig:bacc_obsInconclCases_sbr_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
+on both conclusive and inconclusive cases as a function of the mean percentage of observed inconclusive cases 
+in the test set (development dataset).
+The balanced accuracy on inconclusive cases is not part of further performance analysis and comparison 
+due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
+
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_development}.
+The mean of the balanced accuracy rises from approximately 94\% 
+when there are around 1\% of inconclusive cases in the test set to about 98\% 
+when there are around 20\% of inconclusive cases in the test set.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+The SBR baseline method attains a relative AUC of 96.38\% for the mean balanced accuracy 
+over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+
+
 % bacc_obsInconclCases_sbr_development_full
-\begin{figure}[t]
+\begin{figure}[ht]
     \begin{subfigure}{0.9\textwidth}
       \centering
       \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_development.png}
@@ -152,7 +215,7 @@ against the proportion of inconclusive cases in the validation set.
       \label{fig:bacc_obsInconclCases_concl_sbr_development}
     \end{subfigure}
 
-    \caption{Evaluation of the SBR method on Test Set of Development Dataset.
+    \caption{Evaluation of the SBR method on Test Set of Development dataset.
     Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
     (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
     Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
@@ -166,7 +229,7 @@ against the proportion of inconclusive cases in the validation set.
 % ---------------- PPMI ---------------------
 
 % obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_concl_sbr_ppmi
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_ppmi.png}
@@ -191,7 +254,7 @@ against the proportion of inconclusive cases in the validation set.
 
 
 % obsInconclCases_inconclCasesValid_sbr_mph and bacc_obsInconclCases_concl_sbr_mph
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_mph.png}
@@ -247,7 +310,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/sigmoid_percInconclCases_pca_rfc_development.png}
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development Dataset. 
+  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset. 
   Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
   \label{fig:pca_rfc_percInconclCases_development}
 \end{figure}
@@ -257,7 +320,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_development.png}
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development Dataset.
+  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.
   Observed percentage of inconclusive cases in the test set 
   for a given set of percentages of inconclusive cases in the validation set.
   Each of the percentages of inconclusive cases in the validation set is associated 
@@ -282,7 +345,7 @@ against the proportion of inconclusive cases in the validation set.
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_development}
   \end{subfigure}
 
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development Dataset.
+  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
   Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
@@ -380,7 +443,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/sigmoid_percInconclCases_baseline_majority_development.png}
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development Dataset. 
+  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset. 
   Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
   \label{fig:baseline_majority_percInconclCases_development}
 \end{figure}
@@ -390,7 +453,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_development.png}
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.
   Observed percentage of inconclusive cases in the test set 
   for a given set of percentages of inconclusive cases in the validation set.
   Each of the percentages of inconclusive cases in the validation set is associated 
@@ -415,7 +478,7 @@ against the proportion of inconclusive cases in the validation set.
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_development}
   \end{subfigure}
 
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
   Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
@@ -508,7 +571,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/sigmoid_percInconclCases_baseline_random_development.png}
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development Dataset. 
+  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset. 
   Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
   \label{fig:baseline_random_percInconclCases_development}
 \end{figure}
@@ -518,7 +581,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_development.png}
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.
   Observed percentage of inconclusive cases in the test set 
   for a given set of percentages of inconclusive cases in the validation set.
   Each of the percentages of inconclusive cases in the validation set is associated 
@@ -543,7 +606,7 @@ against the proportion of inconclusive cases in the validation set.
     \label{fig:bacc_obsInconclCases_concl_baseline_random_development}
   \end{subfigure}
 
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
   Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
@@ -637,7 +700,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/sigmoid_percInconclCases_regression_development.png}
-  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset. 
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset. 
   Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
   \label{fig:regression_percInconclCases_development}
 \end{figure}
@@ -647,7 +710,7 @@ against the proportion of inconclusive cases in the validation set.
 \begin{figure}[h]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_development.png}
-  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.
   Observed percentage of inconclusive cases in the test set 
   for a given set of percentages of inconclusive cases in the validation set.
   Each of the percentages of inconclusive cases in the validation set is associated 
@@ -672,7 +735,7 @@ against the proportion of inconclusive cases in the validation set.
     \label{fig:bacc_obsInconclCases_concl_regression_development}
   \end{subfigure}
 
-  \caption{Evaluation of the CNN-Regression method on Test Set of Development Dataset.
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
   Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
@@ -735,7 +798,7 @@ against the proportion of inconclusive cases in the validation set.
 \label{subsec:compar_anal}
 
 
-\subsubsection{Comparison of Performance on Test Split of Development Dataset}
+\subsubsection{Comparison of Performance on Test Split of Development dataset}
 \label{subsubsec:perf_comp_dev}
 
 
@@ -771,7 +834,7 @@ against the proportion of inconclusive cases in the validation set.
     \subcaption{CNN method - Regression}
   \end{subfigure}
 
-  \caption{Comparison of different methods on test set of development data. Interconclusive interval matching.}
+  \caption{Comparison of different methods on test set of development data. Inconclusive interval matching.}
   \label{fig:test_interval_match_dev}
 \end{figure}
 
@@ -852,7 +915,7 @@ against the proportion of inconclusive cases in the validation set.
     \subcaption{CNN method - Regression}
   \end{subfigure}
 
-  \caption{Comparison of different methods on PPMI dataset. Interconclusive interval matching.}
+  \caption{Comparison of different methods on PPMI dataset. Inconclusive interval matching.}
   \label{fig:test_interval_match_ppmi}
 \end{figure}
 
@@ -928,7 +991,7 @@ against the proportion of inconclusive cases in the validation set.
     \subcaption{CNN method - Regression}
   \end{subfigure}
 
-  \caption{Comparison of different methods on MPH dataset. Interconclusive interval matching.}
+  \caption{Comparison of different methods on MPH dataset. Inconclusive interval matching.}
   \label{fig:test_interval_match_mph}
 \end{figure}
 
