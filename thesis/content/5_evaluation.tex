@@ -87,7 +87,7 @@ against the proportion of inconclusive cases in the validation set.
 
 In this section, the performance of the SBR method, a widely recognized technique in the field, 
 is thoroughly evaluated. 
-Furthermore the outcomes for the machine learning method PCA-RFC are also provided.
+Furthermore the outcomes for the random forest based method PCA-RFC are also provided as additional baseline.
 The objective of this evaluation is twofold: to comprehend the inherent capabilities of the baseline methods, SBR and
 PCA-RFC, and to establish a clear point of reference for the CNN-based methodologies.
 
@@ -358,7 +358,7 @@ The SBR model achieves a stable AUC-ROC of 0.994$\pm$0.002.
 
 Figure~\ref{fig:pca_rfc_percInconclCases_development} illustrates the determined lower and upper bounds on the 
 probabilistic output as a function of the percentages of inconclusive cases in the validation set (development dataset), 
-along with the mean$\pm$SD of the optimal cutoff.
+along with the natural cutoff of $0.5$.
 The width of the inconclusive interval expands as the percentage of inconclusive cases increases 
 and the visual resemblance in shape and slope between the curve a similar distribution of predictions both below and above the cutoff.
 
@@ -530,14 +530,25 @@ For better illustration the area under the mean of the balanced accuracy is high
 \subsection{Experimental Methods Performance}
 \label{subsec:exp_methods_perf}
 
+This section presents the performance results for the CNN-based classification approaches sepertatly and compares them 
+to the results obtained by the baseline approaches.
+First the results for the CNN-MVT method are presented, whereafter the CNN-RLT method is evaluated.
+Finally the findings for the CNN-Regression method are showcasted.
+
 \subsubsection{CNN-MVT Method Results}
 \label{subsubsec:eval_mvt}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Evaluation on Development dataset
+
+The quantitative performance results of the CNN-MVT classification on the 
+particular subset of the Development dataset are presented in Table~\ref{t1:cnn_mvt_perf_eval_table}.
+In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
+The CNN-MVT method achieves around 96.4\% in sensitivity, 97.6\% in specificity and a balanced accuracy of 97.0\%, 
+with a variance between 1-2\% across random splits, on the test set.
+The performance results on the validation set are very similar.
+The method achieves a stable AUC-ROC of 0.996$\pm$0.002.
 
 
 \begin{table}[ht]
@@ -562,6 +573,24 @@ For better illustration the area under the mean of the balanced accuracy is high
 \end{table}
 
 
+In Figure~\ref{fig:baseline_majority_percInconclCases_development} the determined lower and upper bounds on the 
+probabilistic sigmoid output are plotted as a function of the percentages of inconclusive cases 
+in the validation set (development dataset), along with the natural cutoff $0.5$.
+The visual resemblance in shape and slope between the upper and lower bound curves 
+indicates a similar distribution of predictions both below and above the cutoff.
+The width of the inconclusive interval increases more rapidly as the percentage of inconclusive cases increases 
+when compared to the PCA-RFC baseline method.
+That implies that the CNN-MVT method produces relatively less inconclusive cases than the PCA-RFC baseline.
+
+
+The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
+the mean$\pm$SD percentage of observed inconclusive cases in the test set (development dataset) 
+is illustrated in Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}.
+As for the baseline cases, the deviation of the mean percentage of observed inconclusive cases in the test set from the 
+identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
+(due to random splitting).
+
+
 % baseline_majority_percInconclCases_development
 \begin{figure}[ht]
   \centering
@@ -583,6 +612,19 @@ For better illustration the area under the mean of the balanced accuracy is high
   with an inconclusive range (determined in the validation set).} 
   \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}
 \end{figure} 
+
+
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+in the test set (development dataset) 
+is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_development}.
+The mean of the balanced accuracy rises from about 97\% 
+when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
+when there are around 20\% of inconclusive cases in the test set.
+As a result, the CNN-MVT method achieves a relative AUC of 98.95\% for the mean balanced accuracy on conclusive cases
+over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+The achieved relative AUC is approximately 2.5\% higher than that of the SBR baseline method 
+and around 0.2\% higher than the PCA-RFC baseline.
+The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
 % bacc_obsInconclCases_baseline_majority_development_full
@@ -612,7 +654,34 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % Evaluation on Independent datasets
 
+The CNN-MVT method was also evaluated on the independent test datasets PPMI and MPH.
+The performance results for the CNN-MVT method on the PPMI test dataset are presented in Figure~\ref{fig:perf_results_mvt_ppmi} 
+whereas Figure~\ref{fig:perf_results_mvt_mph} presents the results for the CNN-MVT method on the MPH test dataset.
+
+
 % ---------------- PPMI ---------------------
+
+
+The following results were obtained when evaluating the CNN-MVT method on the PPMI dataset.
+Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_ppmi} depicts the
+mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset).
+For lower percentages of inconclusive cases in the validation set the corresponding 
+percentages of observed inconclusive cases in the PPMI test dataset are similar.
+However for higher percentages of inconclusive cases (corresponding to braoder inconclusive intervals) 
+in the validation set the method produces relatively more inconclusive cases for the PPMI dataset 
+and thus exhibits less confidence.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is illustrated 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}.
+The mean of the balanced accuracy rises from approximately 98\% 
+when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
+when there are around 20\% of inconclusive cases in the PPMI test set.
+The CNN-MVT method achieves a relative AUC of 99.23\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+The achieved relative AUC is approximately 1.7\% higher than that of the SBR baseline method 
+and around 0.1\% higher than the PCA-RFC baseline.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+
 
 % obsInconclCases_inconclCasesValid_baseline_majority_ppmi and bacc_obsInconclCases_concl_baseline_majority_ppmi
 \begin{figure}[ht]
@@ -632,10 +701,34 @@ For better illustration the area under the mean of the balanced accuracy is high
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on PPMI dataset.}
+  \label{fig:perf_results_mvt_ppmi}
 \end{figure}
 
 
 % -------------- MPH -----------------
+
+
+The evaluation of the CNN-MVT method on the MPH dataset produced the following results.
+Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_mph} presents
+the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset).
+The mean of the percentage of inconclusive cases observed in the MPH test dataset
+is above the identity line 
+and increases as the percentage of inconclusive cases in the validation set increases.
+The standard deviation also increases over the percentage of inconclusive cases in the validation set.
+When compared to the SBR baseline the CNN-MVT method shows a stronger misalignment between 
+the percentage of inconclusive cases in validation and test set. 
+However compared to the PCA-RFC baseline the CNN-MVT method exhibits better alignment.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is depicted 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_mph}.
+The mean of the balanced accuracy increases from approximately 95\% 
+when there are around 1\% of inconclusive cases in the MPH test set to about 96\% 
+when there are around 20\% of inconclusive cases in the MPH test set.
+As a result, the CNN-MVT method achieves a relative AUC of 95.73\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the MPH test dataset.
+The achieved relative AUC is approximately 2.3\% higher than that of the SBR baseline method 
+and around 3.3\% higher than the PCA-RFC baseline.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_baseline_majority_mph and bacc_obsInconclCases_concl_baseline_majority_mph
@@ -656,6 +749,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on MPH dataset.}
+  \label{fig:perf_results_mvt_mph}
 \end{figure}
 
 
@@ -921,7 +1015,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 \label{subsec:compar_anal}
 
 
-\subsubsection{Comparison of Performance on Test Split of Development dataset}
+\subsubsection{Comparison of Performance on Test set of Development dataset}
 \label{subsubsec:perf_comp_dev}
 
 
