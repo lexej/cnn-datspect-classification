@@ -326,6 +326,15 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % Evaluation on Development dataset
 
+Table~\ref{t1:erc_perf_eval_table} presents the quantitative performance 
+(Balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the PCA-RFC classification on the 
+particular subset of the Development dataset.
+In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
+The PCA-RFC method achieves around 96\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
+on the validation and test set, with a variance around 1\% across random splits.
+The SBR model achieves a stable AUC-ROC of 0.994$\pm$0.002.
+
+
 \begin{table}[ht]
   \caption{Evaluation of the PCA-RFC method on Development dataset. 
   For evaluation, the natural sigmoid cutoff $0.5$ was used.}
@@ -347,8 +356,22 @@ For better illustration the area under the mean of the balanced accuracy is high
  \label{t1:erc_perf_eval_table}
 \end{table}
 
+Figure~\ref{fig:pca_rfc_percInconclCases_development} illustrates the determined lower and upper bounds on the 
+probabilistic output as a function of the percentages of inconclusive cases in the validation set (development dataset), 
+along with the mean$\pm$SD of the optimal cutoff.
+The width of the inconclusive interval expands as the percentage of inconclusive cases increases 
+and the visual resemblance in shape and slope between the curve a similar distribution of predictions both below and above the cutoff.
+
+The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
+the mean$\pm$SD percentage of observed inconclusive cases in the test set (development dataset) 
+is demonstrated in Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_development}.
+The deviation of the mean percentage of observed inconclusive cases in the test set from the 
+identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
+(due to random splitting).
+
+
 % pca_rfc_percInconclCases_development
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/sigmoid_percInconclCases_pca_rfc_development.png}
   \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset. 
@@ -358,7 +381,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_pca_rfc_development
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_development.png}
   \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.
@@ -370,8 +393,24 @@ For better illustration the area under the mean of the balanced accuracy is high
 \end{figure} 
 
 
+Figure~\ref{fig:bacc_obsInconclCases_pca_rfc_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
+on both conclusive and inconclusive cases as a function of the mean percentage of observed inconclusive cases 
+in the test set (development dataset).
+The balanced accuracy on inconclusive cases is not part of performance analysis and comparison 
+due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
+
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_development}.
+The mean of the balanced accuracy rises from approximately 97\% 
+when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
+when there are around 20\% of inconclusive cases in the test set.
+As a result, the PCA-RFC baseline method achieves a relative AUC of 98.71\% for the mean balanced accuracy on conclusive cases
+over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+The area under the mean of the balanced accuracy is highlighted for better illustration.
+
+
 % bacc_obsInconclCases_pca_rfc_development_full
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_pca_rfc_development.png}
@@ -397,10 +436,33 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % Evaluation on Independent datasets
 
+The PCA-RFC baseline method was also evaluated on the independent test datasets PPMI and MPH.
+The performance results for the PCA-RFC method on the PPMI test dataset are presented in Figure~\ref{fig:perf_results_rfc_ppmi} 
+whereas Figure~\ref{fig:perf_results_rfc_mph} presents the results for the PCA-RFC method on the MPH test dataset.
+
+
 % ---------------- PPMI ---------------------
 
+The following results were obtained when evaluating the PCA-RFC method on the PPMI dataset.
+Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_ppmi} shows the
+mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset).
+The function is consistently above the identity line which implies that the PCA-RFC method 
+produces relatively more inconclusive cases for the PPMI dataset  
+in comparison to the validation set and thus exhibits lower prediction confidence on the PPMI dataset, 
+regardless of the prediction accuracy.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is presented 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}.
+The mean of the balanced accuracy rises from approximately 98\% 
+when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
+when there are around 20\% of inconclusive cases in the PPMI test set.
+The PCA-RFC baseline method achieves a relative AUC of 99.12\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+
+
 % obsInconclCases_inconclCasesValid_pca_rfc_ppmi and bacc_obsInconclCases_concl_pca_rfc_ppmi
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_ppmi.png}
@@ -417,6 +479,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on PPMI dataset.}
+  \label{fig:perf_results_rfc_ppmi}
 \end{figure}
 
 
@@ -424,8 +487,26 @@ For better illustration the area under the mean of the balanced accuracy is high
 % -------------- MPH -----------------
 
 
+The evaluation of the PCA-RFC method on the MPH dataset shows the following results.
+In Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_mph} 
+the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
+over the percentage of inconclusive cases in the validation set (development dataset) is illustrated.
+As in the PPMI case, the percentage of inconclusive cases observed in the MPH test dataset
+is also above the identity line however the deviation is much stronger.
+Therefore the PCA-RFC method produces relatively much more inconclusive cases for the MPH dataset  
+in comparison to the validation set.
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_mph}.
+The mean of the balanced accuracy rises from approximately 90.5\% 
+when there are around 1\% of inconclusive cases in the MPH test set to about 94\% 
+when there are around 19\% of inconclusive cases in the MPH test set.
+As a result, the PCA-RFC baseline method achieves a relative AUC of 92.42\% for the mean balanced accuracy on conclusive cases 
+over the mean percentage of observed inconclusive cases in the MPH test dataset.
+For better illustration the area under the mean of the balanced accuracy is highlighted.
+
+
 % obsInconclCases_inconclCasesValid_pca_rfc_mph and bacc_obsInconclCases_concl_pca_rfc_mph
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_mph.png}
@@ -442,6 +523,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_mph}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on MPH dataset.}
+  \label{fig:perf_results_rfc_mph}
 \end{figure}
 
 
@@ -481,7 +563,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % baseline_majority_percInconclCases_development
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/sigmoid_percInconclCases_baseline_majority_development.png}
   \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset. 
@@ -491,7 +573,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_baseline_majority_development
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_development.png}
   \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.
@@ -504,7 +586,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % bacc_obsInconclCases_baseline_majority_development_full
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_baseline_majority_development.png}
@@ -533,7 +615,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 % ---------------- PPMI ---------------------
 
 % obsInconclCases_inconclCasesValid_baseline_majority_ppmi and bacc_obsInconclCases_concl_baseline_majority_ppmi
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_ppmi.png}
@@ -557,7 +639,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_baseline_majority_mph and bacc_obsInconclCases_concl_baseline_majority_mph
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_mph.png}
@@ -609,7 +691,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % baseline_random_percInconclCases_development
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/sigmoid_percInconclCases_baseline_random_development.png}
   \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset. 
@@ -619,7 +701,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_baseline_random_development
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_development.png}
   \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.
@@ -632,7 +714,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % bacc_obsInconclCases_baseline_random_development_full
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_baseline_random_development.png}
@@ -661,7 +743,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 % ---------------- PPMI ---------------------
 
 % obsInconclCases_inconclCasesValid_baseline_random_ppmi and bacc_obsInconclCases_concl_baseline_random_ppmi
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_ppmi.png}
@@ -686,7 +768,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_baseline_random_mph and bacc_obsInconclCases_concl_baseline_random_mph
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_mph.png}
@@ -738,7 +820,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % regression_percInconclCases_development
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/sigmoid_percInconclCases_regression_development.png}
   \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset. 
@@ -748,7 +830,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_regression_development
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_development.png}
   \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.
@@ -761,7 +843,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % bacc_obsInconclCases_regression_development_full
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_regression_development.png}
@@ -790,7 +872,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 % ---------------- PPMI ---------------------
 
 % obsInconclCases_inconclCasesValid_regression_ppmi and bacc_obsInconclCases_concl_regression_ppmi
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_ppmi.png}
@@ -815,7 +897,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 
 % obsInconclCases_inconclCasesValid_regression_mph and bacc_obsInconclCases_concl_regression_mph
-\begin{figure}[t]
+\begin{figure}[ht]
   \begin{subfigure}{0.9\textwidth}
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_mph.png}
