@@ -29,7 +29,7 @@ PCA-RFC, and to establish a clear point of reference for the CNN-based methodolo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\paragraph{Test set of Development dataset}
+\paragraph{Test set of development dataset}
 
 % Evaluation on Development dataset
 \subparagraph{Binary classification performance}
@@ -68,7 +68,7 @@ The SBR model achieves a stable AUC-ROC of 0.983$\pm$0.002.
  \label{t1:sbr_perf_eval_table}
 \end{table}
 
-\subparagraph{Determined Inconclusive Intervals}
+\subparagraph{Determined inconclusive intervals}
 
 Figure~\ref{fig:sbr_percInconclCases_development} illustrates the determined lower and upper bounds on the SBR 
 as a function of the percentages of inconclusive cases in the validation set (development dataset), 
@@ -78,7 +78,7 @@ as the percentage of inconclusive cases increases.
 The close resemblance in slopes between the upper and lower bound functions 
 indicates a nearly identical distribution of predictions both below and above the cutoff.
 
-\subparagraph{Inconclusive Interval Correspondence}
+\subparagraph{Inconclusive interval correspondence}
 
 In Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_development} the correspondence between 
 the percentage of inconclusive cases in the validation set (development dataset) and 
@@ -111,7 +111,7 @@ This can be attributed to the nearly identical distribution of data in both the 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_development}
 \end{figure} 
 
-\subparagraph{AUC for Balanced Accuracy over PIncObs}
+\subparagraph{AUC for balanced accuracy over PIncObs}
 
 Figure~\ref{fig:bacc_obsInconclCases_sbr_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
 on both conclusive and inconclusive cases as a function of the mean PIncObs
@@ -253,7 +253,10 @@ For better illustration the area under the mean of the balanced accuracy is high
 \label{subsubsec:eval_rfc}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Test set of development dataset}
+
+
+\subparagraph{Binary classification performance}
 
 % Evaluation on Development dataset
 
@@ -287,11 +290,16 @@ The SBR model achieves a stable AUC-ROC of 0.994$\pm$0.002.
  \label{t1:erc_perf_eval_table}
 \end{table}
 
+
+\subparagraph{Determined inconclusive intervals}
+
 Figure~\ref{fig:pca_rfc_percInconclCases_development} illustrates the determined lower and upper bounds on the 
 probabilistic output as a function of the percentages of inconclusive cases in the validation set (development dataset), 
 along with the natural cutoff of $0.5$.
 The width of the inconclusive interval expands as the percentage of inconclusive cases increases 
 and the visual resemblance in shape and slope between the curve a similar distribution of predictions both below and above the cutoff.
+
+\subparagraph{Inconclusive interval correspondence}
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
 the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
@@ -324,12 +332,13 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
+\subparagraph{AUC for balanced accuracy over PIncObs}
+
 Figure~\ref{fig:bacc_obsInconclCases_pca_rfc_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
 on both conclusive and inconclusive cases as a function of the mean PIncObs
 in the test set (development dataset).
 The balanced accuracy on inconclusive cases is not part of performance analysis and comparison 
 due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
-
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_development}.
 The mean of the balanced accuracy rises from approximately 97\% 
@@ -367,12 +376,9 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 % Evaluation on Independent datasets
 
-The PCA-RFC baseline method was also evaluated on the independent test datasets PPMI and MPH.
-The performance results for the PCA-RFC method on the PPMI test dataset are presented in Figure~\ref{fig:perf_results_rfc_ppmi} 
-whereas Figure~\ref{fig:perf_results_rfc_mph} presents the results for the PCA-RFC method on the MPH test dataset.
-
-
 % ---------------- PPMI ---------------------
+
+\paragraph{PPMI dataset}
 
 The following results were obtained when evaluating the PCA-RFC method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_ppmi} shows the
@@ -417,6 +423,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % -------------- MPH -----------------
 
+\paragraph{MPH dataset}
 
 The evaluation of the PCA-RFC method on the MPH dataset shows the following results.
 In Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_mph} 
