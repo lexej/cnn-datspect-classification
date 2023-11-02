@@ -468,17 +468,20 @@ For better illustration the area under the mean of the balanced accuracy is high
 \subsection{Experimental Methods Performance}
 \label{subsec:exp_methods_perf}
 
-This section presents the performance results for the CNN-based classification approaches sepertatly and compares them 
+This section presents the performance results for the CNN-based classification approaches separately and compares them 
 to the results obtained by the baseline approaches.
 First the results for the CNN-MVT method are presented, whereafter the CNN-RLT method is evaluated.
-Finally the findings for the CNN-Regression method are showcasted.
+Finally the findings for the CNN-Regression method are showcased.
 
 \subsubsection{CNN-MVT Method Results}
 \label{subsubsec:eval_mvt}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Evaluation on Development dataset
+
+\paragraph{Test set of development dataset}
+
+
+\subparagraph{Binary classification performance}
 
 The quantitative performance results of the CNN-MVT classification on the 
 particular subset of the Development dataset are presented in Table~\ref{t1:cnn_mvt_perf_eval_table}.
@@ -510,6 +513,7 @@ The method achieves a stable AUC-ROC of 0.996$\pm$0.002.
  \label{t1:cnn_mvt_perf_eval_table}
 \end{table}
 
+\subparagraph{Determined inconclusive intervals}
 
 In Figure~\ref{fig:baseline_majority_percInconclCases_development} the determined lower and upper bounds on the 
 probabilistic sigmoid output are plotted as a function of the percentages of inconclusive cases 
@@ -520,6 +524,8 @@ The width of the inconclusive interval increases more rapidly as the percentage 
 when compared to the PCA-RFC baseline method.
 That implies that the CNN-MVT method produces relatively less inconclusive cases than the PCA-RFC baseline.
 
+
+\subparagraph{Inconclusive interval correspondence}
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
 the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
@@ -551,6 +557,8 @@ identity line is small which can be attributed to the nearly identical distribut
   \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}
 \end{figure} 
 
+
+\subparagraph{AUC for balanced accuracy over PIncObs}
 
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 in the test set (development dataset) 
@@ -592,13 +600,9 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 % Evaluation on Independent datasets
 
-The CNN-MVT method was also evaluated on the independent test datasets PPMI and MPH.
-The performance results for the CNN-MVT method on the PPMI test dataset are presented in Figure~\ref{fig:perf_results_mvt_ppmi} 
-whereas Figure~\ref{fig:perf_results_mvt_mph} presents the results for the CNN-MVT method on the MPH test dataset.
-
-
 % ---------------- PPMI ---------------------
 
+\paragraph{PPMI dataset}
 
 The following results were obtained when evaluating the CNN-MVT method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_ppmi} depicts the
@@ -645,6 +649,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % -------------- MPH -----------------
 
+\paragraph{MPH dataset}
 
 The evaluation of the CNN-MVT method on the MPH dataset produced the following results.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_mph} presents
