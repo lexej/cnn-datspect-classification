@@ -930,9 +930,11 @@ For better illustration the area under the mean of the balanced accuracy is high
 \label{subsubsec:eval_regression}
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Evaluation on Development dataset
+\paragraph{Test set of development dataset}
+
+
+\subparagraph{Binary classification performance}
 
 The quantitative performance results of the CNN-Regression classification on the 
 particular subset of the Development dataset are presented in Table~\ref{t1:cnn_regression_perf_eval_table}.
@@ -966,6 +968,8 @@ The method achieves a stable AUC-ROC of 0.998$\pm$0.001.
 \end{table}
 
 
+\subparagraph{Determined inconclusive intervals}
+
 Figure~\ref{fig:regression_percInconclCases_development} presents the determined lower and upper bounds on the 
 probabilistic sigmoid output as a function of the percentages of inconclusive cases 
 in the validation set (PIncVal) of the development dataset, along with the natural cutoff $0.5$.
@@ -979,7 +983,10 @@ When compared to the PCA-RFC baseline method
 the width of the inconclusive interval increases more rapidly over the PIncVal.
 Thereore the CNN-Regression method also tends to produce relatively less inconclusive cases than the PCA-RFC baseline.
 
-The correspondence between the PIncVal of the development dataset \linebreak 
+
+\subparagraph{Inconclusive interval correspondence}
+
+The correspondence between the PIncVal of the development dataset 
 and the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set of the development dataset 
 is depicted in Figure~\ref{fig:obsInconclCases_inconclCasesValid_regression_development}.
 As for the baseline cases, the deviation of the mean PIncObs in the test set from the 
@@ -1008,6 +1015,8 @@ identity line is small which can be attributed to the nearly identical distribut
   \label{fig:obsInconclCases_inconclCasesValid_regression_development}
 \end{figure} 
 
+
+\subparagraph{AUC for balanced accuracy over PIncObs}
 
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs in the test set (development dataset) 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_development}.
@@ -1047,12 +1056,9 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 % Evaluation on Independent datasets
 
-The CNN-Regression method was also evaluated on the independent test datasets PPMI and MPH.
-The performance results for the CNN-Regression method on the PPMI test dataset are presented in Figure~\ref{fig:perf_regression_ppmi} 
-whereas Figure~\ref{fig:perf_regression_mph} presents the results for the CNN-Regression method on the MPH test dataset.
-
-
 % ---------------- PPMI ---------------------
+
+\paragraph{PPMI dataset}
 
 The following results were obtained when evaluating the CNN-Regression method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_regression_ppmi} illustrates the
@@ -1103,6 +1109,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % -------------- MPH -----------------
 
+\paragraph{MPH dataset}
 
 The evaluation of the CNN-Regression method on the MPH dataset produced the following results.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_regression_mph} demonstrates
