@@ -1,6 +1,12 @@
 \section{Methods}
 \label{sec:methods}
 
+% TODO -> What happens in chapter
+
+% the chapter...
+It concludes with an examination of the significant performance metrics utilized for the evaluation of 
+the research outcomes.
+
 \subsection{Software Tools and Libraries}
 \label{subsec:libs}
 
@@ -222,4 +228,67 @@ During model training the loss was computed using the Mean Square Error loss fun
 which aims to minimize the mean of the squared differences between the model predictions and the ground-truth labels.
 Thereby the optimization algorithm aimed to separate cases where no consensus was reached from those where 
 consensus was achieved.
+
+\subsection{Evaluation Metrics and Procedure}
+\label{subsec:eval_metrics_proced}
+
+In the following the performance metrics used for the evaluation of the different classification methods 
+are explained in more detail.
+
+First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
+the different random splits for each classification approach and subset (training, validation and testing) given a cutoff: 
+Area Under Curve (AUC) for ROC curve, Balanced accuracy, accuracy, sensitivity, specificity, 
+Positive Predictive Value (PPV) and Negative Predictive Value (NPV).
+The natural cutoff of 0.5 was used for each classification approach except the SBR method.
+For the SBR method the optimal cutoff was determined using the Youden criterion~\citep{Youden1950} and was used for
+calculating the measures.
+Majority vote was used as strategy to assign labels for cases in which no between-reader consensus could be achieved.
+
+% Determination of inconclusive intervals given set of percentages of inconclusive cases
+Second for each element within a set of considered percentages of inconclusive cases in the validation set 
+the corresponding inconclusive interval was determined.
+Inconclusive cases were defined as cases predicted within an inconclusive interval 
+(bounded by lower and upper bound), while conclusive cases were those predicted outside this interval.
+The determination of the inconclusive interval was exclusively performed using the validation set 
+for each random split and classification approach independently.
+The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
+For each target percentage of inconclusive cases in the set the lower and upper bounds of the inconclusive interval 
+were independently determined in such a way that there was a similar number of inconclusive cases both below and above 
+the pre-defined cutoff.
+For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
+multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
+For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
+the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
+
+% Stability of inconclusive interval
+To assess the stability of the determined inconclusive interval over the proportion of inconclusive cases
+the determined upper and lower bounds ($\text{mean} \pm \text{SD}$) of the inconclusive interval
+were plotted against the corresponding proportion of inconclusive cases (\%) in the validation set.
+The $\text{mean} \pm \text{SD}$ of determined upper and lower bounds was calculated across the measures for 
+different random splits.
+The rate at which the lower (upper) bound decreases (increases) in relation to the proportion of inconclusive 
+cases reflects the density of inconclusive cases around the cutoff.
+Specifically, higher function gradients indicate lower concentration of predictions around the cutoff, 
+and vice versa.
+The measurement was conducted separately for each classification approach.
+
+% AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
+
+The main performance metric used in this work to evaluate and compare the classification approaches was 
+the area under the curve (AUC) of mean balanced accuracy (\%) on conclusive test cases as a function of 
+the proportion of inconclusive test cases (\%, mean).
+More precisely the relative AUC (\%) normalized to the maximum achievable area was used for the comparison.
+To obtain the relative AUC, 
+first, the mean balanced accuracy function was interpolated using cubic spline interpolation.
+Then the area under the mean balanced accuracy curve was computed using the trapezoidal rule 
+and then normalized to the maximum achievable area.
+The evaluation of each classification method with respect to this metric was conducted on the test set of the 
+development dataset as well as on the independent datasets PPMI and MPH.
+
+
+% Proportion of inconclusive cases in test set vs. 
+Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set was plotted 
+against the proportion of inconclusive cases in the validation set.
+% WHY? Explain what would indicate desired behaviour and what not
+
 
