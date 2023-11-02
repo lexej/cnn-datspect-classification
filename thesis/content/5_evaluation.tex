@@ -29,8 +29,10 @@ PCA-RFC, and to establish a clear point of reference for the CNN-based methodolo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Evaluation on Development dataset
+\paragraph{Test set of Development dataset}
 
+% Evaluation on Development dataset
+\subparagraph{Binary classification performance}
 
 Table~\ref{t1:sbr_perf_eval_table} presents the quantitative performance 
 (Balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the SBR-based classification on the 
@@ -66,25 +68,21 @@ The SBR model achieves a stable AUC-ROC of 0.983$\pm$0.002.
  \label{t1:sbr_perf_eval_table}
 \end{table}
 
+\subparagraph{Determined Inconclusive Intervals}
 
-As the next step in the course of the evaluation, 
-the respective inconclusive interval bounds were determined 
-for each element within a range of predefined percentages of inconclusive cases 
-in the validation set (development dataset).
 Figure~\ref{fig:sbr_percInconclCases_development} illustrates the determined lower and upper bounds on the SBR 
-as a function of the percentages of inconclusive cases in the validation set, 
+as a function of the percentages of inconclusive cases in the validation set (development dataset), 
 along with the mean$\pm$SD of the optimal cutoff.
 Corroborating the intuitive expectation, the width of the inconclusive interval expands 
 as the percentage of inconclusive cases increases.
 The close resemblance in slopes between the upper and lower bound functions 
 indicates a nearly identical distribution of predictions both below and above the cutoff.
 
-Thereafter the determined inconclusive intervals (mean lower and upper bounds) per percentage of inconclusive cases 
-in validation set (development dataset)
-are used to calculate the corresponding percentage of observed inconclusive cases (PIncObs) in the test set (development dataset).
+\subparagraph{Inconclusive Interval Correspondence}
+
 In Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_development} the correspondence between 
-the percentage of inconclusive cases in the validation set and 
-the mean$\pm$SD PIncObs in the test set is demonstrated.
+the percentage of inconclusive cases in the validation set (development dataset) and 
+the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) is demonstrated.
 The plot illustrates that the deviation of the mean PIncObs in the test set from the 
 identity line is negligibly small.
 This can be attributed to the nearly identical distribution of data in both the test and validation sets 
@@ -113,15 +111,13 @@ This can be attributed to the nearly identical distribution of data in both the 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_development}
 \end{figure} 
 
+\subparagraph{AUC for Balanced Accuracy over PIncObs}
 
-After determining the set of mean percentages of observed inconclusive cases in the test set (development dataset), 
-balanced accuracy is computed for each mean percentage corresponding to a specific inconclusive interval.
 Figure~\ref{fig:bacc_obsInconclCases_sbr_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
 on both conclusive and inconclusive cases as a function of the mean PIncObs
 in the test set (development dataset).
 The balanced accuracy on inconclusive cases is not part of further performance analysis and comparison 
 due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
-
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_development}.
 The mean of the balanced accuracy rises from approximately 94\% 
@@ -158,12 +154,12 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % Evaluation on Independent datasets
 
-The SBR method was also evaluated on the independent test datasets PPMI and MPH.
-The performance results for the SBR method on the PPMI test dataset are depicted in Figure~\ref{fig:perf_results_sbr_ppmi} 
-whereas Figure~\ref{fig:perf_results_sbr_mph} presents the results for the SBR method on the MPH test dataset.
-
 % ---------------- PPMI ---------------------
 
+\paragraph{PPMI dataset}
+
+The results obtained from evaluating the SBR method on the PPMI dataset 
+are depicted in Figure~\ref{fig:perf_results_sbr_ppmi}.
 The mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
 over the percentage of inconclusive cases in the validation set (development dataset) 
 is consistently below the identity line, 
@@ -206,7 +202,9 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 % -------------- MPH -----------------
 
-The evaluation of the SBR method on the MPH dataset shows the following results.
+\paragraph{MPH dataset}
+
+The evaluation of the SBR method on the MPH dataset is shown in Figure~\ref{fig:perf_results_sbr_mph}.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_mph} demonstrates 
 the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
 over the percentage of inconclusive cases in the validation set (development dataset).
