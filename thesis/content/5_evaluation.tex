@@ -87,7 +87,7 @@ against the proportion of inconclusive cases in the validation set.
 
 In this section, the performance of the SBR method, a widely recognized technique in the field, 
 is thoroughly evaluated. 
-Furthermore the outcomes for the random forest based method PCA-RFC are also provided as additional baseline.
+Furthermore the outcomes for the multivariate PCA-RFC method are also provided as additional baseline.
 The objective of this evaluation is twofold: to comprehend the inherent capabilities of the baseline methods, SBR and
 PCA-RFC, and to establish a clear point of reference for the CNN-based methodologies.
 
@@ -148,11 +148,11 @@ indicates a nearly identical distribution of predictions both below and above th
 
 Thereafter the determined inconclusive intervals (mean lower and upper bounds) per percentage of inconclusive cases 
 in validation set (development dataset)
-are used to calculate the corresponding percentage of observed inconclusive cases in the test set (development dataset).
+are used to calculate the corresponding percentage of observed inconclusive cases (PIncObs) in the test set (development dataset).
 In Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_development} the correspondence between 
 the percentage of inconclusive cases in the validation set and 
-the mean$\pm$SD percentage of observed inconclusive cases in the test set is demonstrated.
-The plot illustrates that the deviation of the mean percentage of observed inconclusive cases in the test set from the 
+the mean$\pm$SD PIncObs in the test set is demonstrated.
+The plot illustrates that the deviation of the mean PIncObs in the test set from the 
 identity line is negligibly small.
 This can be attributed to the nearly identical distribution of data in both the test and validation sets 
 (due to random splitting) which results in a similar distribution of SBR model predictions.
@@ -184,18 +184,18 @@ This can be attributed to the nearly identical distribution of data in both the 
 After determining the set of mean percentages of observed inconclusive cases in the test set (development dataset), 
 balanced accuracy is computed for each mean percentage corresponding to a specific inconclusive interval.
 Figure~\ref{fig:bacc_obsInconclCases_sbr_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
-on both conclusive and inconclusive cases as a function of the mean percentage of observed inconclusive cases 
+on both conclusive and inconclusive cases as a function of the mean PIncObs
 in the test set (development dataset).
 The balanced accuracy on inconclusive cases is not part of further performance analysis and comparison 
 due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
 
-The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_development}.
 The mean of the balanced accuracy rises from approximately 94\% 
 when there are around 1\% of inconclusive cases in the test set to about 98\% 
 when there are around 20\% of inconclusive cases in the test set.
 The SBR baseline method attains a relative AUC of 96.38\% for the mean balanced accuracy on conclusive cases
-over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+over the mean PIncObs in the test set of the development dataset.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 % bacc_obsInconclCases_sbr_development_full
@@ -238,13 +238,13 @@ which can be seen in Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_ppmi}
 That implies that the SBR method produces relatively fewer inconclusive cases for the PPMI dataset  
 in comparison to the validation set and thus exhibits higher prediction confidence on the PPMI dataset, 
 regardless of the prediction accuracy.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_ppmi}.
 The mean of the balanced accuracy rises from approximately 96\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
 The SBR baseline method achieves a relative AUC of 97.51\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+over the mean PIncObs in the PPMI test dataset.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
@@ -282,13 +282,13 @@ is also consistently below the identity line.
 Therefore the SBR method produces relatively fewer inconclusive cases for the MPH dataset  
 in comparison to the validation set and thus exhibits higher prediction confidence on the MPH dataset, 
 regardless of the prediction accuracy.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_mph}.
 The mean of the balanced accuracy rises from approximately 91.5\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 95\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
 The SBR baseline method achieves a relative AUC of 93.46\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the MPH test dataset.
+over the mean PIncObs in the MPH test dataset.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
@@ -363,9 +363,9 @@ The width of the inconclusive interval expands as the percentage of inconclusive
 and the visual resemblance in shape and slope between the curve a similar distribution of predictions both below and above the cutoff.
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
-the mean$\pm$SD percentage of observed inconclusive cases in the test set (development dataset) 
+the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
 is demonstrated in Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_development}.
-The deviation of the mean percentage of observed inconclusive cases in the test set from the 
+The deviation of the mean PIncObs in the test set from the 
 identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
 (due to random splitting).
 
@@ -394,18 +394,18 @@ identity line is small which can be attributed to the nearly identical distribut
 
 
 Figure~\ref{fig:bacc_obsInconclCases_pca_rfc_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
-on both conclusive and inconclusive cases as a function of the mean percentage of observed inconclusive cases 
+on both conclusive and inconclusive cases as a function of the mean PIncObs
 in the test set (development dataset).
 The balanced accuracy on inconclusive cases is not part of performance analysis and comparison 
 due to the emphasis on the balanced accuracy on conclusive cases as the basis for the main metric of this work.
 
-The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_development}.
 The mean of the balanced accuracy rises from approximately 97\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
 As a result, the PCA-RFC baseline method achieves a relative AUC of 98.71\% for the mean balanced accuracy on conclusive cases
-over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+over the mean PIncObs in the test set of the development dataset.
 The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
@@ -451,13 +451,13 @@ The function is consistently above the identity line which implies that the PCA-
 produces relatively more inconclusive cases for the PPMI dataset  
 in comparison to the validation set and thus exhibits lower prediction confidence on the PPMI dataset, 
 regardless of the prediction accuracy.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is presented 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is presented 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
 The PCA-RFC baseline method achieves a relative AUC of 99.12\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+over the mean PIncObs in the PPMI test dataset.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
@@ -495,13 +495,13 @@ As in the PPMI case, the percentage of inconclusive cases observed in the MPH te
 is also above the identity line however the deviation is much stronger.
 Therefore the PCA-RFC method produces relatively much more inconclusive cases for the MPH dataset  
 in comparison to the validation set.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is shown 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_mph}.
 The mean of the balanced accuracy rises from approximately 90.5\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 94\% 
 when there are around 19\% of inconclusive cases in the MPH test set.
 As a result, the PCA-RFC baseline method achieves a relative AUC of 92.42\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the MPH test dataset.
+over the mean PIncObs in the MPH test dataset.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
@@ -584,9 +584,9 @@ That implies that the CNN-MVT method produces relatively less inconclusive cases
 
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
-the mean$\pm$SD percentage of observed inconclusive cases in the test set (development dataset) 
+the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
 is illustrated in Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}.
-As for the baseline cases, the deviation of the mean percentage of observed inconclusive cases in the test set from the 
+As for the baseline cases, the deviation of the mean PIncObs in the test set from the 
 identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
 (due to random splitting).
 
@@ -614,14 +614,14 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 in the test set (development dataset) 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_development}.
 The mean of the balanced accuracy rises from about 97\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
 As a result, the CNN-MVT method achieves a relative AUC of 98.95\% for the mean balanced accuracy on conclusive cases
-over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+over the mean PIncObs in the test set of the development dataset.
 The achieved relative AUC is approximately 2.5\% higher than that of the SBR baseline method 
 and around 0.2\% higher than the PCA-RFC baseline.
 The area under the mean of the balanced accuracy is highlighted for better illustration.
@@ -671,13 +671,13 @@ percentages of observed inconclusive cases in the PPMI test dataset are similar.
 However for higher percentages of inconclusive cases (corresponding to braoder inconclusive intervals) 
 in the validation set the method produces relatively more inconclusive cases for the PPMI dataset 
 and thus exhibits less confidence.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is illustrated 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is illustrated 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
 The CNN-MVT method achieves a relative AUC of 99.23\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+over the mean PIncObs in the PPMI test dataset.
 The achieved relative AUC is approximately 1.7\% higher than that of the SBR baseline method 
 and around 0.1\% higher than the PCA-RFC baseline.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
@@ -719,13 +719,13 @@ The standard deviation also increases over the percentage of inconclusive cases 
 When compared to the SBR baseline the CNN-MVT method shows a stronger misalignment between 
 the percentage of inconclusive cases in validation and test set. 
 However compared to the PCA-RFC baseline the CNN-MVT method exhibits better alignment.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is depicted 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is depicted 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_mph}.
 The mean of the balanced accuracy increases from approximately 95\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 96\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
 As a result, the CNN-MVT method achieves a relative AUC of 95.73\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the MPH test dataset.
+over the mean PIncObs in the MPH test dataset.
 The achieved relative AUC is approximately 2.3\% higher than that of the SBR baseline method 
 and around 3.3\% higher than the PCA-RFC baseline.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
@@ -805,9 +805,9 @@ the width of the inconclusive interval increases more rapidly as the percentage 
 That implies that the CNN-RLT method tends to produce relatively less inconclusive cases than the PCA-RFC baseline.
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
-the mean$\pm$SD percentage of observed inconclusive cases in the test set (development dataset) 
+the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
 is depicted in Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_random_development}.
-As for the baseline cases, the deviation of the mean percentage of observed inconclusive cases in the test set from the 
+As for the baseline cases, the deviation of the mean PIncObs in the test set from the 
 identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
 (due to random splitting).
 
@@ -835,14 +835,13 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean percentage of observed inconclusive cases 
-in the test set (development dataset) 
+The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs in the test set (development dataset) 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_development}.
 The mean of the balanced accuracy rises from about 97.5\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
 As a result, the CNN-RLT method achieves a relative AUC of 99.02\% for the mean balanced accuracy on conclusive cases
-over the mean percentage of observed inconclusive cases in the test set of the development dataset.
+over the mean PIncObs in the test set of the development dataset.
 The achieved relative AUC is approximately 2.6\% higher than that of the SBR baseline method 
 and around 0.3\% higher than the PCA-RFC baseline.
 The area under the mean of the balanced accuracy is highlighted for better illustration.
@@ -895,13 +894,13 @@ for the validation set cases.
 As the inconclusive interval increases the amount of PPMI predictions within the inconclusive interval varies strongly 
 across random splits with a bias towards producing relatively more inconclusive PPMI dataset cases 
 than inconclusive validation set cases.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases is presented 
+The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is presented 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_ppmi}.
 The mean of the balanced accuracy rises from approximately 98.5\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
 The CNN-RLT method achieves a relative AUC of 99.31\% for the mean balanced accuracy on conclusive cases 
-over the mean percentage of observed inconclusive cases in the PPMI test dataset.
+over the mean PIncObs in the PPMI test dataset.
 The achieved relative AUC is approximately 1.8\% higher than that of the SBR baseline method 
 and around 0.2\% higher than the PCA-RFC baseline.
 For better illustration the area under the mean of the balanced accuracy is highlighted.
