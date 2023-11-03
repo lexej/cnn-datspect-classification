@@ -245,14 +245,14 @@ calculating the measures.
 Majority vote was used as strategy to assign labels for cases in which no between-reader consensus could be achieved.
 
 % Determination of inconclusive intervals given set of percentages of inconclusive cases
-Second for each element within a set of considered percentages of inconclusive cases in the validation set 
+Second for each element within a set of considered percentages of inconclusive cases in the validation set (PIncVal)
 the corresponding inconclusive interval was determined.
 Inconclusive cases were defined as cases predicted within an inconclusive interval 
 (bounded by lower and upper bound), while conclusive cases were those predicted outside this interval.
 The determination of the inconclusive interval was exclusively performed using the validation set 
 for each random split and classification approach independently.
-The set of percentages of inconclusive cases considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
-For each target percentage of inconclusive cases in the set the lower and upper bounds of the inconclusive interval 
+The set of PIncVal values considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
+For each target PIncVal value the lower and upper bounds of the inconclusive interval 
 were independently determined in such a way that there was a similar number of inconclusive cases both below and above 
 the pre-defined cutoff.
 For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
@@ -260,23 +260,25 @@ multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural c
 For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
 the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
 
-% Stability of inconclusive interval
+% lower_bound(PIncVal) , upper_bound(PIncVal)
 To assess the stability of the determined inconclusive interval over the proportion of inconclusive cases
 the determined upper and lower bounds ($\text{mean} \pm \text{SD}$) of the inconclusive interval
-were plotted against the corresponding proportion of inconclusive cases (\%) in the validation set.
+were plotted against the corresponding PIncVal (\%).
 The $\text{mean} \pm \text{SD}$ of determined upper and lower bounds was calculated across the measures for 
 different random splits.
-The rate at which the lower (upper) bound decreases (increases) in relation to the proportion of inconclusive 
-cases reflects the density of inconclusive cases around the cutoff.
-Specifically, higher function gradients indicate lower concentration of predictions around the cutoff, 
+The rate at which the lower (upper) bound decreases (increases) over the PIncVal 
+reflects the density of inconclusive cases within a certain region of PIncVal.
+Specifically, higher function gradients indicate lower concentration of predictions, 
 and vice versa.
+Also a higher standard deviation from the mean indicates that a stable inconclusive interval determination 
+is harder within a certain region of PIncVal.
 The measurement was conducted separately for each classification approach.
 
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
 
 The main performance metric used in this work to evaluate and compare the classification approaches was 
 the area under the curve (AUC) of mean balanced accuracy (\%) on conclusive test cases as a function of 
-the proportion of inconclusive test cases (\%, mean).
+the mean percentage of inconclusive test cases (mean PIncObs, \%).
 More precisely the relative AUC (\%) normalized to the maximum achievable area was used for the comparison.
 To obtain the relative AUC, 
 first, the mean balanced accuracy function was interpolated using cubic spline interpolation.
@@ -285,10 +287,13 @@ and then normalized to the maximum achievable area.
 The evaluation of each classification method with respect to this metric was conducted on the test set of the 
 development dataset as well as on the independent datasets PPMI and MPH.
 
-
-% Proportion of inconclusive cases in test set vs. 
-Also the observed $\text{mean} \pm \text{SD}$ proportion of inconclusive cases in the test set was plotted 
-against the proportion of inconclusive cases in the validation set.
-% WHY? Explain what would indicate desired behaviour and what not
-
-
+% PIncObs(PIncVal) 
+As a further metric, the $\text{mean} \pm \text{SD}$ percentage of observed inconclusive cases in the test set (PIncObs, \%) 
+was plotted against the PIncVal (\%).
+A mean of PIncObs(PIncVal) near the identity line is an indicator for a similar prediction distribution 
+for validation set and test set on average.
+In case the mean of PIncObs(PIncVal) consistently lies over (under) the identity line 
+the supposed prediction certainty on the test set, on average, is lower (higher) than on the validation set.
+Also a lower standard deviation of PIncObs over PIncVal indicates 
+that PIncObs is less sensitive to the randomness of the inconclusive intervals across random splits.
+Therefore a lower standard deviation of PIncObs allows for a more reliable main performance metric calculation.
