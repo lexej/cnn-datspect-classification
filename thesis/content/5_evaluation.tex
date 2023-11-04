@@ -1134,26 +1134,27 @@ For better illustration the area under the mean of the balanced accuracy is high
 \label{subsec:compar_anal}
 
 In this section, a summary comparison of the performance between the baseline and experimental methods is presented.
-The comparison focuses on the primary metric of this work, 
-which is the AUC of balanced accuracy on conclusive cases across varying percentages of observed inconclusive cases. 
-%on two aspects: transferability of inconclusive intervals (in both validation and test sets) 
+The comparison focuses on two aspects: transferability of inconclusive intervals (in both validation and test sets) 
+and the AUC of balanced accuracy on conclusive cases across varying percentages of observed inconclusive cases (PIncObs).
 To support the analysis visually one comparison figure is used for each aspect tested on a specific dataset.
 The comparison is carried out for the test set of the development data, 
 the PPMI dataset and the MPH dataset, respectively.
 
 \subsubsection{Performance on test set of development dataset}
 
-\begin{comment}
 Figure~\ref{fig:test_interval_match_dev} provides a comparison of the transferability of the inconclusive intervals 
 from the validation set to the test set (development data) along the baseline and experimental methods.
-The mean and standard deviation of observed inconclusive cases (PIncObs) in the test set 
-is very similar across the baseline and experimental methods.
-For each considered method the mean of the PIncObs hardly deviates from the identity line.
+For each considered method the mean of the percentage of observed inconclusive cases (PIncObs) 
+hardly deviates from the identity line.
 The similarity in data distribution of the validation and test set due to random splitting is an explanation for that.
-\end{comment}
+The standard deviation of PIncObs is also similarly low across the methods.
+Thus the PIncObs is hardly affected by the randomness of the inconclusive intervals across random splits for each method.
+The mean of PIncObs can be reliably used for the calculation of the main metric of this work compared in the following.
 
-The performance comparison of the methods concerning the relative AUC for the mean balanced accuracy on conclusive cases
-over the PIncObs in the test set is shown in Figure~\ref{fig:test_dev}.
+In Figure~\ref{fig:test_dev}, the performance comparison of the methods on the test set (development dataset) 
+concerning the main metric of this work, 
+the relative AUC for the mean balanced accuracy on conclusive cases
+over the mean PIncObs in the test set, is shown.
 In general, the CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $99.23\%$) method 
 whereas the lowest AUC is that for the SBR-based method (relative AUC: $96.38\%$).
@@ -1192,7 +1193,7 @@ The CNN-RLT method achieves slightly higher performance than the CNN-MVT.
     \subcaption{CNN method - Regression}
   \end{subfigure}
 
-  \caption{Comparison of different methods on test set of development data. Transferability of inconclusive intervals..}
+  \caption{Comparison of different methods on test set of development data. Transferability of inconclusive intervals.}
   \label{fig:test_interval_match_dev}
 \end{figure}
 
@@ -1240,14 +1241,23 @@ The CNN-RLT method achieves slightly higher performance than the CNN-MVT.
 \subsubsection{Performance on PPMI dataset}
 
 
-Figure~\ref{fig:test_ppmi} supports the performance comparison of the methods 
-concerning the relative AUC for the mean balanced accuracy on conclusive cases over the PIncObs 
-in the PPMI dataset.
-Here also the CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
+Figure~\ref{fig:test_interval_match_ppmi} shows a comparison of the transferability of the inconclusive intervals 
+from the validation set to the PPMI test dataset along the baseline and experimental methods.
+The percentage of observed inconclusive cases (PIncObs) of CNN-based methods shows a higher standard deviation 
+compared to the baseline methods.
+A possible explanation for that is the higher sensitivity of the CNN-based methods 
+to the variability in inconclusive intervals across random splits.
+Also the mean of PIncObs deviates stronger from the identity line (above identity line) 
+for the CNN-MVT and CNN-Regression methods compared to the baseline methods and CNN-RLT.
+That indicates that, on average, the CNN-MVT and CNN-Regression methods are supposedly less certain 
+about the PPMI dataset predictions compared to the other methods.
+
+The performance comparison of the methods concerning the relative AUC for the mean balanced accuracy on conclusive cases 
+over the PIncObs in the PPMI dataset is depicted in Figure~\ref{fig:test_ppmi}.
+The CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $99.38\%$) method 
 whereas the lowest AUC is that for the SBR-based method (relative AUC: $97.51\%$).
 The CNN-RLT method achieves slightly higher performance (relative AUC: $99.31\%$) than the CNN-MVT (relative AUC: $99.23\%$).
-
 
 
 % Method Comparison of obsInconclCases_inconclCasesValid - PPMI
@@ -1328,12 +1338,25 @@ The CNN-RLT method achieves slightly higher performance (relative AUC: $99.31\%$
 
 \subsubsection{Performance on MPH dataset}
 
+Figure~\ref{fig:test_interval_match_mph} illustrates a comparison of the transferability of the inconclusive intervals 
+from the validation set to the MPH test dataset along the baseline and experimental methods.
+As for the PPMI dataset, on the MPH dataset the percentage of observed inconclusive cases (PIncObs) of CNN-based methods 
+shows a higher standard deviation compared to the baseline methods.
+The higher sensitivity of the CNN-based methods 
+to the variability in inconclusive intervals across random splits is a possible explanation.
+Here also the mean of PIncObs deviates stronger from the identity line (above identity line) 
+for the CNN-MVT and CNN-Regression methods compared to the CNN-RLT.
+That indicates that, on average, the CNN-MVT and CNN-Regression methods are supposedly less certain 
+about the MPH dataset predictions compared to the CNN-RLT method.
+However the highest deviation of the mean PIncObs from the identity line shows the baseline PCA-RFC method 
+and thus shows the lowest supposed certainty about the MPH dataset predictions, on average.
+
 In Figure~\ref{fig:test_mph} the performance comparison of the methods 
 concerning the relative AUC for the mean balanced accuracy on conclusive cases over the PIncObs 
 in the MPH dataset is presented.
 As for the other test datasets, CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $96.24\%$) method 
-whereas the lowest AUC is that for the SBR-based method (relative AUC: $93.46\%$).
+whereas the lowest AUC is that for the baseline PCA-RFC method (relative AUC: $92.42\%$).
 The CNN-RLT method achieves slightly higher performance (relative AUC: $96.12\%$) 
 than the CNN-MVT (relative AUC: $95.73\%$).
 
@@ -1371,7 +1394,7 @@ than the CNN-MVT (relative AUC: $95.73\%$).
     \subcaption{CNN method - Regression}
   \end{subfigure}
 
-  \caption{Comparison of different methods on MPH dataset. Transferability of inconclusive intervals}
+  \caption{Comparison of different methods on MPH dataset. Transferability of inconclusive intervals.}
   \label{fig:test_interval_match_mph}
 \end{figure}
 
@@ -1417,9 +1440,9 @@ than the CNN-MVT (relative AUC: $95.73\%$).
 
 \subsection{Conclusion}
 
-A concluding assessment of the performance of the methods 
+A concluding overview of the performance of the methods on different test datasets 
 concerning the relative AUC for the mean balanced accuracy on conclusive cases over the PIncObs 
-can be regarded in Figure~\ref{fig:auc_comparison_methods_data}.
+is summarized in Figure~\ref{fig:auc_comparison_methods_data}.
 The CNN-based methods outperform the baseline, especially on the MPH dataset.
 The best performance is achieved by the CNN-Regression method, followed by the CNN-RLT and CNN-MVT methods.
 
