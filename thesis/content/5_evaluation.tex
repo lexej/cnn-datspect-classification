@@ -160,14 +160,13 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 The results obtained from evaluating the SBR method on the PPMI dataset 
 are depicted in Figure~\ref{fig:perf_results_sbr_ppmi}.
-The mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
+The mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the PPMI test dataset 
 over the percentage of inconclusive cases in the validation set (development dataset) 
 is consistently below the identity line, 
 which can be seen in Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_ppmi}.
-That implies that the SBR method produces relatively fewer inconclusive cases for the PPMI dataset  
-in comparison to the validation set and thus exhibits higher prediction confidence on the PPMI dataset, 
+That implies that, on average, the supposed prediction certainty on PPMI dataset is higher than on validation set (development dataset),
 regardless of the prediction accuracy.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
+The balanced accuracy on conclusive cases over the mean PIncObs is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_ppmi}.
 The mean of the balanced accuracy rises from approximately 96\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99\% 
@@ -206,13 +205,11 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 The evaluation of the SBR method on the MPH dataset is shown in Figure~\ref{fig:perf_results_sbr_mph}.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_sbr_mph} demonstrates 
-the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
+the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH test dataset 
 over the percentage of inconclusive cases in the validation set (development dataset).
-Similar as in case of the PPMI dataset, here the percentage of inconclusive cases observed in the MPH test dataset
-is also consistently below the identity line.
-Therefore the SBR method produces relatively fewer inconclusive cases for the MPH dataset  
-in comparison to the validation set and thus exhibits higher prediction confidence on the MPH dataset, 
-regardless of the prediction accuracy.
+Similar as in case of the PPMI dataset, here the PIncObs in the MPH test dataset
+is also consistently below the identity line 
+and thus the supposed prediction certainty on MPH dataset is higher than on validation set.
 The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_mph}.
 The mean of the balanced accuracy rises from approximately 91.5\% 
@@ -382,13 +379,12 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 The following results were obtained when evaluating the PCA-RFC method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_ppmi} shows the
-mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
+mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the PPMI test dataset 
 over the percentage of inconclusive cases in the validation set (development dataset).
-The function is consistently above the identity line which implies that the PCA-RFC method 
-produces relatively more inconclusive cases for the PPMI dataset  
-in comparison to the validation set and thus exhibits lower prediction confidence on the PPMI dataset, 
+The function is consistently above the identity line.
+Therefore, on average, the supposed prediction certainty of the PCA-RFC method on PPMI dataset is lower than on validation set,
 regardless of the prediction accuracy.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is presented 
+The balanced accuracy on conclusive cases over the mean PIncObs is presented 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
@@ -427,13 +423,12 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 The evaluation of the PCA-RFC method on the MPH dataset shows the following results.
 In Figure~\ref{fig:obsInconclCases_inconclCasesValid_pca_rfc_mph} 
-the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
-over the percentage of inconclusive cases in the validation set (development dataset) is illustrated.
-As in the PPMI case, the percentage of inconclusive cases observed in the MPH test dataset
-is also above the identity line however the deviation is much stronger.
-Therefore the PCA-RFC method produces relatively much more inconclusive cases for the MPH dataset  
-in comparison to the validation set.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is shown 
+the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH test dataset 
+over the percentage of inconclusive cases in the validation set (PIncVal) is illustrated.
+Here the mean of PIncObs in the MPH test dataset
+is also consistently above the identity line and its deviation from the identity line increases over PIncVal.
+Therefore the supposed prediction certainty on MPH dataset is lower than on validation set (development data).
+The balanced accuracy on conclusive cases over the mean PIncObs is shown 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_mph}.
 The mean of the balanced accuracy rises from approximately 90.5\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 94\% 
@@ -606,14 +601,12 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 The following results were obtained when evaluating the CNN-MVT method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_ppmi} depicts the
-mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
-over the percentage of inconclusive cases in the validation set (development dataset).
-For lower percentages of inconclusive cases in the validation set the corresponding 
-percentages of observed inconclusive cases in the PPMI test dataset are similar.
-However for higher percentages of inconclusive cases (corresponding to braoder inconclusive intervals) 
-in the validation set the method produces relatively more inconclusive cases for the PPMI dataset 
-and thus exhibits less confidence.
-The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is illustrated 
+mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the PPMI test dataset 
+over the percentage of inconclusive cases in the validation set (PIncVal) of development dataset.
+For lower PIncVal the corresponding PIncObs in the PPMI test dataset are similar.
+However as PIncVal increases (corresponding to increasing inconclusive intervals) 
+the supposed prediction certainty on PPMI dataset decreases when compared to the certainty on validation set, on average.
+The balanced accuracy on conclusive cases over the mean PIncObs is illustrated 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
@@ -653,15 +646,14 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 The evaluation of the CNN-MVT method on the MPH dataset produced the following results.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_mph} presents
-the mean$\pm$SD percentage of inconclusive cases observed in the MPH test dataset 
-over the percentage of inconclusive cases in the validation set (development dataset).
-The mean of the percentage of inconclusive cases observed in the MPH test dataset
-is above the identity line 
-and increases as the percentage of inconclusive cases in the validation set increases.
-The standard deviation also increases over the percentage of inconclusive cases in the validation set.
-When compared to the SBR baseline the CNN-MVT method shows a stronger misalignment between 
-the percentage of inconclusive cases in validation and test set. 
-However compared to the PCA-RFC baseline the CNN-MVT method exhibits better alignment.
+the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH test dataset 
+over the percentage of inconclusive cases in the validation set (PIncVal) of development dataset.
+The mean of PIncObs in the MPH test dataset is consisently above the identity line 
+and the deviation from the identity line increases over PIncVal.
+The standard deviation of PIncObs also increases over PIncVal.
+When compared to the mean PIncObs of the SBR baseline the mean PIncObs of the CNN-MVT method is higher 
+which indicates that CNN-MVT is supposedly less certain about the MPH set predictions than the SBR method.
+Also the PIncObs of the CNN-MVT has a much higher standard deviation compared to the PIncObs of the SBR method.
 The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is depicted 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_mph}.
 The mean of the balanced accuracy increases from approximately 95\% 
@@ -832,17 +824,12 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 
 The following results were obtained when evaluating the CNN-RLT method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_random_ppmi} shows the
-mean$\pm$SD percentage of inconclusive cases observed in the PPMI test dataset 
-over the percentage of inconclusive cases in the validation set (development dataset).
-Here for lower percentages of inconclusive cases in the validation set (less than 6\%) the corresponding 
-mean$\pm$SD percentages of observed inconclusive cases in the PPMI test dataset are below the identity line.
-However for higher percentages of inconclusive cases in the validation set the mean rises above the identity line
-and the standard deviation increases strongly.
-That indicates that the method makes relatively less predictions around the cutoff for PPMI dataset cases than 
-for the validation set cases.
-As the inconclusive interval increases the amount of PPMI predictions within the inconclusive interval varies strongly 
-across random splits with a bias towards producing relatively more inconclusive PPMI dataset cases 
-than inconclusive validation set cases.
+mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the PPMI test dataset 
+over the percentage of inconclusive cases in the validation set (PIncVal) of the development dataset.
+
+Here the mean PIncObs in the PPMI test dataset deviates only slightly from the identity line.
+For PIncVal less than 6\% the mean PIncObs is slightly below the identity line.
+Subsequently the mean PIncObs rises slightly above the identity line with an increasing standard deviation of PIncObs.
 The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is presented 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_ppmi}.
 The mean of the balanced accuracy rises from approximately 98.5\% 
@@ -888,10 +875,6 @@ the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH t
 over the percentage of inconclusive cases in the validation set (PIncVal) (development dataset).
 Here the mean of the PIncObs in the MPH test dataset is slightly above the identity line 
 and the standard deviation increases over the PIncVal.
-Compared to the mean of the PCA-RFC benchmark method, 
-the mean of the PIncObs in the MPH test dataset of the CNN-RLT method is better aligned with the PIncVal.
-However the standard deviation of the PIncObs in the MPH test dataset across the random splits 
-is higher for the CNN-RLT method.
 The balanced accuracy on conclusive cases over the mean PIncObs is depicted 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_mph}.
 The mean of the balanced accuracy slightly increases from approximately 95\% 
@@ -1063,16 +1046,11 @@ The area under the mean of the balanced accuracy is highlighted for better illus
 The following results were obtained when evaluating the CNN-Regression method on the PPMI dataset.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_regression_ppmi} illustrates the
 mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the PPMI test dataset 
-over the percentage of inconclusive cases in the validation set (development dataset).
-Here for lower percentages of inconclusive cases in the validation set (less than 5\%) the corresponding 
-mean of PIncObs in the PPMI test dataset is near the identity line.
-However for higher percentages of inconclusive cases in the validation set the mean of PIncObs rises above the identity line
+over the percentage of inconclusive cases in the validation set (PIncVal) of the development dataset.
+Here for lower PIncVal values (less than 5\%) the corresponding mean PIncObs 
+in the PPMI test dataset is near the identity line.
+However for higher PIncVAl values the mean of PIncObs increasingly rises above the identity line
 and the standard deviation of PIncObs increases strongly.
-That indicates that the method produces a similar amount of predictions around the cutoff for PPMI dataset cases and 
-for the validation set cases.
-As the inconclusive interval increases the amount of predictions for PPMI cases within the inconclusive interval 
-varies strongly across random splits and the method tends to produce relatively more inconclusive cases for the 
-PPMI dataset when compared to validation set on average.
 The balanced accuracy on conclusive cases over the mean PIncObs is presented in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_ppmi}.
 The mean of the balanced accuracy rises from approximately 98.5\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
@@ -1117,11 +1095,7 @@ the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH t
 over the percentage of inconclusive cases in the validation set (PIncVal) (development dataset).
 Here the mean of the PIncObs in the MPH test dataset is above the identity line 
 and deviates stronger from the identity line as the PIncVal increases.
-Also the standard deviation of the PIncObs increases over the increasing PIncVal.
-Compared to the mean of the PCA-RFC benchmark method, 
-the mean of the PIncObs in the MPH test dataset of the CNN-Regression method is closer aligned with the PIncVal.
-However the standard deviation of the PIncObs in the MPH test dataset across the random splits 
-is much higher for the CNN-Regression method.
+Also the standard deviation of the PIncObs is high and increases over the increasing PIncVal.
 The balanced accuracy on conclusive cases over the mean PIncObs 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_mph}.
 The mean of the balanced accuracy slightly increases from approximately 95\% 
@@ -1185,7 +1159,7 @@ The highest performance is achieved by the CNN-Regression (relative AUC: $99.23\
 whereas the lowest AUC is that for the SBR-based method (relative AUC: $96.38\%$).
 The CNN-RLT method achieves slightly higher performance than the CNN-MVT.
 
-\begin{comment}
+
 % Method Comparison of obsInconclCases_inconclCasesValid - Development test set
 \begin{figure}[ht]
   \begin{subfigure}{0.5\textwidth}
@@ -1221,7 +1195,7 @@ The CNN-RLT method achieves slightly higher performance than the CNN-MVT.
   \caption{Comparison of different methods on test set of development data. Transferability of inconclusive intervals..}
   \label{fig:test_interval_match_dev}
 \end{figure}
-\end{comment}
+
 
 % Method Comparison of bacc-obsInconclCases-concl - Development test set
 \begin{figure}[ht]
@@ -1276,7 +1250,6 @@ The CNN-RLT method achieves slightly higher performance (relative AUC: $99.31\%$
 
 
 
-\begin{comment}
 % Method Comparison of obsInconclCases_inconclCasesValid - PPMI
 \begin{figure}[ht]
   \begin{subfigure}{0.5\textwidth}
@@ -1312,7 +1285,6 @@ The CNN-RLT method achieves slightly higher performance (relative AUC: $99.31\%$
   \caption{Comparison of different methods on PPMI dataset. Transferability of inconclusive intervals.}
   \label{fig:test_interval_match_ppmi}
 \end{figure}
-\end{comment}
 
 % Method Comparison of bacc_obsInconclCases_concl - PPMI test set
 \begin{figure}[ht]
@@ -1366,7 +1338,7 @@ The CNN-RLT method achieves slightly higher performance (relative AUC: $96.12\%$
 than the CNN-MVT (relative AUC: $95.73\%$).
 
 
-\begin{comment}
+
 % Method Comparison of obsInconclCases_inconclCasesValid - MPH
 \begin{figure}[ht]
   \begin{subfigure}{0.5\textwidth}
@@ -1402,7 +1374,7 @@ than the CNN-MVT (relative AUC: $95.73\%$).
   \caption{Comparison of different methods on MPH dataset. Transferability of inconclusive intervals}
   \label{fig:test_interval_match_mph}
 \end{figure}
-\end{comment}
+
 
 
 % Method Comparison of bacc_obsInconclCases_concl - MPH test set
