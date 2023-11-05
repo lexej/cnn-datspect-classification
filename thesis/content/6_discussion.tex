@@ -2,23 +2,47 @@
 \label{sec:discussion}
 
 
-% Objective 1: Evaluation of Methods on Test set of dev data
+The primary research hypothesis proposed that a CNN trained using the RLT strategy
+is more effective in identifying inconclusive cases compared to the MVT strategy.
+The main metric proposed to evaluate and compare the performance was the
+AUC of balanced accuracy on conclusive cases over the percentage of observed inconclusive cases (PIncObs) in the test set.
+The performance results summarized in Figure~\ref{fig:auc_comparison_methods_data} demonstrate 
+that the RLT strategy leads to slightly better performance (higher by $0.05-0.1\%$) on the development data test set 
+and the external PPMI test dataset.
+On the internal MPH test dataset the performance of the CNN using RLT strategy is higher by $0.4\%$ compared to the MVT strategy.
+Since the MPH dataset cases exhibit better spatial resolution than the development dataset and PPMI dataset cases
+and thus are more complex and difficult to classify 
+the clear superiority of the RLT strategy on this test dataset is particularly remarkable.
+Hence the findings support the primary hypothesis of this work.
 
-%   Objective 1.1: To compare the "performance" of the methods on Test set of dev data.
-%   Objective 1.2: To assess the suitability of these methods in unseen real-world scenarios
+Two secondary hypotheses were also put to test in this work.
+The first hypothesis was the superiority in performance of CNN-based classification methods compared to 
+conventional baseline methods in terms of the main metric (AUC of balanced accuracy over PIncObs).
+The results shown in Figure~\ref{fig:auc_comparison_methods_data} show that CNN-based classification methods
+have a consistent AUC performance advantage over the SBR univariate baseline method across all test datasets, 
+achieving approximately a 2\% higher AUC result.
+The AUC performance of the multivariate baseline method PCA-RFC closely approaches that of the CNN-based methods 
+on the development data test set and PPMI test dataset.
+However on the more complex MPH test dataset, the AUC performance of the PCA-RFC method is over 3\% lower
+compared to that of the CNN-based methods.
+The second hypothesis stated that the CNN-based classification methods are 
+more robust regarding varying image characteristics and thus exhibit better generalizability compared to baseline methods.
+The CNN-based methods outperform both baseline methods on the PPMI and MPH test datasets which differ in image characteristics.
+The performance advantage of the CNN-based methods is more prominent on the more complex MPH dataset.
+Consequently both secondary hypotheses are confirmed by the findings.
 
 
-% Objective 2: Evaluation of Methods on PPMI and MPH dataset
-%				-> understand the impact of varying dataset characteristics by evaluating on
 
 
- 
+
+Some Limitations: 
+- bACC-AUC metric may be less human interpretable compared to the standard AUC, 
+however when usefull to compare performance of classification models
+- Higher SD across random splits is a weak point of the bAcc-AUC metric..
+
 
 %Interpretation of Results:
 %Analyze the findings in the context of the research questions and objectives.
-
-Interpretation:
-- PPMI is easier to classify than test set of dev data and MPH 
 
 %Comparison with Baseline Methods:
 %%Discuss how Method 1, Method 2, and Method 3 compare with Baseline A and Baseline B.
@@ -32,11 +56,6 @@ Interpretation:
 %Limitations and Challenges:
 %Address any limitations in the methodology or data that might have affected the results.
 %Discuss challenges faced during the experiments.
-Limitations: 
-- bACC-AUC metric may be less human interpretable compared to the standard AUC, 
-however when usefull to compare performance of classification models
-- Higher variance across random splits is a weak point of the bAcc-AUC metric..
-
 
 %Implications and Applications:
 %Discuss the practical implications of the results in real-world ML applications.

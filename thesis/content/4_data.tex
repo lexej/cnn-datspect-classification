@@ -18,15 +18,17 @@ More precisely, ordered-subsets-expectation-maximization was performed with 5 it
 For noise suppression, reconstructed images were postfiltered by convolution with a 3-dimensional Gaussian kernel of 7 mm full-width-at-half-maximum. 
 The development dataset was used for both, training and testing. For this purpose, the dataset was randomly split into ??? training cases and ??? test cases. 
 The gold standard label as either “normal” or Parkinson-typical reduction (“reduced”) of the striatal signal had been obtained by visual interpretation of the DAT-SPECT images by 3 independent readers [56]. 
+The between-reader consensus on the label could not be achieved for around 5\% of dataset cases.
 
 \subsection{Independent testing datasets}
 \label{subsec:external_dataset}
 
 The second dataset comprised 645 DAT-SPECT with [$^{123}$I]FP-CIT from the Parkinson's Progression Markers Initiative (PPMI) (www.ppmi-info.org/data) [69]. 
-The dataset included 438 patients with Parkinson's disease and 207 healthy controls as described in [46]. 
+The external dataset included 438 patients with Parkinson's disease and 207 healthy controls as described in [46]. 
 Details of the PPMI DAT-SPECT protocol are given at http://www.ppmi-info.org/study-design/research-documents-and-sops/ [69]. 
 Raw projection data has been transferred to the PPMI imaging core lab for central image reconstruction using an iterative (HOSEM) algorithm on a HERMES workstation. 
 The clinical diagnosis was used as gold standard label (Parkinson's disease = ``reduced", healthy control = ``normal"). 
+The external dataset showed lower spatial resolution than the development dataset (lower striatum-to-background contrast).
 
 The third dataset (``MPH dataset") comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE that had been acquired with a triple-head camera equipped with brain-specific multiple pinhole collimators. 
 Multiple pinhole SPECT concurrently improves count sensitivity and spatial resolution compared to SPECT with parallel-hole and fan-beam collimators [70, 71]. 
@@ -38,9 +40,5 @@ All SPECT images were interpreted twice (with different randomization) by the sa
 The delay between the reading sessions was 14 days. 
 Cases with discrepant interpretations between the two reading sessions were read a third time by the same reader to obtain an intra-reader consensus as the gold standard label. 
 The MPH test dataset has not been described previously.
-
-Image characteristics were quite different between the datasets (Figure ???). 
 Compared to the development dataset, the internal test dataset was characterized by better spatial resolution 
 (resulting in higher striatum-to-background contrast) and less statistical noise. 
-The external test dataset showed lower spatial resolution than the development dataset (lower striatum-to-background contrast).
-
