@@ -65,8 +65,9 @@ As a consequence, this approach is not recommended among practitioners, as it te
 
 Against this background, the current work aimed to propose and validate a CNN-based approach for the automatic classification of DAT-SPECT 
 that allows reliable identification of inconclusive cases that might be misclassified by the CNN when the decision threshold is strictly applied.
-The `decision confidence' of the classifier is evaluated on a metric, proposed in the following, that aims to maximize the performance of the classifier
-on between-reader consensus cases while minimizing the potential effort of manual inspection originating from inconclusive cases.
+The `decision confidence' of the classification model is evaluated on a metric, proposed in the following, 
+that aims to maximize the classification performance of the model
+while minimizing the potential effort of manual inspection originating from inconclusive cases.
 
 Starting from the assumption that between-readers discrepancy in the binary visual interpretation of DAT-SPECT is much more likely in inconclusive cases 
 than in conclusive cases, a standard CNN structure was trained for automatic classification of DAT-SPECT using a large training dataset in which each 
@@ -91,9 +92,9 @@ The primary hypothesis put to test in this work was that the sigmoid output of t
 
 To test this hypothesis, the proportion of inconclusive cases required to achieve a given balanced accuracy in the conclusive cases 
 was proposed and used as a performance metric.
-More precisely, the area under the curve (AUC) of balanced accuracy in conclusive cases versus the proportion of inconclusive cases 
+More precisely, the area under the curve (AUC) of mean balanced accuracy in conclusive cases versus the mean proportion of inconclusive cases 
 (observed in the test set) was used as a model-agnostic quality metric. 
-The AUC does not depend on a specific working point (target balanced accuracy).  
+The AUC does not depend on a specific operating point (target balanced accuracy).  
 The rationale for this performance metric is that more inconclusive cases would require more attention and manual inspection 
 by the attending physician which is considered `expensive'
 (“90\% inconclusive cases to achieve the required accuracy in the remaining 10\% of cases is clearly useless”).

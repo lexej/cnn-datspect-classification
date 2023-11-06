@@ -1,6 +1,7 @@
 \section{Discussion}
 \label{sec:discussion}
 
+\subsection{Interpretation of Results}
 
 The primary research hypothesis proposed that a CNN trained using the RLT strategy
 is more effective in identifying inconclusive cases compared to the MVT strategy.
@@ -23,45 +24,70 @@ have a consistent AUC performance advantage over the SBR univariate baseline met
 achieving approximately a 2\% higher AUC result.
 The AUC performance of the multivariate baseline method PCA-RFC closely approaches that of the CNN-based methods 
 on the development data test set and PPMI test dataset.
-However on the more complex MPH test dataset, the AUC performance of the PCA-RFC method is over 3\% lower
+However, on the more complex MPH test dataset, the AUC performance of the PCA-RFC method is over 3\% lower
 compared to that of the CNN-based methods.
 The second hypothesis stated that the CNN-based classification methods are 
 more robust regarding varying image characteristics and thus exhibit better generalizability compared to baseline methods.
 The CNN-based methods outperform both baseline methods on the PPMI and MPH test datasets which differ in image characteristics.
 The performance advantage of the CNN-based methods is more prominent on the more complex MPH dataset.
-Consequently both secondary hypotheses are confirmed by the findings.
+Consequently, both secondary hypotheses are confirmed by the findings.
 
 
+\subsection{Practical Implications}
+
+The findings of the study have practical implications for the classification of DAT-SPECT images.
+First, the study shows that random label selection as a ground-truth label selection strategy 
+can lead to better performance results compared to the majority vote strategy 
+when training a CNN classifier for Parkinson's disease diagnosis.
+Second, the mean AUC of balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs)
+can be used as a metric for comparison of the actual underlying decision confidence of 
+different binary classification models.
+The metric decouples the classification model performance from the arbitrarily chosen inconclusive interval bounds.
+Also, the balanced accuracy on conclusive cases over PIncObs can be used to decide for the model that 
+produces the least relative amount of inconclusive cases for a specified target balanced accuracy.
+The applicability of the metric extends beyond DAT-SPECT classification to general binary classification problems.
+Third, the results once again confirm the superiority of CNN-based methods for DAT-SPECT classification compared to the
+widely adopted SBR method in clinical practice.
 
 
+\subsection{Limitations of the Study}
 
-Some Limitations: 
-- bACC-AUC metric may be less human interpretable compared to the standard AUC, 
-however when usefull to compare performance of classification models
-- Higher SD across random splits is a weak point of the bAcc-AUC metric..
+\subsubsection{Metric}
+
+There are several limitations to be considered that may impact the validity of the applied methods and results.
+The main metric used to compare the model performance, the AUC of mean balanced accuracy over mean PIncObs, 
+depends on a set of inconclusive intervals determined within the validation set of the development dataset 
+for each classification method and randomization individually.
+Since the balanced accuracy and PIncObs are averaged across the results for each random split 
+the reliability of the metric is affected by the standard deviation of both variables across the random splits.
+To enhance the reliability of the metric a higher number of random splits can be used.
+Also, the resolution of the balanced accuracy over PIncObs decreases as the density of test set 
+predictions around the cutoff increases in comparison to the validation set predictions.
+Finally the metric may be less intuitively understandable and requires more expertise when interpreting the results
+when compared to standard metrics such as balanced accuracy and ROC-AUC.
 
 
-%Interpretation of Results:
-%Analyze the findings in the context of the research questions and objectives.
+\subsubsection{Site-Specific Development Data}
 
-%Comparison with Baseline Methods:
-%%Discuss how Method 1, Method 2, and Method 3 compare with Baseline A and Baseline B.
+To increase the heterogeneity of the training data and enhance the generalizability 
+of the classification models the development dataset was augmented as described in Section~\ref{subsec:augment}.
+However the results, presented in Figure~\ref{fig:auc_comparison_methods_data}, 
+show that AUC performance on the MPH test across all considered classification methods, 
+is significantly lower than on the test set of the development dataset.
+The reason for that can be a site-specific bias introduced by training on data from one site (development dataset).
+Future research efforts should aim to include development data from multiple sites 
+to enhance the overall robustness of the classification methods and results.
 
-%Identification of Patterns/Trends:
-%Identify any patterns or trends in the results and discuss their significance.
 
-%Addressing Research Questions:
-%Discuss how well the research questions were answered based on the results.
-
-%Limitations and Challenges:
 %Address any limitations in the methodology or data that might have affected the results.
 %Discuss challenges faced during the experiments.
 
-%Implications and Applications:
-%Discuss the practical implications of the results in real-world ML applications.
 
-%Future Work:
-%Propose directions for future research based on the outcomes and limitations of the current study.
+%\subsection{Future Research}
+%Future research ->  directions for future research based on the outcomes and limitations of the current study
 
-%Conclusion:
-%Summarize the key points discussed in the evaluation and discussion chapters.
+
+
+
+
+% Conclusion -> key points discussed in the evaluation and discussion chapters.
