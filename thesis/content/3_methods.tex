@@ -1,7 +1,7 @@
 \section{Methods}
 \label{sec:methods}
 
-% TODO -> What happens in chapter
+\textit{TODO -> What happens in chapter}
 
 % the chapter...
 It concludes with an examination of the significant performance metrics utilized for the evaluation of 
@@ -45,7 +45,7 @@ using the Normalize tool of the Statistical Parametric Mapping software package 
 representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target [73]. 
 The voxel size of the stereotactically normalized images was 2x2x2 mm$^{3}$. 
 Intensity normalization was achieved by voxelwise scaling to the individual 75th percentile of the voxel intensity in a reference region 
-comprising the whole brain without striata, thalamus, brainstem, cerebellum, and ventricles [74]. 
+comprising the whole brain without striata, thalamus, medial temporal lobe, brainstem, cerebellum, and ventricles [74]. 
 The resulting images are distribution volume (DVR) images. 
 A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 mm edge length was obtained by averaging 6 transversal slices through the striatum [75]. 
 
@@ -54,7 +54,7 @@ A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 
 
 Data augmentation was applied to the development dataset to increase the heterogeneity of the data.
 To enhance robustness across various attenuation correction and scatter correction methods, 
-each image was generated in a version with and without attenuation and scatter corrections applied.
+each image was generated in a version with and without attenuation and scatter corrections applied~\citep{Schiebler2023}.
 Also 3D-smoothing was employed for augmentation using an isotropic Gaussian kernel with various 
 Full Width at Half Maximum (FWHM) values (FWHM = 10, 12, 14, 16, 18mm).
 Thereby an augmented dataset of 20,880 images in total was constructed based on 1,740 cases.
@@ -88,24 +88,25 @@ Thereby inter-subset data leakage was prohibited.
 The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) was used as a benchmark classification method.
 Here, the SBR in left and right putamen was obtained by hottest voxels (HV) analysis of the stereotactically normalized 
 DVR image using large unilateral putamen masks predefined in MNI space [46].
-It can be calculated as 
+The unilateral hottest voxel SBR was calculated as
 
 \begin{equation}\label{eq:sbr}
-  \text{HV-SBR}_{unilateral} = \frac{1}{K} \sum_{k} \hat{I}_{k, ROI} \;,
+  \text{HV-SBR}_{unilateral} = \frac{1}{K_{\text{10ml}}} \sum_{k} \hat{I}_{k, ROI} \;,
 \end{equation}
 
-where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K$-hottest voxels of the unilateral ROI.
+where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K_{\text{10ml}}$-hottest voxels 
+comprising a total volume of 10 ml within the unilateral ROI.
 The voxel intensities of the hottest voxels are normalized to the 75th percentile of the voxel intensities 
 in the reference region associated with non-specific binding [46].
 The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
 An in-depth elaboration on SBR analysis can be found in [46].
 
-The SBR-based classifier was obtained as follows.
+The SBR-based classifier was obtained for each of the random splits as follows.
 First the SBR was calculated for each case in the training set.
 Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
 The determined optimal cutoff was then used as the decision boundary between normal cases (NC) and Parkinson's disease (PD) 
-and evaluated on the test split of the development dataset for each of the random splits.
-Also the determined cutoff was evaluated on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
+and evaluated on the test set of the development dataset.
+Also the determined cutoff was evaluated on the PPMI and MPH test datasets described in Section~\ref{subsec:external_dataset}.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
@@ -132,7 +133,7 @@ In addition, the trained model was tested on the PPMI and MPH datasets described
 \begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/pca_components_splittrain.png}
-  \caption{Principle components of the training set (development dataset) for one of the random splits.} 
+  \caption{Principle components of the training set (development dataset) for the first random split.} 
   \label{fig:pca_components}
 \end{figure} 
 
