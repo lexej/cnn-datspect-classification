@@ -42,12 +42,13 @@ In the following, the data preparation techniques applied to the development dat
 
 Individual DAT-SPECT images were stereotactically normalized to the anatomical space of the Montreal Neurological Institute (MNI) 
 using the Normalize tool of the Statistical Parametric Mapping software package (version SPM12) and a set of custom DAT-SPECT templates 
-representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target [73]. 
+representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target~\citep{Apostolova2023-ec}.
 The voxel size of the stereotactically normalized images was 2x2x2 mm$^{3}$. 
 Intensity normalization was achieved by voxelwise scaling to the individual 75th percentile of the voxel intensity in a reference region 
-comprising the whole brain without striata, thalamus, medial temporal lobe, brainstem, cerebellum, and ventricles [74]. 
+comprising the whole brain without striata, thalamus, medial temporal lobe, brainstem, cerebellum, and ventricles~\citep{Kupitz2014-ll}.
 The resulting images are distribution volume (DVR) images. 
-A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 mm edge length was obtained by averaging 6 transversal slices through the striatum [75]. 
+A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 mm edge length was obtained 
+by averaging 6 transversal slices through the striatum~\citep{Buchert2006-pt}.
 
 \subsubsection{Data Augmentation}
 \label{subsec:augment}
@@ -87,7 +88,7 @@ Thereby inter-subset data leakage was prohibited.
 
 The unilateral [$^{123}$I]FP-CIT specific binding ratio (SBR) was used as a benchmark classification method.
 Here, the SBR in left and right putamen was obtained by hottest voxels (HV) analysis of the stereotactically normalized 
-DVR image using large unilateral putamen masks predefined in MNI space [46].
+DVR image using large unilateral putamen masks predefined in MNI space~\citep{Wenzel2019}.
 The unilateral hottest voxel SBR was calculated as
 
 \begin{equation}\label{eq:sbr}
@@ -97,9 +98,9 @@ The unilateral hottest voxel SBR was calculated as
 where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K_{\text{10ml}}$-hottest voxels 
 comprising a total volume of 10 ml within the unilateral ROI.
 The voxel intensities of the hottest voxels are normalized to the 75th percentile of the voxel intensities 
-in the reference region associated with non-specific binding [46].
+in the reference region associated with non-specific binding~\citep{Wenzel2019}.
 The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
-An in-depth elaboration on SBR analysis can be found in [46].
+An in-depth elaboration on SBR analysis can be found in~\cite{Wenzel2019}.
 
 The SBR-based classifier was obtained for each of the random splits as follows.
 First the SBR was calculated for each case in the training set.
