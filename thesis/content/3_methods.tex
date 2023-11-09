@@ -24,7 +24,7 @@ utilized in this project.
 \textit{Pandas} was used for efficient structured data manipulation and analysis.
 \textit{Matplotlib} and \textit{Seaborn} were employed for the creation of customized data visualizations.
 The \textit{Scikit-Learn} library provided machine learning models and model evaluation tools utilized in this project, 
-whereas Scipy was used for data interpolation.
+whereas \textit{Scipy} was used for data interpolation.
 
 % seeds were set 
 The seeds of the random number generators in each package were initialized to ensure reproducibility.
@@ -44,7 +44,7 @@ Individual DAT-SPECT images were stereotactically normalized to the anatomical s
 using the Normalize tool of the Statistical Parametric Mapping software package (version SPM12) and a set of custom DAT-SPECT templates 
 representative of normal and different levels of Parkinson-typical reduction of striatal uptake as target~\citep{Apostolova2023-ec}.
 The voxel size of the stereotactically normalized images was 2x2x2 mm$^{3}$. 
-Intensity normalization was achieved by voxelwise scaling to the individual 75th percentile of the voxel intensity in a reference region 
+Intensity normalization was achieved by voxelwise scaling to the individual $75^{\text{th}}$ percentile of the voxel intensity in a reference region 
 comprising the whole brain without striata, thalamus, medial temporal lobe, brainstem, cerebellum, and ventricles~\citep{Kupitz2014-ll}.
 The resulting images are distribution volume (DVR) images. 
 A 2-dimensional transversal DVR slab of 12mm thickness and 91x109 pixels with 2 mm edge length was obtained 
@@ -56,32 +56,40 @@ by averaging 6 transversal slices through the striatum~\citep{Buchert2006-pt}.
 Data augmentation was applied to the development dataset to increase the heterogeneity of the data.
 To enhance robustness across various attenuation correction and scatter correction methods, 
 each image was generated in a version with and without attenuation and scatter corrections applied~\citep{Schiebler2023}.
-Also 3D-smoothing was employed for augmentation using an isotropic Gaussian kernel with various 
-Full Width at Half Maximum (FWHM) values (FWHM = 10, 12, 14, 16, 18mm).
+Also, 3D-smoothing of the 3-dimensional SPECT images in MNI space 
+was performed before computing the 2-dimensional slabs as an augmentation technique.
+A 3-dimensional isotropic Gaussian kernel with various Full Width at Half Maximum (FWHM) 
+values (FWHM = 10, 12, 14, 16, 18mm) was used for the smoothing.
 Thereby an augmented dataset of 20,880 images in total was constructed based on 1,740 cases.
-An example of two cases augmented using the described techniques is depicted in Figure~\ref{fig:dev_dataset}.
+Two representative cases augmented using the described techniques are depicted in Figure~\ref{fig:dev_dataset}.
 
 \begin{figure}[t]
     \centering
     \colorbox{black}{%
      \includegraphics[width=0.9\textwidth]{content/figures/dev_dataset.png}%
      }
-    \caption{Images obtained through augmentation of two sample cases from the development dataset, 
-    a healthy case (above) and a PD case with reduced availability of DAT in the striatum (below).} 
+    \caption{DVR slabs for two sample cases from the development dataset, 
+    a healthy control case (above) and a PD case with reduced availability of DAT in the striatum (below).
+    The two cases are presented in 12 different versions.
+    In each version, attenuation and scatter corrections are either applied (`withASC') or not applied (`woASC').
+    Also, for each version, isotropic 3-dimensional Gaussian kernel smoothing with different FWHM values (10, 12, 14, 16, 18mm) was 
+    either performed or not performed (`original').} 
     \label{fig:dev_dataset}
-  \end{figure} 
+\end{figure}
 
 \subsubsection{Dataset Splitting}
 \label{subsec:split}
 
 % How was dev dataset split
 Ten distinct random splits were created from the augmented development dataset, 
-resulting in ten unique combinations of training, validation, and test sets for the conducted experiments.
+resulting in ten different combinations of training, validation, and test sets for the conducted experiments.
 In each random split, the data distribution was as follows: 
 60\% for the training set, 20\% for the validation set, and 20\% for the test set.
-While splitting the data it was ensured that the augmented images associated with a concrete patient were put 
-only into one subset.
-Thereby inter-subset data leakage was prohibited.
+While splitting the data it was ensured that all augmented images associated with a given patient were put 
+into the same subset.
+Thereby, randomization into training, validation and test set was performed 
+on the level of patients rather than on the level of single images.
+Thereby inter-subset leakage of images from the same patient was avoided.
 
 \subsection{Univariate benchmark: Specific Binding Ratio}
 \label{subsec:sbr}
@@ -97,7 +105,7 @@ The unilateral hottest voxel SBR was calculated as
 
 where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K_{\text{10ml}}$-hottest voxels 
 comprising a total volume of 10 ml within the unilateral ROI.
-The voxel intensities of the hottest voxels are normalized to the 75th percentile of the voxel intensities 
+The voxel intensities of the hottest voxels are normalized to the $75^{\text{th}}$ percentile of the voxel intensities 
 in the reference region associated with non-specific binding~\citep{Wenzel2019}.
 The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
 An in-depth elaboration on SBR analysis can be found in~\cite{Wenzel2019}.
