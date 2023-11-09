@@ -18,13 +18,12 @@ limitations of the research methods employed.
 \subsection{Baseline Performance}
 \label{subsec:baseline_performance}
 
-In this section, the performance of the SBR method, a widely recognized technique in the field, 
-is thoroughly evaluated. 
+In this section, the performance of the SBR method is thoroughly evaluated. 
 Furthermore the outcomes for the multivariate PCA-RFC method are also provided as additional baseline.
 The objective of this evaluation is twofold: to comprehend the inherent capabilities of the baseline methods, SBR and
 PCA-RFC, and to establish a clear point of reference for the CNN-based methodologies.
 
-\subsubsection{SBR Method Results}
+\subsubsection{SBR Method}
 \label{subsubsec:eval_sbr}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,17 +34,16 @@ PCA-RFC, and to establish a clear point of reference for the CNN-based methodolo
 \subparagraph{Binary classification performance}
 
 Table~\ref{t1:sbr_perf_eval_table} presents the quantitative performance 
-(Balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the SBR-based classification on the 
+(balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the SBR-based classification on the 
 particular subset of the Development dataset.
 In the evaluation process, the optimal SBR cutoff value of 0.703 (with a variation of $\pm$0.009 across random splits) 
 was employed.
-The SBR method consistently achieves around 93\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
-on the training set, with a variance around 0.5\% across random splits.
-The performance on validation and test set is also around 93\% with respect to all the metrics
-with a slightly higher variance across random splits (0.5-2\%) compared to training set.
-The comparable sensitivity and specificity imply a well-balanced SBR model which 
+The SBR method consistently achieved around 93\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
+on the validation set, with a variance between 0.5-1.5\% across random splits.
+The performance on training and test sets is also similarly around 93\% with respect to all the metrics.
+The comparable sensitivity and specificity imply a well-balanced SBR model that 
 identifies both positive and negative cases similarly well.
-The SBR model achieves a stable AUC-ROC of 0.983$\pm$0.002.
+The SBR model achieved a stable AUC-ROC of 0.983$\pm$0.002.
 
 
 \begin{table}[ht]
@@ -111,7 +109,7 @@ This can be attributed to the nearly identical distribution of data in both the 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_development}
 \end{figure} 
 
-\subparagraph{AUC for balanced accuracy over PIncObs}
+\subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
 Figure~\ref{fig:bacc_obsInconclCases_sbr_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
 on both conclusive and inconclusive cases as a function of the mean PIncObs
@@ -123,9 +121,8 @@ is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsIncon
 The mean of the balanced accuracy rises from approximately 94\% 
 when there are around 1\% of inconclusive cases in the test set to about 98\% 
 when there are around 20\% of inconclusive cases in the test set.
-The SBR baseline method attains a relative AUC of 96.38\% for the mean balanced accuracy on conclusive cases
+The SBR baseline method attains a relative AUC-bACC of 96.38\% for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set of the development dataset.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 % bacc_obsInconclCases_sbr_development_full
 \begin{figure}[ht]
@@ -146,7 +143,8 @@ For better illustration the area under the mean of the balanced accuracy is high
     \caption{Evaluation of the SBR method on Test Set of Development dataset.
     Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
     (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-    Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+    Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set).
+    For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_sbr_development_full}
 \end{figure}
 
@@ -171,9 +169,8 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_ppmi}.
 The mean of the balanced accuracy rises from approximately 96\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
-The SBR baseline method achieves a relative AUC of 97.51\% for the mean balanced accuracy on conclusive cases 
+The SBR baseline method achieved a relative AUC-bACC of 97.51\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the PPMI test dataset.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_concl_sbr_ppmi
@@ -190,7 +187,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset.}
+    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_sbr_ppmi}
   \end{subfigure}
   \caption{Evaluation of the SBR method on PPMI dataset.}
@@ -215,9 +212,8 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_sbr_mph}.
 The mean of the balanced accuracy rises from approximately 91.5\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 95\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
-The SBR baseline method achieves a relative AUC of 93.46\% for the mean balanced accuracy on conclusive cases 
+The SBR baseline method achieved a relative AUC-bACC of 93.46\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the MPH test dataset.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_sbr_mph and bacc_obsInconclCases_concl_sbr_mph
@@ -234,7 +230,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset.}
+    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_sbr_mph}
   \end{subfigure}
   \caption{Evaluation of the SBR method on MPH dataset.}
@@ -246,7 +242,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection{PCA-RFC Method Results}
+\subsubsection{PCA-RFC Method}
 \label{subsubsec:eval_rfc}
 
 
@@ -258,12 +254,12 @@ For better illustration the area under the mean of the balanced accuracy is high
 % Evaluation on Development dataset
 
 Table~\ref{t1:erc_perf_eval_table} presents the quantitative performance 
-(Balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the PCA-RFC classification on the 
+(balanced accuracy, accuracy, sensitivity, specificity, PPV, NPV and AUC-ROC) of the PCA-RFC classification on the 
 particular subset of the Development dataset.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
-The PCA-RFC method achieves around 96\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
+The PCA-RFC method achieved around 96\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
 on the validation and test set, with a variance around 1\% across random splits.
-The SBR model achieves a stable AUC-ROC of 0.994$\pm$0.002.
+The SBR model achieved a stable AUC-ROC of 0.994$\pm$0.002.
 
 
 \begin{table}[ht]
@@ -329,7 +325,7 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-\subparagraph{AUC for balanced accuracy over PIncObs}
+\subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
 Figure~\ref{fig:bacc_obsInconclCases_pca_rfc_development} shows the balanced accuracy (mean$\pm$SD across random splits) 
 on both conclusive and inconclusive cases as a function of the mean PIncObs
@@ -341,9 +337,8 @@ is depicted with enhanced clarity and precision in Figure~\ref{fig:bacc_obsIncon
 The mean of the balanced accuracy rises from approximately 97\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
-As a result, the PCA-RFC baseline method achieves a relative AUC of 98.71\% for the mean balanced accuracy on conclusive cases
+As a result, the PCA-RFC baseline method achieved a relative AUC-bACC of 98.71\% for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set of the development dataset.
-The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
 % bacc_obsInconclCases_pca_rfc_development_full
@@ -365,7 +360,8 @@ The area under the mean of the balanced accuracy is highlighted for better illus
   \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). 
+  The area under the mean of the balanced accuracy is highlighted for better illustration.}
   \label{fig:bacc_obsInconclCases_pca_rfc_development_full}
 \end{figure}
 
@@ -389,10 +385,8 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
-The PCA-RFC baseline method achieves a relative AUC of 99.12\% for the mean balanced accuracy on conclusive cases 
+The PCA-RFC baseline method achieved a relative AUC-bACC of 99.12\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the PPMI test dataset.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
-
 
 % obsInconclCases_inconclCasesValid_pca_rfc_ppmi and bacc_obsInconclCases_concl_pca_rfc_ppmi
 \begin{figure}[ht]
@@ -408,7 +402,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_concl_pca_rfc_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset.}
+    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on PPMI dataset.}
@@ -433,9 +427,8 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_pca_rfc_mph}.
 The mean of the balanced accuracy rises from approximately 90.5\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 94\% 
 when there are around 19\% of inconclusive cases in the MPH test set.
-As a result, the PCA-RFC baseline method achieves a relative AUC of 92.42\% for the mean balanced accuracy on conclusive cases 
+As a result, the PCA-RFC baseline method achieved a relative AUC-bACC of 92.42\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the MPH test dataset.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_pca_rfc_mph and bacc_obsInconclCases_concl_pca_rfc_mph
@@ -452,7 +445,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_concl_pca_rfc_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset.}
+    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_mph}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on MPH dataset.}
@@ -468,7 +461,7 @@ to the results obtained by the baseline approaches.
 First the results for the CNN-MVT method are presented, whereafter the CNN-RLT method is evaluated.
 Finally the findings for the CNN-Regression method are showcased.
 
-\subsubsection{CNN-MVT Method Results}
+\subsubsection{CNN-MVT Method}
 \label{subsubsec:eval_mvt}
 
 % Evaluation on Development dataset
@@ -481,10 +474,10 @@ Finally the findings for the CNN-Regression method are showcased.
 The quantitative performance results of the CNN-MVT classification on the 
 particular subset of the Development dataset are presented in Table~\ref{t1:cnn_mvt_perf_eval_table}.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
-The CNN-MVT method achieves around 96.4\% in sensitivity, 97.6\% in specificity and a balanced accuracy of 97.0\%, 
+The CNN-MVT method achieved around 96.4\% in sensitivity, 97.6\% in specificity and a balanced accuracy of 97.0\%, 
 with a variance between 1-2\% across random splits, on the test set.
 The performance results on the validation set are very similar.
-The method achieves a stable AUC-ROC of 0.996$\pm$0.002.
+The method achieved a stable AUC-ROC of 0.996$\pm$0.002.
 
 
 \begin{table}[ht]
@@ -553,7 +546,7 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-\subparagraph{AUC for balanced accuracy over PIncObs}
+\subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs
 in the test set (development dataset) 
@@ -561,11 +554,10 @@ is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_deve
 The mean of the balanced accuracy rises from about 97\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
-As a result, the CNN-MVT method achieves a relative AUC of 98.95\% for the mean balanced accuracy on conclusive cases
+As a result, the CNN-MVT method achieved a relative AUC-bACC of 98.95\% for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set of the development dataset.
-The achieved relative AUC is approximately 2.5\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.5\% higher than that of the SBR baseline method 
 and around 0.2\% higher than the PCA-RFC baseline.
-The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
 % bacc_obsInconclCases_baseline_majority_development_full
@@ -587,7 +579,8 @@ The area under the mean of the balanced accuracy is highlighted for better illus
   \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). 
+  The area under the mean of the balanced accuracy is highlighted for better illustration.}
   \label{fig:bacc_obsInconclCases_baseline_majority_development_full}
 \end{figure}
 
@@ -611,12 +604,10 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}.
 The mean of the balanced accuracy rises from approximately 98\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
-The CNN-MVT method achieves a relative AUC of 99.23\% for the mean balanced accuracy on conclusive cases 
+The CNN-MVT method achieved a relative AUC-bACC of 99.23\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the PPMI test dataset.
-The achieved relative AUC is approximately 1.7\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 1.7\% higher than that of the SBR baseline method 
 and around 0.1\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
-
 
 % obsInconclCases_inconclCasesValid_baseline_majority_ppmi and bacc_obsInconclCases_concl_baseline_majority_ppmi
 \begin{figure}[ht]
@@ -632,7 +623,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_concl_baseline_majority_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset.}
+    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on PPMI dataset.}
@@ -659,11 +650,10 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_mph}.
 The mean of the balanced accuracy increases from approximately 95\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 96\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
-As a result, the CNN-MVT method achieves a relative AUC of 95.73\% for the mean balanced accuracy on conclusive cases 
+As a result, the CNN-MVT method achieved a relative AUC-bACC of 95.73\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the MPH test dataset.
-The achieved relative AUC is approximately 2.3\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.3\% higher than that of the SBR baseline method 
 and around 3.3\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_baseline_majority_mph and bacc_obsInconclCases_concl_baseline_majority_mph
@@ -680,7 +670,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_concl_baseline_majority_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset.}
+    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on MPH dataset.}
@@ -688,7 +678,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 \end{figure}
 
 
-\subsubsection{CNN-RLT Method Results}
+\subsubsection{CNN-RLT Method}
 \label{subsubsec:eval_rlt}
 
 % Evaluation on Development dataset
@@ -701,10 +691,10 @@ For better illustration the area under the mean of the balanced accuracy is high
 The quantitative performance results of the CNN-RLT classification on the 
 particular subset of the Development dataset are presented in Table~\ref{t1:cnn_rlt_perf_eval_table}.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
-The CNN-RLT method achieves around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.3\%, 
+The CNN-RLT method achieved around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.3\%, 
 with a variance between 0.5-1.5\% across random splits, on the test set.
 The performance results on the validation set are similar.
-The method achieves a stable AUC-ROC of 0.994$\pm$0.002.
+The method achieved a stable AUC-ROC of 0.994$\pm$0.002.
 
 
 \begin{table}[ht]
@@ -776,18 +766,17 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-\subparagraph{AUC for balanced accuracy over PIncObs}
+\subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs in the test set (development dataset) 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_development}.
 The mean of the balanced accuracy rises from about 97.5\% 
 when there are around 1\% of inconclusive cases in the test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the test set.
-As a result, the CNN-RLT method achieves a relative AUC of 99.02\% for the mean balanced accuracy on conclusive cases
+As a result, the CNN-RLT method achieved a relative AUC-bACC of 99.02\% for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set of the development dataset.
-The achieved relative AUC is approximately 2.6\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.6\% higher than that of the SBR baseline method 
 and around 0.3\% higher than the PCA-RFC baseline.
-The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
 % bacc_obsInconclCases_baseline_random_development_full
@@ -809,7 +798,8 @@ The area under the mean of the balanced accuracy is highlighted for better illus
   \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). 
+  The area under the mean of the balanced accuracy is highlighted for better illustration.}
   \label{fig:bacc_obsInconclCases_baseline_random_development_full}
 \end{figure}
 
@@ -835,11 +825,10 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_ppmi}.
 The mean of the balanced accuracy rises from approximately 98.5\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
-The CNN-RLT method achieves a relative AUC of 99.31\% for the mean balanced accuracy on conclusive cases 
+The CNN-RLT method achieved a relative AUC-bACC of 99.31\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the PPMI test dataset.
-The achieved relative AUC is approximately 1.8\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 1.8\% higher than that of the SBR baseline method 
 and around 0.2\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_baseline_random_ppmi and bacc_obsInconclCases_concl_baseline_random_ppmi
@@ -856,7 +845,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_concl_baseline_random_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset.}
+    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_baseline_random_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-RLT method on PPMI dataset.}
@@ -880,11 +869,10 @@ in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_random_mph}.
 The mean of the balanced accuracy slightly increases from approximately 95\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 96\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
-As a result, the CNN-RLT method achieves a relative AUC of 96.12\% for the mean balanced accuracy on conclusive cases 
+As a result, the CNN-RLT method achieved a relative AUC-bACC of 96.12\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the MPH test dataset.
-The achieved relative AUC is approximately 2.7\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.7\% higher than that of the SBR baseline method 
 and around 3.7\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_baseline_random_mph and bacc_obsInconclCases_concl_baseline_random_mph
@@ -901,7 +889,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_concl_baseline_random_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset.}
+    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_baseline_random_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-RLT method on MPH dataset.}
@@ -909,7 +897,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 \end{figure}
 
 
-\subsubsection{CNN-Regression Method Results}
+\subsubsection{CNN-Regression Method}
 \label{subsubsec:eval_regression}
 
 
@@ -922,11 +910,11 @@ For better illustration the area under the mean of the balanced accuracy is high
 The quantitative performance results of the CNN-Regression classification on the 
 particular subset of the Development dataset are presented in Table~\ref{t1:cnn_regression_perf_eval_table}.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
-The CNN-Regression method achieves around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.5\%, 
+The CNN-Regression method achieved around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.5\%, 
 with a standard deviation between 0.6-1.1\% across random splits, on the test set.
 The performance results on the validation set are a balanced accuracy of 97.7\%, a sensitivity of 98.3\% 
 and a specificity of 97.2\%.
-The method achieves a stable AUC-ROC of 0.998$\pm$0.001.
+The method achieved a stable AUC-ROC of 0.998$\pm$0.001.
 
 
 \begin{table}[ht]
@@ -999,17 +987,16 @@ identity line is small which can be attributed to the nearly identical distribut
 \end{figure} 
 
 
-\subparagraph{AUC for balanced accuracy over PIncObs}
+\subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
 The balanced accuracy (mean$\pm$SD) on conclusive cases over the mean PIncObs in the test set (development dataset) 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_development}.
 The mean of the balanced accuracy rises from about 98\% when there is a PIncObs of 1\% in the test set 
 to about 99.5\% when there is a PIncObs around 20\% in the test set.
-As a result, the CNN-Regression method achieves a relative AUC of 99.23\% for the mean balanced accuracy on conclusive cases
+As a result, the CNN-Regression method achieved a relative AUC-bACC of 99.23\% for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set of the development dataset.
-The achieved relative AUC is approximately 2.8\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.8\% higher than that of the SBR baseline method 
 and around 0.5\% higher than the PCA-RFC baseline.
-The area under the mean of the balanced accuracy is highlighted for better illustration.
 
 
 % bacc_obsInconclCases_regression_development_full
@@ -1031,7 +1018,8 @@ The area under the mean of the balanced accuracy is highlighted for better illus
   \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.
   Balanced accuracy for a given mean percentage of observed inconclusive cases in the test set on 
   (a) both conclusive and inconclusive cases and (b) only conclusive cases. 
-  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). }
+  Each of the mean percentages of observed inconclusive cases is associated with an inconclusive range (determined in the validation set). 
+  The area under the mean of the balanced accuracy is highlighted for better illustration.}
   \label{fig:bacc_obsInconclCases_regression_development_full}
 \end{figure}
 
@@ -1055,11 +1043,10 @@ The balanced accuracy on conclusive cases over the mean PIncObs is presented in 
 The mean of the balanced accuracy rises from approximately 98.5\% 
 when there are around 1\% of inconclusive cases in the PPMI test set to about 99.5\% 
 when there are around 20\% of inconclusive cases in the PPMI test set.
-The CNN-Regression method achieves a relative AUC of 99.38\% for the mean balanced accuracy on conclusive cases 
+The CNN-Regression method achieved a relative AUC-bACC of 99.38\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the PPMI test dataset.
-The achieved relative AUC is approximately 1.9\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 1.9\% higher than that of the SBR baseline method 
 and around 0.3\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_regression_ppmi and bacc_obsInconclCases_concl_regression_ppmi
@@ -1076,7 +1063,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset.}
+    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_regression_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-Regression method on PPMI dataset.}
@@ -1101,11 +1088,10 @@ is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_mph}.
 The mean of the balanced accuracy slightly increases from approximately 95\% 
 when there are around 1\% of inconclusive cases in the MPH test set to about 96.5\% 
 when there are around 20\% of inconclusive cases in the MPH test set.
-As a result, the CNN-Regression method achieves a relative AUC of 96.24\% for the mean balanced accuracy on conclusive cases 
+As a result, the CNN-Regression method achieved a relative AUC-bACC of 96.24\% for the mean balanced accuracy on conclusive cases 
 over the mean PIncObs in the MPH test dataset.
-The achieved relative AUC is approximately 2.8\% higher than that of the SBR baseline method 
+The achieved relative AUC-bACC is approximately 2.8\% higher than that of the SBR baseline method 
 and around 3.8\% higher than the PCA-RFC baseline.
-For better illustration the area under the mean of the balanced accuracy is highlighted.
 
 
 % obsInconclCases_inconclCasesValid_regression_mph and bacc_obsInconclCases_concl_regression_mph
@@ -1122,7 +1108,7 @@ For better illustration the area under the mean of the balanced accuracy is high
     \centering
     \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset.}
+    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
     \label{fig:bacc_obsInconclCases_concl_regression_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-Regression method on MPH dataset.}
@@ -1135,7 +1121,7 @@ For better illustration the area under the mean of the balanced accuracy is high
 
 In this section, a summary comparison of the performance between the baseline and experimental methods is presented.
 The comparison focuses on two aspects: transferability of inconclusive intervals (in both validation and test sets) 
-and the AUC of balanced accuracy on conclusive cases across varying percentages of observed inconclusive cases (PIncObs).
+and the AUC-bACC of balanced accuracy on conclusive cases across varying percentages of observed inconclusive cases (PIncObs).
 To support the analysis visually one comparison figure is used for each aspect tested on a specific dataset.
 The comparison is carried out for the test set of the development data, 
 the PPMI dataset and the MPH dataset, respectively.
@@ -1153,12 +1139,12 @@ The mean of PIncObs can be reliably used for the calculation of the main metric 
 
 In Figure~\ref{fig:test_dev}, the performance comparison of the methods on the test set (development dataset) 
 concerning the main metric of this work, 
-the relative AUC for the mean balanced accuracy on conclusive cases
+the relative AUC-bACC for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set, is shown.
 In general, the CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $99.23\%$) method 
-whereas the lowest AUC is that for the SBR-based method (relative AUC: $96.38\%$).
-The CNN-RLT method achieves slightly higher performance than the CNN-MVT.
+whereas the lowest AUC-bACC is that for the SBR-based method (relative AUC: $96.38\%$).
+The CNN-RLT method achieved slightly higher performance than the CNN-MVT.
 
 
 % Method Comparison of obsInconclCases_inconclCasesValid - Development test set
@@ -1252,12 +1238,12 @@ for the CNN-MVT and CNN-Regression methods compared to the baseline methods and 
 That indicates that, on average, the CNN-MVT and CNN-Regression methods are supposedly less certain 
 about the PPMI dataset predictions compared to the other methods.
 
-The performance comparison of the methods concerning the relative AUC for the mean balanced accuracy on conclusive cases 
+The performance comparison of the methods concerning the relative AUC-bACC for the mean balanced accuracy on conclusive cases 
 over the PIncObs in the PPMI dataset is depicted in Figure~\ref{fig:test_ppmi}.
 The CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $99.38\%$) method 
-whereas the lowest AUC is that for the SBR-based method (relative AUC: $97.51\%$).
-The CNN-RLT method achieves slightly higher performance (relative AUC: $99.31\%$) than the CNN-MVT (relative AUC: $99.23\%$).
+whereas the lowest AUC-bACC is that for the SBR-based method (relative AUC: $97.51\%$).
+The CNN-RLT method achieved slightly higher performance (relative AUC: $99.31\%$) than the CNN-MVT (relative AUC: $99.23\%$).
 
 
 % Method Comparison of obsInconclCases_inconclCasesValid - PPMI
@@ -1352,12 +1338,12 @@ However the highest deviation of the mean PIncObs from the identity line shows t
 and thus shows the lowest supposed certainty about the MPH dataset predictions, on average.
 
 In Figure~\ref{fig:test_mph} the performance comparison of the methods 
-concerning the relative AUC for the mean balanced accuracy on conclusive cases over the PIncObs 
+concerning the relative AUC-bACC for the mean balanced accuracy on conclusive cases over the PIncObs 
 in the MPH dataset is presented.
 As for the other test datasets, CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $96.24\%$) method 
-whereas the lowest AUC is that for the baseline PCA-RFC method (relative AUC: $92.42\%$).
-The CNN-RLT method achieves slightly higher performance (relative AUC: $96.12\%$) 
+whereas the lowest AUC-bACC is that for the baseline PCA-RFC method (relative AUC: $92.42\%$).
+The CNN-RLT method achieved slightly higher performance (relative AUC: $96.12\%$) 
 than the CNN-MVT (relative AUC: $95.73\%$).
 
 
@@ -1441,20 +1427,20 @@ than the CNN-MVT (relative AUC: $95.73\%$).
 \subsection{Conclusion}
 
 A concluding overview of the performance of the methods on different test datasets 
-concerning the relative AUC for the mean balanced accuracy on conclusive cases over the PIncObs 
+concerning the relative AUC-bACC for the mean balanced accuracy on conclusive cases over the PIncObs 
 is summarized in Figure~\ref{fig:auc_comparison_methods_data}.
-The AUC performance on the MPH test dataset is lower than that on the development data test set and PPMI test dataset 
+The AUC-bACC performance on the MPH test dataset is lower than that on the development data test set and PPMI test dataset 
 across all considered classification methods.
 The CNN-based methods outperform the baseline methods, most remarkably on the MPH dataset.
 The best performance is achieved by the CNN-Regression method, followed by the CNN-RLT and CNN-MVT methods.
 
 
-% AUC bAcc comparison of different methods and dataset
+% AUC-bACC comparison of different methods and dataset
 \begin{figure}[ht]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/evaluations/auc_main_comparison.png}
-  \caption{AUC achieved by baseline and experimental methods on different test data. 
-  The AUC was calculated for the mean balanced accuracy over the percentage of inconclusive cases 
+  \caption{AUC-bACC achieved by baseline and experimental methods on different test data. 
+  The AUC-bACC was calculated for the mean balanced accuracy over the percentage of inconclusive cases 
   in the considered test set.} 
   \label{fig:auc_comparison_methods_data}
 \end{figure} 
