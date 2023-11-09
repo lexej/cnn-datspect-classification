@@ -100,22 +100,24 @@ DVR image using large unilateral putamen masks predefined in MNI space~\citep{We
 The unilateral hottest voxel SBR was calculated as
 
 \begin{equation}\label{eq:sbr}
-  \text{HV-SBR}_{unilateral} = \frac{1}{K_{\text{10ml}}} \sum_{k} \hat{I}_{k, ROI} \;,
+  \text{HV-SBR}_{unilateral} = \left( \frac{1}{K_{\text{10ml}}} \sum_{k} \hat{I}_{k, ROI} \right) - 1 \;,
 \end{equation}
 
-where $\hat{I}_{k, ROI}$ are the \textit{normalized} voxel intensities of the $K_{\text{10ml}}$-hottest voxels 
-comprising a total volume of 10 ml within the unilateral ROI.
+where $\hat{I}_{k, ROI}$ represent the \textit{normalized} voxel intensities of the $K_{\text{10ml}}$
+hottest voxels (i.e., voxels with the highest intensity) comprising a total volume of 10 ml 
+within the unilateral putamen ROI in the DVR image.
 The voxel intensities of the hottest voxels are normalized to the $75^{\text{th}}$ percentile of the voxel intensities 
 in the reference region associated with non-specific binding~\citep{Wenzel2019}.
-The minimum of the HV-SBR values from the left and right hemispheres was used for the analysis.
+The minimum of the HV-SBR values from the left and right hemispheres of the brain was used for the analysis.
 An in-depth elaboration on SBR analysis can be found in~\cite{Wenzel2019}.
 
-The SBR-based classifier was obtained for each of the random splits as follows.
-First the SBR was calculated for each case in the training set.
-Then the optimal cutoff on the SBR was determined using ROC analysis and the Youden criterion~\citep{Youden1950}.
-The determined optimal cutoff was then used as the decision boundary between normal control cases (NC) and Parkinson's disease (PD) 
+The SBR-based classifier was obtained for each of the random splits (n = 10) as follows.
+First, the optimal cutoff on the SBR was determined in the validation set
+using ROC analysis and the Youden criterion~\citep{Youden1950}.
+The determined optimal cutoff was then used as the decision boundary between normal control cases and Parkinson's disease 
 and evaluated on the test set of the development dataset.
-Also the determined cutoff was evaluated on the PPMI and MPH test datasets described in Section~\ref{subsec:external_dataset}.
+Also, the determined cutoff was evaluated on the PPMI and MPH test datasets described in Section~\ref{subsec:external_dataset}.
+As a result, 10 optimal cutoffs on the SBR were determined and evaluated.
 
 \subsection{Multivariate benchmark: PCA-enhanced Random Forest}
 \label{subsec:pca_rfc}
@@ -126,11 +128,12 @@ of the development dataset.
 To be comparable with CNN-based approaches, first, a 91x91 pixel square-shaped region of interest 
 was defined within the 91x109 pixel DVR slab, and each development data image (of each subset) was cropped to this region.
 The square-shaped region was determined by cropping an equal number of pixels from the top and bottom 
-of the DVR slab along its height dimension.
+of the DVR slab along its second dimension (anterior-posterior direction).
 
-Then a PCA model with 10 principle components was initialized and fit to the training set features to obtain 
+Then a PCA model with 10 principle components was initialized and fit to the training set to obtain 
 the principle components of the training set.
-The determined principle components were used to transform the training set to the lower-dimensional space.
+The determined principle components were used to transform the training set into a lower-dimensional space,
+where each image was represented by a 10-vector characterizing the expression of each principal component.
 An example of the principle components of the training set for one of the random splits is depicted in Figure~\ref{fig:pca_components}.
 
 The training data transformed by the principle components was then used to train a random forest classifier with 100 decision trees.
@@ -150,7 +153,7 @@ In addition, the trained model was tested on the PPMI and MPH datasets described
 \label{subsec:cnn_based_classification}
 
 % Model architecture
-The models of CNN-based classifiers were based on a Residual Network \\(ResNet) architecture.
+The models of CNN-based classifiers were based on a Residual Network (ResNet) architecture.
 More precisely, the \textit{ResNet-18}~\citep{resnet2015} model architecture consisting of 18 layers was used as basis.
 The non-pretrained weights of the ResNet-18 were used as initial weights.
 The ResNet-18 architecture expects input tensors of size (3, 224, 224), 
@@ -160,7 +163,8 @@ first convolutional layer.
 Also the dimensions of the last fully-connected layer of the architecture were modified to produce one output node 
 in the output layer.
 The modified ResNet-18 model is depicted in Figure~\ref{fig:resnet}.
-To obtain a probabilistic model output the sigmoid function was applied to the output layer.
+To produce a probabilistic model output within the range of $0$ to $1$, 
+the sigmoid function was applied to the output layer of the model.
 
 % Required preprocessing for CNN: ROI cropping and interpolation to (224, 224)
 Further development data preprocessing was performed to comply with the spatial input 
@@ -178,14 +182,15 @@ the Binary Cross Entropy (BCE) loss was employed for optimization,
 whereas for the Regression approach (described in Section~\ref{subsubsec:cnn_based_classification_regression}) 
 the Mean Squared Error (MSE) loss function was used.
 The Adam optimization algorithm was utilized with an initial learning rate of $0.0001$.
-During the training of the model, the weights of the best epoch are saved for future evaluation.
-Each CNN-based approach was trained and evaluated using identical $10$ random splits of the development data.
-Additionally, the trained models were tested on the PPMI and MPH datasets described in Section~\ref{subsec:external_dataset}.
+During the training of the model, the weights of the best epoch were saved for subsequent evaluations.
+Each CNN model was trained and evaluated separately for each of the $10$ random splits of the development dataset.
+Additionally, the trained models were evaluated on the PPMI and MPH test datasets described in Section~\ref{subsec:external_dataset}.
+No attempt was made to adapt the CNN models trained in the development dataset for these independent test datasets.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=1.0\textwidth]{content/figures/cnn_architecture.png}
-  \caption{Overview of the architecture of CNN-based approaches.} 
+  \caption{Architecture of the CNN-based classification models.} 
   \label{fig:resnet}
 \end{figure} 
 
@@ -197,7 +202,7 @@ one has to provide the ground truth label of each instance to the optimization a
 Given that each instance in the development data is labeled by three independent readers, 
 a selection strategy must be determined.
 The following two label selection strategies are used for training the CNNs: 
-Majority Vote training (MVT) and “Random Label” training (RLT).
+Majority Vote training (MVT) and Random Label training (RLT).
 The labels chosen using one of the two strategies are then used, together with the model predictions, 
 to compute the BCE loss.
 
@@ -223,7 +228,7 @@ Here the random label selection strategy is applied both to the training and val
 
 The regression-based approach aimed to incorporate the uncertainty regarding the ground truth label 
 into the training algorithm.
-Therefore, the ground-truth label was derived from the combination of the three available labels, 
+The ground-truth label was derived from the combination of the three available labels, 
 resulting in a floating-point number.
 Each of the following states of certainty about the label was mapped to a distinct 
 floating-point valued ground-truth label: 
@@ -234,10 +239,9 @@ and \emph{all readers agree on `reduced'} (ground-truth label: 1.0).
 This mapping of available labels to the ground-truth label was used for both the training 
 and validation data during the model training phase.
 
-During model training the loss was computed using the Mean Square Error loss function 
+During model training, the loss was computed using the Mean Square Error loss function 
 which aims to minimize the mean of the squared differences between the model predictions and the ground-truth labels.
-Thereby the optimization algorithm aimed to separate cases where no consensus was reached from those where 
-consensus was achieved.
+%Thereby the optimization algorithm aimed to separate cases where no consensus was reached from those where consensus was achieved.
 
 \subsection{Evaluation Metrics and Procedure}
 \label{subsec:eval_metrics_proced}
@@ -247,15 +251,17 @@ are explained in more detail.
 
 First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
 the different random splits for each classification approach and subset (training, validation and testing) given a cutoff: 
-Area Under Curve (AUC) for ROC curve, Balanced accuracy, accuracy, sensitivity, specificity, 
+Area under the Receiver Operating Characteristic curve (AUC-ROC), 
+balanced accuracy, (overall) accuracy, sensitivity, specificity, 
 Positive Predictive Value (PPV) and Negative Predictive Value (NPV).
 The natural cutoff of 0.5 was used for each classification approach except the SBR method.
 For the SBR method the optimal cutoff was determined using the Youden criterion~\citep{Youden1950} and was used for
 calculating the measures.
-Majority vote was used as strategy to assign labels for cases in which no between-reader consensus could be achieved.
+In the test set of the development dataset (for each random split),
+the majority vote was used as standard-of-truth in all cases.
 
 % Determination of inconclusive intervals given set of percentages of inconclusive cases
-Second for each element within a set of considered percentages of inconclusive cases in the validation set (PIncVal)
+Second, for each element within a set of considered percentages of inconclusive cases in the validation set (PIncVal)
 the corresponding inconclusive interval was determined.
 Inconclusive cases were defined as cases predicted within an inconclusive interval 
 (bounded by lower and upper bound), while conclusive cases were those predicted outside this interval.
@@ -263,37 +269,32 @@ The determination of the inconclusive interval was exclusively performed using t
 for each random split and classification approach independently.
 The set of PIncVal values considered ranged from 0.2\% to 20.0\%, increasing in increments of 0.2\%.
 For each target PIncVal value the lower and upper bounds of the inconclusive interval 
-were independently determined in such a way that there was a similar number of inconclusive cases both below and above 
-the pre-defined cutoff.
-For the CNN-based classification approaches (described in Section~\ref{subsec:cnn_based_classification}) and the 
-multivariate benchmark (described in Section~\ref{subsec:pca_rfc}) the natural cutoff of 0.5 was used.
-For the SBR-based univariate benchmark (described in Section~\ref{subsec:sbr}), 
-the optimal cutoff on the SBR obtained by applying the Youden criterion~\citep{Youden1950} using ROC analysis was used.
+were independently determined in such a way that there was the same number of inconclusive cases ($\pm 1$ case) 
+below and above the pre-defined cutoff.
+For the CNN-based classification methods and the multivariate benchmark the natural cutoff of 0.5 was used,
+whereas for the SBR-based univariate benchmark the optimal cutoff on the SBR was used.
 
 % lower_bound(PIncVal) , upper_bound(PIncVal)
-To assess the stability of the determined inconclusive interval over the proportion of inconclusive cases
-the determined upper and lower bounds ($\text{mean} \pm \text{SD}$) of the inconclusive interval
-were plotted against the corresponding PIncVal (\%).
-The $\text{mean} \pm \text{SD}$ of determined upper and lower bounds was calculated across the measures for 
-different random splits.
+To assess the stability of the determined inconclusive interval over the proportion of inconclusive cases,
+the determined upper and lower bounds ($\text{mean} \pm \text{SD}$ across the 10 random splits) 
+of the inconclusive interval were plotted against the corresponding PIncVal (\%).
 The rate at which the lower (upper) bound decreases (increases) over the PIncVal 
 reflects the density of inconclusive cases within a certain region of PIncVal.
 Specifically, higher function gradients indicate lower concentration of predictions, 
 and vice versa.
-Also a higher standard deviation from the mean indicates that a stable inconclusive interval determination 
-is harder within a certain region of PIncVal.
-The measurement was conducted separately for each classification approach.
+Also, a higher standard deviation indicates that the stable inconclusive interval determination 
+is less robust within a certain region of PIncVal.
 
 % AUC of bal_acc vs. %inconclusive_cases; determination of inconclusive ranges for each %inconclusive_cases
 
-As the main performance metric used in this work to evaluate and compare the classification approaches 
-we propose the area under the curve (AUC) of mean balanced accuracy (\%) on conclusive test cases as a function of 
-the mean percentage of inconclusive test cases (mean PIncObs, \%).
-More precisely the relative AUC (\%) normalized to the maximum achievable area was used for the comparison.
-To obtain the relative AUC, 
+As the main performance metric (regarding the primary hypothesis of the project) 
+we propose the area under the curve of mean balanced accuracy (AUC-bACC, \%) on conclusive test cases 
+as a function of the mean percentage of inconclusive test cases (mean PIncObs, \%).
+More precisely the relative AUC-bACC (\%) normalized to the maximum achievable area was used for the comparison.
+To obtain the relative AUC-bACC, 
 first, the mean balanced accuracy function was interpolated using cubic spline interpolation.
 Then the area under the mean balanced accuracy curve was computed using the trapezoidal rule 
-and then normalized to the maximum achievable area.
+and then normalized to the maximum achievable area (100\% balanced accuracy * (20\% - 0.2\%) inconclusive cases).
 The evaluation of each classification method with respect to this metric was conducted on the test set of the 
 development dataset as well as on the independent datasets PPMI and MPH.
 
@@ -306,4 +307,4 @@ In case the mean of PIncObs(PIncVal) consistently lies over (under) the identity
 the supposed prediction certainty on the test set, on average, is lower (higher) than on the validation set.
 Also a lower standard deviation of PIncObs over PIncVal indicates 
 that PIncObs is less sensitive to the randomness of the inconclusive intervals across random splits.
-Therefore a lower standard deviation of PIncObs allows for a more reliable main performance metric calculation.
+In particular, a lower standard deviation of PIncObs allows for a more reliable calculation of the main performance metric.
