@@ -3,9 +3,18 @@ import shutil
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from evaluation_sigmoid_rfc import inconInterval, testInconInterval, ROC, crossTable, accMetrics, plotBacc, _get_plot_params
 
+from evaluation_sigmoid_rfc import TARGET_SIZE
+
+mpl.rcParams['font.size'] = TARGET_SIZE
+mpl.rcParams['axes.labelsize'] = TARGET_SIZE
+mpl.rcParams['axes.titlesize'] = TARGET_SIZE
+mpl.rcParams['xtick.labelsize'] = TARGET_SIZE
+mpl.rcParams['ytick.labelsize'] = TARGET_SIZE
+mpl.rcParams['legend.fontsize'] = TARGET_SIZE
 
 def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalancedAccuracy=98.0):
 
@@ -157,7 +166,7 @@ def uncertaintySBR(methodID, path_to_results_dir: str, nSplits=1, targetBalanced
         #plt.show()
     
     # 4:3 ratio figsizes (for different use cases)
-    target_figsizes = [(8,6), (4, 3)]
+    target_figsizes = [(3,3), (4, 4), (5, 5), (6, 6)]
     
     for tfsize in target_figsizes:
          create_plot(tfsize)

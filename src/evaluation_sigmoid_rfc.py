@@ -5,6 +5,16 @@ import csv
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+TARGET_SIZE = 17
+
+mpl.rcParams['font.size'] = TARGET_SIZE
+mpl.rcParams['axes.labelsize'] = TARGET_SIZE
+mpl.rcParams['axes.titlesize'] = TARGET_SIZE
+mpl.rcParams['xtick.labelsize'] = TARGET_SIZE
+mpl.rcParams['ytick.labelsize'] = TARGET_SIZE
+mpl.rcParams['legend.fontsize'] = TARGET_SIZE
 
 
 def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, path_to_results_dir, 
@@ -164,7 +174,7 @@ def uncertainty_sigmoid(dir_preds_dev, dir_preds_ppmi, dir_preds_mph, methodID, 
         #plt.show()
 
     # 4:3 ratio figsizes (for different use cases)
-    target_figsizes = [(8,6), (4, 3)]
+    target_figsizes = [(3,3), (4, 4), (5, 5), (6, 6)]
     
     for tfsize in target_figsizes:
          create_plot(tfsize)
@@ -651,7 +661,7 @@ def plotBacc(x, n, obx, dobx, y, dy, z, dz, setID, methodID, path_to_results_dir
 
         #plt.show()
 
-    target_figsizes = [(8,6), (4, 3)]
+    target_figsizes = [(3,3), (4, 4), (5, 5), (6, 6)]
 
     for tfsize in target_figsizes:
         create_obx_x_plot(tfsize)
@@ -704,8 +714,7 @@ if __name__ == '__main__':
     #   Methods (with preds) to calculate the evaluations for (EXCEPT SBR!)
     methods = ["pca_rfc", 
                "baseline_majority", 
-               "baseline_random", 
-               "baseline_random_train_majority_valid",
+               "baseline_random",
                "regression"]
     
     for methodID in methods:

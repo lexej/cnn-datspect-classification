@@ -15,7 +15,7 @@ df = pd.DataFrame([['development data (test set)', 96.38, 98.71, 98.95, 99.02, 9
 palette = sns.color_palette("tab10", 7)
 random.shuffle(palette)
 
-target_figsize = (6, 4.5)
+target_figsize = (6, 6)
 
 ax = df.plot(x='dataset', 
             kind='bar', 
