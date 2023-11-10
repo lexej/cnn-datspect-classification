@@ -87,27 +87,26 @@ This can be attributed to the nearly identical distribution of data in both the 
 (due to random splitting) which results in a similar distribution of SBR model predictions.
 
 
-% sbr_percInconclCases_development
 \begin{figure}[ht]
+  \begin{subfigure}{0.48\textwidth}
     \centering
-    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/sbr_percInconclCases_development.png}
-    \caption{Evaluation of the SBR method on Test Set of Development dataset. 
-    Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/43/sbr_percInconclCases_development.png}
+    \subcaption{Determined upper and lower bound of the inconclusive interval 
+    for a target percentage of inconclusive cases in the validation set.} 
     \label{fig:sbr_percInconclCases_development}
-\end{figure}
-
-
-% obsInconclCases_inconclCasesValid_sbr_development
-\begin{figure}[ht]
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.495\textwidth}
     \centering
-    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_development.png}
-    \caption{Evaluation of the SBR method on Test Set of Development dataset.
-    Observed percentage of inconclusive cases in the test set 
-    for a given set of percentages of inconclusive cases in the validation set.
-    Each of the percentages of inconclusive cases in the validation set is associated 
-    with an inconclusive range (determined in the validation set).} 
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/sbr/43/obsInconclCases_inconclCasesValid_sbr_development.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_development}
-\end{figure} 
+  \end{subfigure}
+
+  \caption{Evaluation of the SBR method on Test Set of Development dataset.}
+  \label{fig:}
+\end{figure}
 
 \subparagraph{AUC-bACC for balanced accuracy over PIncObs}
 
@@ -126,16 +125,16 @@ over the mean PIncObs in the test set of the development dataset.
 
 % bacc_obsInconclCases_sbr_development_full
 \begin{figure}[ht]
-    \begin{subfigure}{0.9\textwidth}
+    \begin{subfigure}{0.5\textwidth}
       \centering
-      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_sbr_development.png}
+      \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_sbr_development.png}
       \subcaption{}
       \label{fig:bacc_obsInconclCases_sbr_development}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.9\textwidth}
+    \begin{subfigure}{0.5\textwidth}
       \centering
-      \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_development.png}
+      \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_concl_sbr_development.png}
       \subcaption{}
       \label{fig:bacc_obsInconclCases_concl_sbr_development}
     \end{subfigure}
@@ -175,22 +174,22 @@ over the mean PIncObs in the PPMI test dataset.
 
 % obsInconclCases_inconclCasesValid_sbr_ppmi and bacc_obsInconclCases_concl_sbr_ppmi
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_ppmi.png}
-    \subcaption{Observed percentage of inconclusive cases in the PPMI dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/obsInconclCases_inconclCasesValid_sbr_ppmi.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_ppmi}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_ppmi.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_concl_sbr_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_sbr_ppmi}
   \end{subfigure}
-  \caption{Evaluation of the SBR method on PPMI dataset.}
+  \caption{Evaluation of the SBR method on PPMI test dataset.}
   \label{fig:perf_results_sbr_ppmi}
 \end{figure}
 
@@ -218,22 +217,22 @@ over the mean PIncObs in the MPH test dataset.
 
 % obsInconclCases_inconclCasesValid_sbr_mph and bacc_obsInconclCases_concl_sbr_mph
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/obsInconclCases_inconclCasesValid_sbr_mph.png}
-    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/obsInconclCases_inconclCasesValid_sbr_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_sbr_mph}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/sbr/86/bacc_obsInconclCases_concl_sbr_mph.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/sbr/43/bacc_obsInconclCases_concl_sbr_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_sbr_mph}
   \end{subfigure}
-  \caption{Evaluation of the SBR method on MPH dataset.}
+  \caption{Evaluation of the SBR method on MPH test dataset.}
   \label{fig:perf_results_sbr_mph}
 \end{figure}
 
@@ -302,27 +301,26 @@ identity line is small which can be attributed to the nearly identical distribut
 (due to random splitting).
 
 
-% pca_rfc_percInconclCases_development
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/sigmoid_percInconclCases_pca_rfc_development.png}
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset. 
-  Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
-  \label{fig:pca_rfc_percInconclCases_development}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/43/sigmoid_percInconclCases_pca_rfc_development.png}
+    \subcaption{Determined upper and lower bound of the inconclusive interval 
+    for a target percentage of inconclusive cases in the validation set.} 
+    \label{fig:pca_rfc_percInconclCases_development}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.495\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/43/obsInconclCases_inconclCasesValid_pca_rfc_development.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
+    \label{fig:obsInconclCases_inconclCasesValid_pca_rfc_development}
+  \end{subfigure}
+
+  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.}
+  \label{fig:pca_rfc_dev_fig}
 \end{figure}
-
-
-% obsInconclCases_inconclCasesValid_pca_rfc_development
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_development.png}
-  \caption{Evaluation of the PCA-RFC method on Test Set of Development dataset.
-  Observed percentage of inconclusive cases in the test set 
-  for a given set of percentages of inconclusive cases in the validation set.
-  Each of the percentages of inconclusive cases in the validation set is associated 
-  with an inconclusive range (determined in the validation set).} 
-  \label{fig:obsInconclCases_inconclCasesValid_pca_rfc_development}
-\end{figure} 
 
 
 \subparagraph{AUC-bACC for balanced accuracy over PIncObs}
@@ -343,16 +341,16 @@ over the mean PIncObs in the test set of the development dataset.
 
 % bacc_obsInconclCases_pca_rfc_development_full
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_pca_rfc_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_pca_rfc_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_pca_rfc_development}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_concl_pca_rfc_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_concl_pca_rfc_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_development}
   \end{subfigure}
@@ -390,19 +388,19 @@ over the mean PIncObs in the PPMI test dataset.
 
 % obsInconclCases_inconclCasesValid_pca_rfc_ppmi and bacc_obsInconclCases_concl_pca_rfc_ppmi
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_ppmi.png}
-    \subcaption{Observed percentage of inconclusive cases in the PPMI dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/obsInconclCases_inconclCasesValid_pca_rfc_ppmi.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_pca_rfc_ppmi}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_concl_pca_rfc_ppmi.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_concl_pca_rfc_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_ppmi}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on PPMI dataset.}
@@ -433,19 +431,19 @@ over the mean PIncObs in the MPH test dataset.
 
 % obsInconclCases_inconclCasesValid_pca_rfc_mph and bacc_obsInconclCases_concl_pca_rfc_mph
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/obsInconclCases_inconclCasesValid_pca_rfc_mph.png}
-    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/obsInconclCases_inconclCasesValid_pca_rfc_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_pca_rfc_mph}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/pca_rfc/86/bacc_obsInconclCases_concl_pca_rfc_mph.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/pca_rfc/43/bacc_obsInconclCases_concl_pca_rfc_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_pca_rfc_mph}
   \end{subfigure}
   \caption{Evaluation of the PCA-RFC method on MPH dataset.}
@@ -523,27 +521,26 @@ identity line is small which can be attributed to the nearly identical distribut
 (due to random splitting).
 
 
-% baseline_majority_percInconclCases_development
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/sigmoid_percInconclCases_baseline_majority_development.png}
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset. 
-  Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
-  \label{fig:baseline_majority_percInconclCases_development}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/43/sigmoid_percInconclCases_baseline_majority_development.png}
+    \subcaption{Determined upper and lower bound of the inconclusive interval 
+    for a target percentage of inconclusive cases in the validation set.} 
+    \label{fig:baseline_majority_percInconclCases_development}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.495\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/43/obsInconclCases_inconclCasesValid_baseline_majority_development.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
+    \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}
+  \end{subfigure}
+
+  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.}
+  \label{fig:eval_cnn_mvt_dev}
 \end{figure}
-
-
-% obsInconclCases_inconclCasesValid_baseline_majority_development
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_development.png}
-  \caption{Evaluation of the CNN-MVT method on Test Set of Development dataset.
-  Observed percentage of inconclusive cases in the test set 
-  for a given set of percentages of inconclusive cases in the validation set.
-  Each of the percentages of inconclusive cases in the validation set is associated 
-  with an inconclusive range (determined in the validation set).} 
-  \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_development}
-\end{figure} 
 
 
 \subparagraph{AUC-bACC for balanced accuracy over PIncObs}
@@ -562,16 +559,16 @@ and around 0.2\% higher than the PCA-RFC baseline.
 
 % bacc_obsInconclCases_baseline_majority_development_full
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_baseline_majority_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_baseline_majority_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_baseline_majority_development}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_concl_baseline_majority_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_concl_baseline_majority_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_development}
   \end{subfigure}
@@ -611,19 +608,19 @@ and around 0.1\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_baseline_majority_ppmi and bacc_obsInconclCases_concl_baseline_majority_ppmi
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_ppmi.png}
-    \subcaption{Observed percentage of inconclusive cases in the PPMI dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/obsInconclCases_inconclCasesValid_baseline_majority_ppmi.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_ppmi}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_concl_baseline_majority_ppmi.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_concl_baseline_majority_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on PPMI dataset.}
@@ -658,19 +655,19 @@ and around 3.3\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_baseline_majority_mph and bacc_obsInconclCases_concl_baseline_majority_mph
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/obsInconclCases_inconclCasesValid_baseline_majority_mph.png}
-    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/obsInconclCases_inconclCasesValid_baseline_majority_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_baseline_majority_mph}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_majority/86/bacc_obsInconclCases_concl_baseline_majority_mph.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_majority/43/bacc_obsInconclCases_concl_baseline_majority_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_baseline_majority_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-MVT method on MPH dataset.}
@@ -743,27 +740,26 @@ identity line is small which can be attributed to the nearly identical distribut
 (due to random splitting).
 
 
-% baseline_random_percInconclCases_development
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/sigmoid_percInconclCases_baseline_random_development.png}
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset. 
-  Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
-  \label{fig:baseline_random_percInconclCases_development}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/43/sigmoid_percInconclCases_baseline_random_development.png}
+    \subcaption{Determined upper and lower bound of the inconclusive interval 
+    for a target percentage of inconclusive cases in the validation set.} 
+    \label{fig:baseline_random_percInconclCases_development}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.495\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/43/obsInconclCases_inconclCasesValid_baseline_random_development.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
+    \label{fig:obsInconclCases_inconclCasesValid_baseline_random_development}
+  \end{subfigure}
+
+  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.}
+  \label{fig:eval_cnn_rlt_dev}
 \end{figure}
-
-
-% obsInconclCases_inconclCasesValid_baseline_random_development
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_development.png}
-  \caption{Evaluation of the CNN-RLT method on Test Set of Development dataset.
-  Observed percentage of inconclusive cases in the test set 
-  for a given set of percentages of inconclusive cases in the validation set.
-  Each of the percentages of inconclusive cases in the validation set is associated 
-  with an inconclusive range (determined in the validation set).} 
-  \label{fig:obsInconclCases_inconclCasesValid_baseline_random_development}
-\end{figure} 
 
 
 \subparagraph{AUC-bACC for balanced accuracy over PIncObs}
@@ -781,16 +777,16 @@ and around 0.3\% higher than the PCA-RFC baseline.
 
 % bacc_obsInconclCases_baseline_random_development_full
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_baseline_random_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_baseline_random_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_baseline_random_development}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_concl_baseline_random_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_concl_baseline_random_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_concl_baseline_random_development}
   \end{subfigure}
@@ -833,19 +829,19 @@ and around 0.2\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_baseline_random_ppmi and bacc_obsInconclCases_concl_baseline_random_ppmi
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_ppmi.png}
-    \subcaption{Observed percentage of inconclusive cases in the PPMI dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/obsInconclCases_inconclCasesValid_baseline_random_ppmi.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_baseline_random_ppmi}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_concl_baseline_random_ppmi.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_concl_baseline_random_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_baseline_random_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-RLT method on PPMI dataset.}
@@ -877,19 +873,19 @@ and around 3.7\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_baseline_random_mph and bacc_obsInconclCases_concl_baseline_random_mph
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/obsInconclCases_inconclCasesValid_baseline_random_mph.png}
-    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/obsInconclCases_inconclCasesValid_baseline_random_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_baseline_random_mph}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/baseline_random/86/bacc_obsInconclCases_concl_baseline_random_mph.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/baseline_random/43/bacc_obsInconclCases_concl_baseline_random_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_baseline_random_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-RLT method on MPH dataset.}
@@ -964,27 +960,27 @@ As for the baseline cases, the deviation of the mean PIncObs in the test set fro
 identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
 (due to random splitting).
 
-% regression_percInconclCases_development
+
 \begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/sigmoid_percInconclCases_regression_development.png}
-  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset. 
-  Determined upper and lower bounds of the inconclusive interval as a function of the percentage of inconclusive cases.} 
-  \label{fig:regression_percInconclCases_development}
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/43/sigmoid_percInconclCases_regression_development.png}
+    \subcaption{Determined upper and lower bound of the inconclusive interval 
+    for a target percentage of inconclusive cases in the validation set.} 
+    \label{fig:regression_percInconclCases_development}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.495\textwidth}
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/43/obsInconclCases_inconclCasesValid_regression_development.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
+    \label{fig:obsInconclCases_inconclCasesValid_regression_development}
+  \end{subfigure}
+
+  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.}
+  \label{fig:eval_cnn_regression_dev}
 \end{figure}
-
-
-% obsInconclCases_inconclCasesValid_regression_development
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_development.png}
-  \caption{Evaluation of the CNN-Regression method on Test Set of Development dataset.
-  Observed percentage of inconclusive cases in the test set 
-  for a given set of percentages of inconclusive cases in the validation set.
-  Each of the percentages of inconclusive cases in the validation set is associated 
-  with an inconclusive range (determined in the validation set).} 
-  \label{fig:obsInconclCases_inconclCasesValid_regression_development}
-\end{figure} 
 
 
 \subparagraph{AUC-bACC for balanced accuracy over PIncObs}
@@ -1001,16 +997,16 @@ and around 0.5\% higher than the PCA-RFC baseline.
 
 % bacc_obsInconclCases_regression_development_full
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_regression_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_regression_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_regression_development}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.5\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_development.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_concl_regression_development.png}
     \subcaption{}
     \label{fig:bacc_obsInconclCases_concl_regression_development}
   \end{subfigure}
@@ -1051,19 +1047,19 @@ and around 0.3\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_regression_ppmi and bacc_obsInconclCases_concl_regression_ppmi
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_ppmi.png}
-    \subcaption{Observed percentage of inconclusive cases in the PPMI dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/obsInconclCases_inconclCasesValid_regression_ppmi.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_regression_ppmi}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_ppmi.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_concl_regression_ppmi.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the PPMI dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_regression_ppmi}
   \end{subfigure}
   \caption{Evaluation of the CNN-Regression method on PPMI dataset.}
@@ -1096,19 +1092,19 @@ and around 3.8\% higher than the PCA-RFC baseline.
 
 % obsInconclCases_inconclCasesValid_regression_mph and bacc_obsInconclCases_concl_regression_mph
 \begin{figure}[ht]
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/obsInconclCases_inconclCasesValid_regression_mph.png}
-    \subcaption{Observed percentage of inconclusive cases in the MPH dataset 
-    for a given set of percentages of inconclusive cases in the validation set (Development dataset).} 
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/obsInconclCases_inconclCasesValid_regression_mph.png}
+    \subcaption{Observed percentage of inconclusive cases in the test set 
+    for a target percentage of inconclusive cases in the validation set of the development dataset.} 
     \label{fig:obsInconclCases_inconclCasesValid_regression_mph}
   \end{subfigure}
   \hfill
-  \begin{subfigure}{0.9\textwidth}
+  \begin{subfigure}{0.49\textwidth}
     \centering
-    \includegraphics[width=0.9\textwidth]{content/figures/evaluations/regression/86/bacc_obsInconclCases_concl_regression_mph.png}
+    \includegraphics[width=1\textwidth]{content/figures/evaluations/regression/43/bacc_obsInconclCases_concl_regression_mph.png}
     \subcaption{Balanced accuracy on conclusive cases for a given mean percentage of inconclusive cases observed 
-    in the MPH dataset. For better illustration the area under the mean of the balanced accuracy is highlighted.}
+    in the test set (area under the mean of balanced accuracy is highlighted).}
     \label{fig:bacc_obsInconclCases_concl_regression_mph}
   \end{subfigure}
   \caption{Evaluation of the CNN-Regression method on MPH dataset.}
