@@ -17,7 +17,7 @@ aiming to assess the integrity of dopaminergic neurons.
 Figure~\ref{fig:dat_tracer_synapse} illustrates a dopaminergic synapse, 
 highlighting the transporters and receptors to which different radiotracers can bind.
 
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{content/figures/da_synapse.png}
   \caption{Dopaminergic synapse, adopted from~\cite{Booij2008-hh}.
@@ -58,7 +58,7 @@ due to interactions with human tissue which can lead to a distorted radioactivit
 To obtain a more accurate representation of the radioactivity distribution, 
 attenuation and scatter correction techniques can be applied after the backprojection~\citep{Patton2008-xl}.
 
-\begin{figure}[t]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{content/figures/siemens-healthineers_MI_symbia-evo.png}
   \caption{Symbia Evo™ SPECT scanner by Siemens Healthineers. Image source: \cite{SymbiaEvo_siemens}.} 
@@ -81,12 +81,44 @@ German Society of Neurology states that DAT-SPECT \textit{should} be conducted a
 \subsection{Convolutional Neural Networks for Image Classification}
 \label{subsec:randfors}
 
-% Convolution in CNNs -> layer
+The rise of Convolutional Neural Networks (CNNs) enabled significant performance breakthroughs 
+in various machine learning tasks, including image classification, object detection and semantic segmentation.
+Today CNNs are used in medical research to support the diagnosis 
+of tumors~\citep{Tiwari2022-wr, Gunashekar2022-rl, Gao2021-zu}, 
+cardiovascular diseases~\citep{Yoon2023-ik, Li2022-yn}, 
+Alzheimer's disease~\citep{Basaia2019-pg, Folego2020-ak} 
+and Parkinson's disease~\citep{Hathaliya2022, Magesh2020, Li2023-ym}
+through diverse imaging modalities such as
+histopathological images, magnetic resonance imaging (MRI), positron emission tomography (PET) and SPECT.
+Continuous research in the explainable AI domain has the potential to enhance the trustworthiness 
+of automatic medical diagnosis through explanatory techniques~\citep{Ribeiro2016, Petsiuk2018, Dhurandhar2018, Chaddad2023-zl}.
 
+Convolutional Neural Networks typically consist of many convolution-pooling blocks, 
+each with an activation function in between, followed by fully-connected layers that lead to the output layer.
+Convolutional layers use a set of filters to extract different local features from the input 
+whereas pooling layers are used for the reduction of spatial dimensionality.
+The usage of batch normalization layers as a regularization technique can lead to an improved convergence of the model.
+The parameters of a CNN are trained using a gradient descent-based algorithm that aims to optimize a specific loss function.
+The Adam optimization algorithm~\citep{Diederik2015} allows for fast and smooth convergence 
+and is therefore a common choice for optimization.
+In a binary classification scenario, the optimization target is the binary cross-entropy loss,
+while for multi-class classification the target is the categorical cross-entropy loss.
 
-%  CNNs and the architecture you used, why did you use it
+A challenging effect that occurs in deep neural networks is the vanishing gradient 
+as it is backpropagated through the neural network during optimization (vanishing gradient problem).
+The residual network (ResNet) architecture~\citep{He2016} was proposed to mitigate the vanishing gradient problem.
+In comparison to regular building blocks the ResNet architecture incorporates a residual (skip) connection 
+into its building blocks, as demonstrated in Figure~\ref{fig:normal_and_residual_layer}.
+The inclusion of the residual connection leads to a larger gradient compared to a scenario where it is absent.
+Thereby the residual network architecture allows the training of deeper neural networks.
+Also, the residual connection facilitates the learning of the identity function using a shallow model~\citep{He2016}.
 
-% loss functions BCE, MSE -> optimization with Adam
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\textwidth]{content/figures/residual_block.png}
+  \caption{Residual block (right) in comparison to a regular block (left), adopted from~\cite{Zhang2023}.} 
+  \label{fig:normal_and_residual_layer}
+\end{figure}
 
 
 \subsection{Evaluation metrics for Binary Classification}
