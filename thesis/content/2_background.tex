@@ -4,27 +4,66 @@
 \subsection{DAT-SPECT for Detecting Parkinson's Disease}
 \label{subsec:datspect}
 
-% DAT-SPECT - Medical background
+% Parkinsons disease - Reduction in DAT
 
-Parkinson's disease (PD) and 'atypical' neurodegenerative Parkinsonian syndromes (PS) 
-are both associated with the progressive loss of dopaminergic neurons in the substantia nigra pars compacta (SNpc) 
-that project to the striatum~\citep{Piggott1999}.
-The reduced availability of dopamine transporters (DAT) in the striatum is a well-validated biomarker 
+Dopaminergic (DA) neurons in the substantia nigra pars compacta (SNpc), a region of the human midbrain, 
+are of high physiological importance in the regulation of various cognitive mechanisms 
+and voluntary movement control in humans~\citep{Luo2016-zj}.
+Dopamine transporters (DAT) are proteins located on the presynaptic plasma membrane 
+that reuptake dopamine released into the synaptic cleft~\citep{Giros1993-xb}.
+Ligands that bind to the DAT protein can inhibit the reuptake mechanism.
+Presynaptic DAT ligands labeled with radioactive material are commonly used as radiotracers for nuclear medical imaging,
+aiming to assess the integrity of dopaminergic neurons.
+Figure~\ref{fig:dat_tracer_synapse} illustrates a dopaminergic synapse, 
+highlighting the transporters and receptors to which different radiotracers can bind.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{content/figures/da_synapse.png}
+  \caption{Dopaminergic synapse, adopted from~\cite{Booij2008-hh}.
+  Postsynaptic radiotracers specifically bind to the $D_2$ dopamine receptor. 
+  Presynaptic radiotracers bind to specific dopamine transporters such as Amino Acid Transporter, VMAT-2 or DAT.
+  As an example, Ioflupane Iodine-123 ([$^{123}$I]FP-CIT) specifically binds to the dopamine transporter (DAT).} 
+  \label{fig:dat_tracer_synapse}
+\end{figure}
+
+Parkinson's disease (PD) as well as 'atypical' neurodegenerative Parkinsonian syndromes (PS) 
+are both associated with the progressive loss of DA neurons in the SNpc 
+that project to the dorsal striatum via the nigrostriatal pathway~\citep{Piggott1999}.
+The reduced availability of DAT in the striatum is a well-validated biomarker 
 for nigrostriatal degeneration in PD~\citep{Bernheimer1973, Fazio2018, Niznik1991}.
-It can be detected by single photon emission computed tomography (SPECT) 
-with dopamine transporter (DAT) ligands~\citep{Kuikka1995, Abi-Dargham1996}.
-The reduction in striatal DAT availability is significantly advanced 
-even in the earliest symptomatic (motor) stages of PD, 
+The reduction in striatal DAT availability is significantly advanced even in the earliest symptomatic (motor) stages of PD, 
 as the degeneration of dopaminergic nerve endings in the striatum represents 
 an early step in the pathological PD cascade~\citep{Bernheimer1973, Fazio2018, Niznik1991}.
 The compensatory downregulation of the DAT expression in the remaining nerve endings 
 leads to a more pronounced loss of striatal DAT~\citep{Lee2000, Saari2017, Honkanen2019}.
 Secondary PS's are typically not associated with nigrostriatal degeneration or the loss of striatal DAT. 
-To differentiate PD from secondary PS based on striatal DAT availability, 
-the radiolabeled DAT ligand [$^{123}$I]FP-CIT (trade name: $\text{DaTscan}^{\copyright}$) 
-has been approved as a SPECT tracer in both the US and Europe~\citep{Neumeyer1994}.
 
-% DAT-SPECT for differentiation of PD from PS's
+% DAT-SPECT -> what does SPECT measure
+The reduction in striatal DAT availability can be detected by Single Photon Emission Computed Tomography (SPECT) 
+imaging with DAT ligands~\citep{Kuikka1995, Abi-Dargham1996}.
+The radiolabeled DAT ligand Ioflupane Iodine-123 (trade name: $\text{DaTscan}^{\copyright}$), also [$^{123}$I]FP-CIT, 
+exhibits a high affinity for presynaptic DAT and 
+has been approved as a SPECT tracer in both the US and Europe~\citep{Neumeyer1994}.
+Figure~\ref{fig:siemens-healthineers_MI_symbia-evo} illustrates an example of a SPECT scanner.
+The DAT-SPECT imaging procedure can be briefly described as follows.
+First, the patient is administered with a radiolabeled DAT ligand,
+allowing the radiolabeled ligand to bind specifically to the striatal DAT.
+The gamma rays emitted from the DAT regions are detected using a rotating (single-head or multiple-head) gamma camera
+which captures planar projection (2D) images at multiple angles~\citep{Patton2008-xl}.
+The obtained projection images are then filtered and 
+backprojected to a 3-dimensional radioactivity distribution SPECT image~\citep{Patton2008-xl}.
+The photons emitted from the radiolabeled ligand undergo attenuation and Compton scattering
+due to interactions with human tissue which can lead to a distorted radioactivity distribution~\citep{Patton2008-xl}.
+To obtain a more accurate representation of the radioactivity distribution, 
+attenuation and scatter correction techniques can be applied after the backprojection~\citep{Patton2008-xl}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{content/figures/siemens-healthineers_MI_symbia-evo.png}
+  \caption{Symbia Evo™ SPECT scanner by Siemens Healthineers. Image source: \cite{SymbiaEvo_siemens}.} 
+  \label{fig:siemens-healthineers_MI_symbia-evo}
+\end{figure}
 
 A recent review, which involved a non-systematic meta-analysis of DAT-SPECT with [$^{123}$I]FP-CIT in patients with PS, 
 confirmed that DAT-SPECT exhibits high sensitivity (median 93\%) and high specificity (median 89\%) 
@@ -42,7 +81,17 @@ German Society of Neurology states that DAT-SPECT \textit{should} be conducted a
 \subsection{Convolutional Neural Networks for Image Classification}
 \label{subsec:randfors}
 
-% CNN
+% Convolution in CNNs -> layer
 
-% Random forest 
+
+%  CNNs and the architecture you used, why did you use it
+
+% loss functions BCE, MSE -> optimization with Adam
+
+
+\subsection{Evaluation metrics for Binary Classification}
+
+
+% equations for how sens, spec, bACC (besser als acc, wiese?) 
+%  ppv, AUC-ROC, etc. are calculated and what they measure.
 
