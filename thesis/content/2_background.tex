@@ -60,7 +60,7 @@ attenuation and scatter correction techniques can be applied after the backproje
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{content/figures/siemens-healthineers_MI_symbia-evo.png}
+  \includegraphics[width=0.85\textwidth]{content/figures/siemens-healthineers_MI_symbia-evo.png}
   \caption{Symbia Evo™ SPECT scanner by Siemens Healthineers. Image source: \cite{SymbiaEvo_siemens}.} 
   \label{fig:siemens-healthineers_MI_symbia-evo}
 \end{figure}
@@ -115,7 +115,7 @@ Also, the residual connection facilitates the learning of the identity function 
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\textwidth]{content/figures/residual_block.png}
+  \includegraphics[width=0.85\textwidth]{content/figures/residual_block.png}
   \caption{Residual block (right) in comparison to a regular block (left), adopted from~\cite{Zhang2023}.} 
   \label{fig:normal_and_residual_layer}
 \end{figure}
@@ -123,7 +123,79 @@ Also, the residual connection facilitates the learning of the identity function 
 
 \subsection{Evaluation metrics for Binary Classification}
 
+For the assessment of the classification performance of a binary classification model,
+multiple statistical metrics can be used, each focusing on different performance aspects.
+Given a set of input features and a decision threshold, 
+the binary classification model predicts them as either positive or negative, either correctly or incorrectly.
+Thereby the model produces a certain amount of True Positives (TP), True Negatives (TN), False Positives (FP)
+and False Negatives (FN), which are then used to calculate the desired metric.
 
-% equations for how sens, spec, bACC (besser als acc, wiese?) 
-%  ppv, AUC-ROC, etc. are calculated and what they measure.
+To obtain an overall measure of the classification correctness of the model across all classes
+one can calculate the overall accuracy:
 
+\begin{equation}
+  \label{eq:acc}
+  \text{Accuracy} = \frac{\text{TP + TN}}{\text{TP + TN + FP + FN}} \;.
+\end{equation}
+
+The overall accuracy is a suitable metric for balanced datasets with a similar amount of positive and negative cases.
+For imbalanced datasets, the overall accuracy provides little informative value 
+since it tends to express the accuracy for cases from the majority class.
+
+Sensitivity and specificity are used to gain a more differentiated understanding of the model performance.
+In a medical diagnostic scenario, sensitivity, also known as True Positive Rate (TPR),
+expresses the ability of the model to correctly classify `disease' (positive) cases~\citep{Parikh2008-ch} 
+and can be calculated as
+
+\begin{equation}
+  \label{eq:sens}
+  \text{Sensitivity} = \frac{\text{TP}}{\text{TP} + \text{FN}} \;.
+\end{equation}
+
+The model's ability to correctly classify `normal' (negative) cases can be measured using specificity~\citep{Parikh2008-ch} which is defined as
+
+\begin{equation}
+  \label{eq:spec}
+  \text{Specificity} = \frac{\text{TN}}{\text{TN} + \text{FP}} \;.
+\end{equation}
+
+Given the sensitivity and specificity of the prediction model,
+the balanced accuracy can be calculated as the arithmetic mean of both measures as
+
+\begin{equation}
+  \label{eq:bacc}
+  \text{Balanced Accuracy} = \frac{\text{Sensitivity} + \text{Specificity}}{2} \;.
+\end{equation}
+
+Balanced accuracy is a more robust metric for datasets with imbalanced class distributions,
+as it averages over the performances within each individual class.
+
+% PPV, NPV
+In cases where either false positives or false negatives have more severe negative consequences,
+one can consider the Positive Predictive Value (PPV) or Negative Predictive Value (NPV).
+A higher PPV is associated with fewer false positives and can help to reduce unnecessary medical treatments.
+The PPV can be calculated as follows:
+
+\begin{equation}
+  \label{eq:ppv}
+  \text{PPV} = \frac{\text{TP}}{\text{TP + FP}} \;.
+\end{equation}
+
+A higher NPV corresponds to fewer false negatives, which can be important to catch as many disease cases as possible.
+The calculation of NPV is as follows:
+
+\begin{equation}
+  \label{eq:npv}
+  \text{NPV} = \frac{\text{TN}}{\text{TN + FN}} \;,
+\end{equation}
+
+All the metrics that have been discussed can only be calculated using a predefined decision boundary (threshold).
+A commonly employed metric that allows the evaluation and comparison of the performance of binary classifiers 
+independently of a specific threshold is the area under the Receiver Operating Characteristic curve (AUC-ROC).
+The ROC curve represents sensitivity as a function of the False Positive Rate (FPR).
+The FPR can be calculated as follows:
+
+\begin{equation}
+  \label{eq:fpr}
+  \text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}} \;.
+\end{equation}
