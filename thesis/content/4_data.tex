@@ -19,9 +19,16 @@ of the Hermes SMART workstation v1.6 (Hermes Medical Solutions, Stockholm, Swede
 All parameter settings were as recommended by Hermes~\citep{Diemling2021-mg} for the EANM / EANM Research Ltd (EARL) ENC-DAT project (European Normal Control Database of DaTSCAN)~\citep{Tossici-Bolt2011-cx, Dickson2010-fm, Varrone2013-it, Tossici-Bolt2017-xj, Dickson2012-hk}.
 More precisely, ordered-subsets-expectation-maximization was performed with 5 iterations and 15/16 subsets for 120/128 views. 
 For noise suppression, reconstructed images were postfiltered by convolution with a 3-dimensional Gaussian kernel of 7 mm full-width-at-half-maximum. 
+
 The ground-truth label, indicating either `normal' or `Parkinson-typical' reduction (`reduced') of the striatal signal, 
-was obtained by visual interpretation of the DAT-SPECT images by three independent readers~\citep{Schiebler2023}. 
-The between-reader consensus on the label could not be achieved for around 5\% of dataset cases.
+was obtained by visual assessment of the DAT-SPECT images by three independent readers~\citep{Schiebler2023}. 
+The readers achieved consensus on the `normal' label in about $49.14\%$ of cases 
+and on the `reduced' label in about $46.09\%$ of cases.
+Thereby the dataset exhibited a balanced distribution with respect to the target label.
+The consensus on the label could not be achieved in about $4.77\%$ of cases.
+The dataset comprised about $56.49\%$ male cases and $43.51\%$ female cases.
+In the dataset, the average age among cases was $66.73$ with a standard deviation of $11.60$ years, 
+and the median age was 69.
 The development dataset was utilized for both training and testing the classification models. 
 
 \subsection{Independent testing datasets}
@@ -49,6 +56,6 @@ All SPECT images were interpreted twice (with different randomization) by the sa
 The delay between the reading sessions was 14 days. 
 Cases with discrepant interpretations between the two reading sessions were read a third time by the same reader 
 to obtain an intra-reader consensus as the ground-truth label. 
-The MPH test dataset has not been described previously.
-Compared to the development dataset, the internal test dataset was characterized by better spatial resolution 
-(resulting in higher striatum-to-background contrast) and less statistical noise. 
+In contrast to the development dataset, the internal test dataset exhibited a better spatial resolution, 
+leading to higher contrast between the striatum and background, along with reduced statistical noise.
+The MPH dataset has not been described in previous works.
