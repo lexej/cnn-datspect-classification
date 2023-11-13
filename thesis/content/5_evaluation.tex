@@ -35,24 +35,24 @@ on the validation set, with a variance between 0.5-1.5\% across random splits.
 The performance on training and test sets is also similarly around 93\% with respect to all the metrics.
 The comparable sensitivity and specificity imply a well-balanced SBR model that 
 identifies both positive and negative cases similarly well.
-The SBR model achieved a stable AUC-ROC of 0.983$\pm$0.002.
+The SBR model achieved a stable AUC-ROC of 0.983 $\pm$ 0.002.
 
 
 \begin{table}[ht]
-  \caption{Evaluation of the SBR method on development dataset (SBR cutoff mean$\pm$SD: 0.703$\pm$0.009).}
+  \caption{Evaluation of the SBR method on development dataset (SBR cutoff mean$\pm$SD: 0.703 $\pm$ 0.009).}
   \centering
   \begin{tabular}{llll}
       \hline
                         & train set         & validation set      & test set             \\
       \hline
-      Balanced Accuracy & 0.936$\pm$0.003   &   0.929$\pm$0.008   &  0.935$\pm$0.007     \\
-      Accuracy          & 0.936$\pm$0.003   &   0.930$\pm$0.008   &  0.935$\pm$0.007     \\
-      Sensitivity       &  0.934$\pm$0.006  &   0.924$\pm$0.005   &  0.930$\pm$0.014     \\
-      Specificity       & 0.937$\pm$0.003   &   0.935$\pm$0.015   &  0.939$\pm$0.012     \\
-      PPV               &  0.933$\pm$0.005  &   0.929$\pm$0.014   &  0.930$\pm$0.015     \\
-      NPV               &  0.938$\pm$0.005  &   0.930$\pm$0.004   &  0.938$\pm$0.018     \\
+      Balanced Accuracy & 0.936 $\pm$ 0.003   &   0.929 $\pm$ 0.008   &  0.935 $\pm$ 0.007     \\
+      Accuracy          & 0.936 $\pm$ 0.003   &   0.930 $\pm$ 0.008   &  0.935 $\pm$ 0.007     \\
+      Sensitivity       &  0.934 $\pm$ 0.006  &   0.924 $\pm$ 0.005   &  0.930 $\pm$ 0.014     \\
+      Specificity       & 0.937 $\pm$ 0.003   &   0.935 $\pm$ 0.015   &  0.939 $\pm$ 0.012     \\
+      PPV               &  0.933 $\pm$ 0.005  &   0.929 $\pm$ 0.014   &  0.930 $\pm$ 0.015     \\
+      NPV               &  0.938 $\pm$ 0.005  &   0.930 $\pm$ 0.004   &  0.938 $\pm$ 0.018     \\
       \hline
-      AUC-ROC          &  \multicolumn{3}{c}{0.983$\pm$0.002 }  \\
+      AUC-ROC          &         -           & 0.983 $\pm$ 0.002     & -  \\
       \hline
   \end{tabular}
  \label{t1:sbr_perf_eval_table}
@@ -246,7 +246,7 @@ different subsets of the development dataset.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
 The PCA-RFC method achieved around 96\% in balanced accuracy, accuracy, sensitivity, specificity, PPV and NPV 
 on the validation and test set, with a variance around 1\% across random splits.
-The SBR model achieved a stable AUC-ROC of 0.994$\pm$0.002.
+The SBR model achieved a stable AUC-ROC of 0.994 $\pm$ 0.002.
 
 
 \begin{table}[ht]
@@ -257,14 +257,14 @@ The SBR model achieved a stable AUC-ROC of 0.994$\pm$0.002.
       \hline
                         & train set         & validation set      & test set             \\
       \hline
-      Balanced Accuracy & 1.000$\pm$0.000   &   0.963$\pm$0.010    &  0.966$\pm$0.006   \\
-      Accuracy          & 1.000$\pm$0.000    &   0.963$\pm$0.010  &  0.966$\pm$0.006    \\
-      Sensitivity       &  1.000$\pm$0.000   &   0.957$\pm$0.012   &  0.962$\pm$0.010   \\
-      Specificity       & 1.000$\pm$0.000    &   0.969$\pm$0.011  &  0.969$\pm$0.009   \\
-      PPV               &  1.000$\pm$0.000   &   0.966$\pm$0.012   &  0.965$\pm$0.010   \\
-      NPV               &  1.000$\pm$0.000   &   0.961$\pm$0.012  &  0.966$\pm$0.011   \\
+      Balanced Accuracy & 1.000 $\pm$ 0.000   &   0.963 $\pm$ 0.010    &  0.966 $\pm$ 0.006   \\
+      Accuracy          & 1.000 $\pm$ 0.000    &   0.963 $\pm$ 0.010  &  0.966 $\pm$ 0.006    \\
+      Sensitivity       &  1.000 $\pm$ 0.000   &   0.957 $\pm$ 0.012   &  0.962 $\pm$ 0.010   \\
+      Specificity       & 1.000 $\pm$ 0.000    &   0.969 $\pm$ 0.011  &  0.969 $\pm$ 0.009   \\
+      PPV               &  1.000 $\pm$ 0.000   &   0.966 $\pm$ 0.012   &  0.965 $\pm$ 0.010   \\
+      NPV               &  1.000 $\pm$ 0.000   &   0.961 $\pm$ 0.012  &  0.966 $\pm$ 0.011   \\
       \hline
-      AUC-ROC          &  \multicolumn{3}{c}{0.994$\pm$0.002}  \\
+      AUC-ROC          &  -                   &   0.994 $\pm$ 0.002 &     -  \\
       \hline
   \end{tabular}
  \label{t1:erc_perf_eval_table}
@@ -460,7 +460,7 @@ In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employe
 The CNN-MVT method achieved around 96.4\% in sensitivity, 97.6\% in specificity and a balanced accuracy of 97.0\%, 
 with a variance between 1-2\% across random splits, on the test set.
 The performance results on the validation set are very similar.
-The method achieved a stable AUC-ROC of 0.996$\pm$0.002.
+The method achieved a stable AUC-ROC of 0.996 $\pm$ 0.002.
 
 
 \begin{table}[ht]
@@ -471,14 +471,14 @@ The method achieved a stable AUC-ROC of 0.996$\pm$0.002.
       \hline
                         & train set         & validation set      & test set             \\
       \hline
-      Balanced Accuracy & 0.999$\pm$0.003   &  0.970$\pm$0.014    &  0.970$\pm$0.008   \\
-      Accuracy          & 0.999$\pm$0.003    &   0.970$\pm$0.014   &  0.970$\pm$0.008   \\
-      Sensitivity       &  1.000$\pm$0.000   &   0.963$\pm$0.010   &  0.964$\pm$0.015  \\
-      Specificity       &   0.997$\pm$0.006   &   0.976$\pm$0.023  &   0.976$\pm$0.013  \\
-      PPV               &  0.997$\pm$0.006   &   0.975$\pm$0.024   &  0.972$\pm$0.018 \\
-      NPV               &  1.000$\pm$0.000    &   0.966$\pm$0.010   & 0.968$\pm$0.014  \\
+      Balanced Accuracy & 0.999 $\pm$ 0.003   &  0.970 $\pm$ 0.014    &  0.970 $\pm$ 0.008   \\
+      Accuracy          & 0.999 $\pm$ 0.003    &   0.970 $\pm$ 0.014   &  0.970 $\pm$ 0.008   \\
+      Sensitivity       &  1.000 $\pm$ 0.000   &   0.963 $\pm$ 0.010   &  0.964 $\pm$ 0.015  \\
+      Specificity       &   0.997 $\pm$ 0.006   &   0.976 $\pm$ 0.023  &   0.976 $\pm$ 0.013  \\
+      PPV               &  0.997 $\pm$ 0.006   &   0.975 $\pm$ 0.024   &  0.972 $\pm$ 0.018 \\
+      NPV               &  1.000 $\pm$ 0.000    &   0.966 $\pm$ 0.010   & 0.968 $\pm$ 0.014  \\
       \hline
-      AUC-ROC          &  \multicolumn{3}{c}{0.996$\pm$0.002}  \\
+      AUC-ROC          & -                    & 0.996 $\pm$ 0.002 &     -  \\
       \hline
   \end{tabular}
  \label{t1:cnn_mvt_perf_eval_table}
@@ -673,7 +673,7 @@ In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employe
 The CNN-RLT method achieved around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.3\%, 
 with a variance between 0.5-1.5\% across random splits, on the test set.
 The performance results on the validation set are similar.
-The method achieved a stable AUC-ROC of 0.994$\pm$0.002.
+The method achieved a stable AUC-ROC of 0.994 $\pm$ 0.002.
 
 
 \begin{table}[ht]
@@ -684,14 +684,14 @@ The method achieved a stable AUC-ROC of 0.994$\pm$0.002.
       \hline
                         & train set         & validation set      & test set             \\
       \hline
-      Balanced Accuracy & 0.982$\pm$0.003   &  0.967$\pm$0.008    &  0.973$\pm$0.005  \\
-      Accuracy          & 0.982$\pm$0.003    &   0.968$\pm$0.008   &  0.973$\pm$0.005  \\
-      Sensitivity       &  0.980$\pm$0.008  &   0.951$\pm$0.013  &  0.961$\pm$0.014 \\
-      Specificity       &   0.983$\pm$0.008   &   0.984$\pm$0.005  &   0.985$\pm$0.010 \\
-      PPV               &  0.983$\pm$0.009   &   0.982$\pm$0.006   &  0.982$\pm$0.012   \\
-      NPV               &  0.981$\pm$0.008   &   0.956$\pm$0.012   & 0.966$\pm$0.013  \\
+      Balanced Accuracy & 0.982 $\pm$ 0.003   &  0.967 $\pm$ 0.008    &  0.973 $\pm$ 0.005  \\
+      Accuracy          & 0.982 $\pm$ 0.003    &   0.968 $\pm$ 0.008   &  0.973 $\pm$ 0.005  \\
+      Sensitivity       &  0.980 $\pm$ 0.008  &   0.951 $\pm$ 0.013  &  0.961 $\pm$ 0.014 \\
+      Specificity       &   0.983 $\pm$ 0.008   &   0.984 $\pm$ 0.005  &   0.985 $\pm$ 0.010 \\
+      PPV               &  0.983 $\pm$ 0.009   &   0.982 $\pm$ 0.006   &  0.982 $\pm$ 0.012   \\
+      NPV               &  0.981 $\pm$ 0.008   &   0.956 $\pm$ 0.012   & 0.966 $\pm$ 0.013  \\
       \hline
-      AUC-ROC          &  \multicolumn{3}{c}{0.994$\pm$0.002}  \\
+      AUC-ROC          &  -                   & 0.994 $\pm$ 0.002 & -  \\
       \hline
   \end{tabular}
  \label{t1:cnn_rlt_perf_eval_table}
@@ -890,7 +890,7 @@ The CNN-Regression method achieved around 96.1\% in sensitivity, 98.5\% in speci
 with a standard deviation between 0.6-1.1\% across random splits, on the test set.
 The performance results on the validation set are a balanced accuracy of 97.7\%, a sensitivity of 98.3\% 
 and a specificity of 97.2\%.
-The method achieved a stable AUC-ROC of 0.998$\pm$0.001.
+The method achieved a stable AUC-ROC of 0.998 $\pm$ 0.001.
 
 
 \begin{table}[ht]
@@ -901,14 +901,14 @@ The method achieved a stable AUC-ROC of 0.998$\pm$0.001.
       \hline
                         & train set         & validation set      & test set             \\
       \hline
-      Balanced Accuracy & 0.982+/-0.003   &  0.977+/-0.006    &  0.975+/-0.006 \\
-      Accuracy          & 0.980+/-0.003     &   0.977+/-0.007   &  0.976+/-0.006  \\
-      Sensitivity       &  1.000+/-0.000   &   0.983+/-0.009   &  0.961+/-0.011 \\
-      Specificity       &   0.963+/-0.005  &   0.972+/-0.009 &   0.988+/-0.008 \\
-      PPV               &  0.960+/-0.005    &   0.967+/-0.011  &  0.986+/-0.009  \\
-      NPV               &  1.000+/-0.000  &   0.985+/-0.008   & 0.967+/-0.010 \\
+      Balanced Accuracy & 0.982 $\pm$ 0.003   &  0.977 $\pm$ 0.006    &  0.975 $\pm$ 0.006 \\
+      Accuracy          & 0.980 $\pm$ 0.003     &   0.977 $\pm$ 0.007   &  0.976 $\pm$ 0.006  \\
+      Sensitivity       &  1.000 $\pm$ 0.000   &   0.983 $\pm$ 0.009   &  0.961 $\pm$ 0.011 \\
+      Specificity       &   0.963 $\pm$ 0.005  &   0.972 $\pm$ 0.009 &   0.988 $\pm$ 0.008 \\
+      PPV               &  0.960 $\pm$ 0.005    &   0.967 $\pm$ 0.011  &  0.986 $\pm$ 0.009  \\
+      NPV               &  1.000 $\pm$ 0.000  &   0.985 $\pm$ 0.008   & 0.967 $\pm$ 0.010 \\
       \hline
-      AUC-ROC          &  \multicolumn{3}{c}{0.998+/-0.001}  \\
+      AUC-ROC          &   -              & 0.998 $\pm$ 0.001 & -   \\
       \hline
   \end{tabular}
  \label{t1:cnn_regression_perf_eval_table}
