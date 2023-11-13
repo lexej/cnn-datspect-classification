@@ -3,35 +3,44 @@
 
 \subsection{Interpretation of Results}
 
-The primary research hypothesis proposed that a CNN trained using the RLT strategy
-is more effective in identifying inconclusive cases compared to the MVT strategy.
-The main metric proposed to evaluate and compare the performance was the
-AUC-bACC of balanced accuracy on conclusive cases over the percentage of observed inconclusive cases (PIncObs) in the test set.
 The performance results summarized in Figure~\ref{fig:auc_comparison_methods_data} demonstrate 
-that the RLT strategy leads to slightly better performance (higher by $0.05-0.1\%$) on the development data test set 
+that the RLT strategy leads to slightly better AUC-bACC performance (higher by $0.05-0.1\%$) on the development data test set 
 and the external PPMI test dataset.
-On the internal MPH test dataset the performance of the CNN using RLT strategy is higher by $0.4\%$ compared to the MVT strategy.
+On the internal MPH test dataset the AUC-bACC performance of the CNN using RLT strategy is higher by $0.4\%$ compared to the MVT strategy.
 Since the MPH dataset cases exhibit better spatial resolution than the development dataset and PPMI dataset cases
 and thus are more difficult to classify 
 the clear superiority of the RLT strategy on this test dataset is particularly remarkable.
 Hence the findings support the primary hypothesis of this work.
 
-Two secondary hypotheses were also put to test in this work.
-The first secondary hypothesis was the superiority in performance of CNN-based classification methods compared to 
-conventional baseline methods in terms of the main metric (AUC-bACC of balanced accuracy over PIncObs).
-The results shown in Figure~\ref{fig:auc_comparison_methods_data} show that CNN-based classification methods
-have a consistent AUC-bACC performance advantage over the SBR univariate baseline method across all test datasets, 
-achieving approximately a 2\% higher AUC-bACC result.
-The AUC-bACC performance of the multivariate baseline method PCA-RFC closely approaches that of the CNN-based methods 
+% AUC-bACC comparison of different methods and dataset
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{content/figures/evaluations/auc_main_comparison.png}
+    \caption{AUC-bACC achieved by baseline and experimental methods on different test data. 
+    The AUC-bACC was calculated for the mean balanced accuracy over the percentage of inconclusive cases 
+    in the considered test set.} 
+    \label{fig:auc_comparison_methods_data}
+\end{figure} 
+
+
+The CNN-based methods outperform both benchmark methods on the PPMI and MPH test datasets 
+as can be seen in Figure~\ref{fig:auc_comparison_methods_data}.
+The CNN-based methods consistently achieve over 2\% higher AUC-bACC results compared to the SBR benchmark method
+across all test datasets.
+The AUC-bACC performance of the multivariate benchmark method PCA-RFC closely approaches that of the CNN-based methods 
 on the development data test set and PPMI test dataset.
-However, on the more difficult MPH test dataset, the AUC-bACC performance of the PCA-RFC method is over 3\% lower
+Therefore, both secondary hypotheses are supported by the findings.
+On the MPH test dataset, the AUC-bACC performance of the PCA-RFC method is over 3\% lower
 compared to that of the CNN-based methods.
-The other secondary hypothesis stated that the CNN-based classification methods are 
-more robust regarding varying image characteristics and thus exhibit better generalizability compared to baseline methods.
-The CNN-based methods outperform both baseline methods on the PPMI and MPH test datasets which differ in image characteristics.
-The performance advantage of the CNN-based methods is more prominent on the more difficult MPH dataset 
+This suggests that the benchmark PCA-RFC method is particularly sensitive to varying imaging characteristics.
+In general, the AUC-bACC performance on the MPH test dataset is significantly lower 
+than that on the development data test set and PPMI test dataset across all classification methods.
+A possible explanation for that is the higher spatial resolution of MPH dataset cases
+which are harder to classify for the methods that were trained on cases with lower spatial resolution (development dataset).
+On the MPH dataset, the AUC-bACC performance advantage of the CNN-based methods is more prominent 
 particularly compared to the PCA-RFC method.
-Consequently, both secondary hypotheses are confirmed by the findings.
+The higher performance on the PPMI dataset across all methods suggests that the smoothened augmented images
+of the development dataset helped to generalize to the lower spatial resolution cases in the PPMI set.
 
 
 \subsection{Practical Implications}
@@ -40,55 +49,84 @@ The findings of the study have practical implications for the classification of 
 First, the study shows that random label selection as a ground-truth label selection strategy 
 can lead to better performance results compared to the majority vote strategy 
 when training a CNN classifier for Parkinson's disease diagnosis based on DAT-SPECT.
-Second, the mean AUC-bACC of balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs)
+However, considering that the random label strategy requires visual assessment of the DAT-SPECT images by several readers 
+the practical benefit may be not significant enough to justify the additional assessment costs.
+Second, the mean AUC-bACC of balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases
 can be used as a metric for comparison of the actual underlying decision confidence of 
 different binary classification models.
 The metric decouples the classification model performance from the arbitrarily chosen inconclusive interval bounds.
-Also, the balanced accuracy on conclusive cases over PIncObs can be used to decide for the model that 
+Also, the balanced accuracy on conclusive cases over PIncObs can be used to decide for that model which 
 produces the least relative amount of inconclusive cases for a specified target balanced accuracy.
 The applicability of the metric extends beyond DAT-SPECT classification to general binary classification problems.
 Third, the results once again confirm the superiority of CNN-based methods for DAT-SPECT classification compared to the
 widely adopted SBR method in clinical practice.
 
 
+% How would one choose the operating point (target inconclusive rate in practice? What are the implications? 
+
+% Which method to use in practice based on results?
+
+
 \subsection{Limitations of the Study}
 
-\subsubsection{Metric}
+\subsubsection{Significance of AUC-bACC results}
 
 There are several limitations to be considered that may impact the validity of the applied methods and results.
-The main metric used to compare the model performance, the AUC-bACC of mean balanced accuracy over mean PIncObs, 
+First, statistical significance testing was not conducted for the differences in AUC-bACC results among the methods.
+Also, the main metric used to compare the model performance, the AUC-bACC of mean balanced accuracy over mean PIncObs, 
 depends on a set of inconclusive intervals determined within the validation set of the development dataset 
 for each classification method and randomization individually.
 Since the balanced accuracy and PIncObs are averaged across the results for each random split 
-the reliability of the metric is affected by the standard deviation of both variables across the random splits.
+the reliability of the metric may be affected by the standard deviation of both variables across the random splits.
 To enhance the reliability of the metric a higher number of random splits can be used.
 Also, the resolution of the balanced accuracy over PIncObs decreases as the density of test set 
 predictions around the cutoff increases in comparison to the validation set predictions.
 Finally the metric may be less intuitively understandable and requires more expertise when interpreting the results
-when compared to standard metrics such as balanced accuracy and AUC-ROC.
+when compared to standard classification metrics such as balanced accuracy and AUC-ROC.
 
 
-\subsubsection{Site-Specific Development Data}
+\subsubsection{Generalizability of classification models}
 
-To increase the heterogeneity of the training data and enhance the generalizability 
-of the classification models the development dataset was augmented as described in Section~\ref{subsec:augment}.
-However the results, presented in Figure~\ref{fig:auc_comparison_methods_data}, 
+The results, presented in Figure~\ref{fig:auc_comparison_methods_data}, 
 show that AUC-bACC performance on the MPH test across all considered classification methods, 
 is significantly lower than on the test set of the development dataset.
-The reason for that can be a site-specific bias introduced by training on data from one site (development dataset).
-Future research efforts should aim to include development data from multiple sites 
-to enhance the overall robustness of the classification methods and results.
+The variation in image characteristics resulting from the augmentation of the training data,
+as described in Section~\ref{subsec:augment}, seems not to be sufficient to be robust 
+with respect to higher spatial resolution images as contained in the MPH dataset.
+Also the potential site-specific bias of the classification models can only be assessed 
+on the external PPMI dataset 
+since the MPH dataset originates from clinical routine at UKE, as the development dataset.
 
 
-%Address any limitations in the methodology or data that might have affected the results.
-%Discuss challenges faced during the experiments.
+% directions for future research based on the outcomes and limitations of the current study
+\subsection{Future Research}
+
+Future research attempts should focus on testing the statistical significance of 
+the differences in AUC-bACC results obtained.
+Confidence intervals (CI) of the relative AUC-bACC estimates can be calculated to assess the statistical significance.
+The effect of CNN hyperparameter tuning on the AUC-bACC performance of different CNN-based methods 
+can be investigated in future studies.
+The potential performance benefits when using volumetric DAT-SPECT images instead of 2-dimensional DVR slabs 
+are to be addressed.
+To better assess the generalizability of the models to external data a larger subset of the PPMI database could be used.
+To enhance the robustness of classification models with respect to higher spatial resolution 
+one should also include DAT-SPECT images acquired using pinhole collimators in the training set.
 
 
-%\subsection{Future Research}
-%Future research ->  directions for future research based on the outcomes and limitations of the current study
+
+
+% How much effort is it to transfer the data into the standard stereotactic space in practice, is this a limitation, 
+% is this a robust/automated process or does that involve manual QC? 
+
+% Are you speculating why the performance on the MPH, PPMI set are quite different, 
+%   reliability of ground truth, patient population, data sources?
 
 
 
 
-
-% Conclusion -> key points discussed in the evaluation and discussion chapters.
+%Proportion of borderline cases is smaller in the PPMI dataset compared to the development dataset. 
+%The PPMI dataset represents a highly selected sample including research participants with a clear diagnosis of 
+%PD and healthy volunteers. 
+%In contrast, the development dataset comprises consecutive patients from everyday clinical routine with CUPS. 
+%Thus, all subjects suffered from clinically unclear parkinsonism that did not allow a sufficiently reliable 
+%symptom-based diagnosis. 
