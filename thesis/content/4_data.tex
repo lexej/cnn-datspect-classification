@@ -2,7 +2,7 @@
 \label{sec:data}
 
 The study retrospectively included 3 different datasets with a total of 3025 DAT-SPECT images.
-The primary dataset (``development dataset") was used for both training and testing the models associated with the respective method, 
+The primary dataset (`development dataset') was used for both training and testing the models associated with the respective method, 
 whereas the other two datasets, the \textit{PPMI} dataset and the \textit{MPH} dataset were used for testing only, not for training.
 
 \subsection{Development dataset}
@@ -40,7 +40,7 @@ Raw projection data has been transferred to the PPMI imaging core lab for centra
 The clinical diagnosis was used as ground-truth label (Parkinson's disease = ``reduced", healthy control = ``normal"). 
 The external dataset showed lower spatial resolution than the development dataset (lower striatum-to-background contrast).
 
-The third dataset (``MPH dataset") comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE 
+The third dataset (`MPH dataset') comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE 
 that had been acquired with a triple-head camera equipped with brain-specific multiple pinhole (MPH) collimators. 
 Multiple pinhole SPECT concurrently improves count sensitivity and spatial resolution compared to SPECT with parallel-hole 
 and fan-beam collimators~\citep{Mathies2022-yi, Tecklenburg2020-xr}.
@@ -48,14 +48,30 @@ The projection data were reconstructed with the Monte Carlo photon simulation en
 and iterative one-step-late maximum-a-posteriori expectation-maximization implemented 
 in the camera software (24 iterations, 2 subsets)~\citep{Tecklenburg2020-xr, Magdics2010}.
 Neither attenuation nor scatter correction was applied to the SPECT images.
-The ground-truth label (``normal" or ``reduced") was obtained by the visual interpretation of an experienced reader 
+The ground-truth label (`normal' or `reduced') was obtained by the visual interpretation of an experienced reader 
 (about 20 years of experience in clinical DAT-SPECT reading, $\geq$3,000 cases).
 All SPECT images were interpreted twice (with different randomization) by the same reader. 
 The delay between the reading sessions was 14 days. 
 Cases with discrepant interpretations between the two reading sessions were read a third time by the same reader 
 to obtain an intra-reader consensus as the ground-truth label. 
-Thereby 327 cases ($51.09\%$) were labeled as ``reduced"  and 313 cases ($48.91\%$) were labeled as ``normal".
+Thereby 327 cases ($51.09\%$) were labeled as `reduced'  and 313 cases ($48.91\%$) were labeled as `normal'.
 The average age among cases was $67.2$ with a standard deviation of $11.4$ years.
 In contrast to the development dataset, the internal test dataset exhibited a better spatial resolution, 
 leading to higher contrast between the striatum and background, along with reduced statistical noise.
 The MPH dataset has not been described in previous works.
+
+Figure~\ref{fig:datasets_samples} illustrates example DVR slabs for one `normal' case and three `reduced' cases obtained
+from the development dataset, the PPMI dataset, and the MPH dataset.
+
+\begin{figure}[t]
+    \centering
+    \colorbox{black}{%
+     \includegraphics[width=0.95\textwidth]{content/figures/datasets_samples.png}%
+     }
+    \caption{DVR slabs for one healthy control (`normal') case 
+    and three cases with reduced availability of DAT in the striatum (`reduced')
+    from the development dataset, the PPMI dataset, and the MPH dataset.
+    For the cases from the development dataset, attenuation and scatter correction (ASC) were applied, 
+    and no smoothing was performed.} 
+    \label{fig:datasets_samples}
+\end{figure}
