@@ -176,12 +176,13 @@ The square-shaped region was determined by cropping an equal number of pixels fr
 of the DVR slab along its height dimension.
 Then the square-shaped images were resized to the target image size of 224x224 pixels using bicubic interpolation.
 
-The CNN-based approaches were trained for $20$ epochs using a batch size of $64$.
+The CNN-based methods were trained for $20$ epochs using a batch size of $64$.
 For the MVT and RLT approaches (described in Section~\ref{subsubsec:cnn_based_classification_mvt_rlt}) 
 the Binary Cross Entropy (BCE) loss was employed for optimization, 
 whereas for the Regression approach (described in Section~\ref{subsubsec:cnn_based_classification_regression}) 
 the Mean Squared Error (MSE) loss function was used.
 The Adam optimization algorithm was utilized with an initial learning rate of $0.0001$.
+No hyperparameter optimization was conducted for the CNN-based methods.
 During the training of the model, the weights of the best epoch were saved for subsequent evaluations.
 Each CNN model was trained and evaluated separately for each of the $10$ random splits of the development dataset.
 Additionally, the trained models were evaluated on the PPMI and MPH test datasets described in Section~\ref{subsec:external_dataset}.
