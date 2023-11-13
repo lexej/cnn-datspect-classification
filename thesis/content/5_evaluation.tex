@@ -611,11 +611,9 @@ and around 0.1\% higher than the PCA-RFC benchmark.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_majority_mph} presents
 the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH test dataset 
 over the percentage of inconclusive cases in the validation set (PIncVal) of development dataset.
-The mean of PIncObs in the MPH test dataset is consisently above the identity line 
-and the deviation from the identity line increases over PIncVal.
-The standard deviation of PIncObs also increases over PIncVal.
-When compared to the mean PIncObs of the SBR benchmark the mean PIncObs of the CNN-MVT method is higher 
-which indicates that CNN-MVT is supposedly less certain about the MPH set predictions than the SBR method.
+The mean of PIncObs in the MPH test dataset is consistently above the identity line.
+The standard deviation of PIncObs is very large and increases over PIncVal.
+When compared to the mean PIncObs of the SBR benchmark the mean PIncObs of the CNN-MVT method is higher.
 Also the PIncObs of the CNN-MVT has a much higher standard deviation compared to the PIncObs of the SBR method.
 The balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs) is depicted 
 in Figure~\ref{fig:bacc_obsInconclCases_concl_baseline_majority_mph}.
@@ -698,18 +696,17 @@ the random splits.
 First this suggests a disparity in the distribution of predictions below and above the cutoff point.
 Also the determination of stable lower bounds across the random splits is more difficult
 than the determination of stable upper bounds.
-When compared to the PCA-RFC benchmark method 
-the width of the inconclusive interval increases more rapidly as the percentage of inconclusive cases increases.
-That implies that the CNN-RLT method tends to produce relatively less inconclusive cases than the PCA-RFC benchmark.
+When compared to the PCA-RFC benchmark method, 
+the width of the inconclusive interval increases more rapidly as the percentage of inconclusive cases increases, 
+however less rapidly when compared to CNN-MVT.
 
 \subparagraph{Transferability of inconclusive intervals}
 
 The correspondence between the percentage of inconclusive cases in the validation set (development dataset) and 
 the mean$\pm$SD percentage of observed inconclusive cases (PIncObs) in the test set (development dataset) 
 is depicted in Figure~\ref{fig:obsInconclCases_inconclCasesValid_baseline_random_development}.
-As for the baseline cases, the deviation of the mean PIncObs in the test set from the 
-identity line is small which can be attributed to the nearly identical distribution of data in both the test and validation sets 
-(due to random splitting).
+As for the benchmark methods, the deviation of the mean PIncObs in the test set from the 
+identity line is small, in stark contrast to the CNN-MVT method.
 
 
 \begin{figure}[ht]
@@ -873,7 +870,7 @@ and around 3.7\% higher than the PCA-RFC benchmark.
 The quantitative performance results of the CNN-Regression classification on 
 different subsets of the development dataset are presented in Table~\ref{t1:cnn_regression_perf_eval_table}.
 In the evaluation process, the natural sigmoid cutoff value of $0.5$ was employed.
-The CNN-Regression method achieved around 96.1\% in sensitivity, 98.5\% in specificity and a balanced accuracy of 97.5\%, 
+The CNN-Regression method achieved around 96.1\% in sensitivity, 98.8\% in specificity and a balanced accuracy of 97.5\%, 
 with a standard deviation between 0.6-1.1\% across random splits, on the test set.
 The performance results on the validation set are a balanced accuracy of 97.7\%, a sensitivity of 98.3\% 
 and a specificity of 97.2\%.
@@ -915,7 +912,6 @@ Since both the upper and lower bound functions exhibit a significant standard de
 the determination of stable lower and upper bounds is difficult.
 When compared to the PCA-RFC benchmark method 
 the width of the inconclusive interval increases more rapidly over the PIncVal.
-Therefore the CNN-Regression method also tends to produce relatively less inconclusive cases than the PCA-RFC benchmark.
 
 
 \subparagraph{Transferability of inconclusive intervals}
@@ -1041,8 +1037,7 @@ and around 0.3\% higher than the PCA-RFC benchmark.
 Figure~\ref{fig:obsInconclCases_inconclCasesValid_regression_mph} demonstrates
 the mean$\pm$SD percentage of inconclusive cases observed (PIncObs) in the MPH test dataset 
 over the percentage of inconclusive cases in the validation set (PIncVal) (development dataset).
-Here the mean of the PIncObs in the MPH test dataset is above the identity line 
-and deviates stronger from the identity line as the PIncVal increases.
+Here the mean of the PIncObs in the MPH test dataset is above the identity line.
 Also the standard deviation of the PIncObs is high and increases over the increasing PIncVal.
 The balanced accuracy on conclusive cases over the mean PIncObs 
 is depicted in Figure~\ref{fig:bacc_obsInconclCases_concl_regression_mph}.
@@ -1080,7 +1075,7 @@ and around 3.8\% higher than the PCA-RFC benchmark.
 \subsection{Comparative Performance Analysis}
 \label{subsec:compar_anal}
 
-In this section, a summary comparison of the performance between the baseline and experimental methods is presented.
+In this section, a summary comparison of the performance between the benchmark and experimental methods is presented.
 The comparison focuses on two aspects: transferability of inconclusive intervals (in both validation and test sets) 
 and the AUC-bACC of balanced accuracy on conclusive cases across varying percentages of observed inconclusive cases (PIncObs).
 To support the analysis visually one comparison figure is used for each aspect tested on a specific dataset.
@@ -1090,7 +1085,7 @@ the PPMI dataset and the MPH dataset, respectively.
 \subsubsection{Performance on test set of development dataset}
 
 Figure~\ref{fig:test_interval_match_dev} provides a comparison of the transferability of the inconclusive intervals 
-from the validation set to the test set (development data) along the baseline and experimental methods.
+from the validation set to the test set (development data) along the benchmark and experimental methods.
 For each considered method the mean of the percentage of observed inconclusive cases (PIncObs) 
 hardly deviates from the identity line.
 The similarity in data distribution of the validation and test set due to random splitting is an explanation for that.
@@ -1102,7 +1097,7 @@ In Figure~\ref{fig:test_dev}, the performance comparison of the methods on the t
 concerning the main metric of this work, 
 the relative AUC-bACC for the mean balanced accuracy on conclusive cases
 over the mean PIncObs in the test set, is shown.
-In general, the CNN-based methods outperform both baseline methods, the SBR method and PCA-RFC.
+In general, the CNN-based methods outperform both benchmark methods, the SBR method and PCA-RFC.
 The highest performance is achieved by the CNN-Regression (relative AUC: $99.23\%$) method 
 whereas the lowest AUC-bACC is that for the SBR-based method (relative AUC: $96.38\%$).
 The CNN-RLT method achieved slightly higher performance than the CNN-MVT.
@@ -1385,23 +1380,3 @@ than the CNN-MVT (relative AUC: $95.73\%$).
 \end{figure}
 
 
-\subsection{Conclusion}
-
-A concluding overview of the performance of the methods on different test datasets 
-concerning the relative AUC-bACC for the mean balanced accuracy on conclusive cases over the PIncObs 
-is summarized in Figure~\ref{fig:auc_comparison_methods_data}.
-The AUC-bACC performance on the MPH test dataset is lower than that on the development data test set and PPMI test dataset 
-across all considered classification methods.
-The CNN-based methods outperform the baseline methods, most remarkably on the MPH dataset.
-The best performance is achieved by the CNN-Regression method, followed by the CNN-RLT and CNN-MVT methods.
-
-
-% AUC-bACC comparison of different methods and dataset
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1.0\textwidth]{content/figures/evaluations/auc_main_comparison.png}
-  \caption{AUC-bACC achieved by baseline and experimental methods on different test data. 
-  The AUC-bACC was calculated for the mean balanced accuracy over the percentage of inconclusive cases 
-  in the considered test set.} 
-  \label{fig:auc_comparison_methods_data}
-\end{figure} 
