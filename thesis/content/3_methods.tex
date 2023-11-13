@@ -32,8 +32,6 @@ The seeds of the random number generators in each package were initialized to en
 
 \subsection{Development Data Preparation}
 
-In the following, the data preparation techniques applied to the development dataset are explained in detail.
-
 \subsubsection{Data Preprocessing}
 \label{subsubsec:img_preprocess_dev}
 
@@ -253,9 +251,7 @@ are explained in more detail.
 
 First the $\text{mean} \pm \text{SD}$ (standard deviation) of the following measures were calculated across
 the different random splits for each classification approach and subset (training, validation and testing) given a cutoff: 
-Area under the Receiver Operating Characteristic curve (AUC-ROC), 
-balanced accuracy, (overall) accuracy, sensitivity, specificity, 
-Positive Predictive Value (PPV) and Negative Predictive Value (NPV).
+AUC-ROC, balanced accuracy, (overall) accuracy, sensitivity, specificity, PPV and NPV.
 The natural cutoff of 0.5 was used for each classification approach except the SBR method.
 For the SBR method the optimal cutoff was determined using the Youden criterion~\citep{Youden1950} and was used for
 calculating the measures.
