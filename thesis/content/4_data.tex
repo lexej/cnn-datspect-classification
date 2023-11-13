@@ -2,8 +2,10 @@
 \label{sec:data}
 
 The study retrospectively included 3 different datasets with a total of 3025 DAT-SPECT images.
-The primary dataset (`development dataset') was used for both training and testing the models associated with the respective method, 
-whereas the other two datasets, the \textit{PPMI} dataset and the \textit{MPH} dataset were used for testing only, not for training.
+The primary dataset (`development dataset') was used for both training and testing the models associated with the respective method. 
+Both of the other independent datasets, the `PPMI dataset' and the `MPH dataset', 
+were used for testing purposes only and not for training.
+This chapter describes the datasets in terms of data acquisition, labeling and statistics.
 
 \subsection{Development dataset}
 \label{subsec:spect_dataset}
@@ -21,7 +23,9 @@ More precisely, ordered-subsets-expectation-maximization was performed with 5 it
 For noise suppression, reconstructed images were postfiltered by convolution with a 3-dimensional Gaussian kernel of 7 mm full-width-at-half-maximum. 
 
 The ground-truth label, indicating either `normal' or `Parkinson-typical' reduction (`reduced') of the striatal signal, 
-was obtained by visual assessment of the DAT-SPECT images by three independent readers~\citep{Schiebler2023}. 
+was obtained by visual assessment of the DAT-SPECT images by three independent readers~\citep{Schiebler2023}.
+As an illustration, Figure~\ref{fig:datasets_samples} shows examples of one 'normal' case and three `reduced' cases 
+from the development dataset. 
 The readers achieved inter-reader consensus on the `normal' label in 855 cases ($49.1\%$)
 and on the `reduced' label in 802 cases ($46.1\%$).
 The inter-reader consensus on the label could not be achieved for 83 cases ($4.8\%$).
@@ -32,17 +36,19 @@ The development dataset was utilized for both training and testing the classific
 \subsection{Independent testing datasets}
 \label{subsec:external_dataset}
 
-The second dataset comprised 645 DAT-SPECT with [$^{123}$I]FP-CIT from the Parkinson's Progression Markers Initiative (PPMI) 
-(www.ppmi-info.org/data)~\citep{Parkinson_Progression_Marker_Initiative2011-px}.
+\paragraph{PPMI dataset}
+The `PPMI dataset' comprised 645 DAT-SPECT with [$^{123}$I]FP-CIT from the 
+Parkinson's Progression Markers Initiative (PPMI)~\citep{Parkinson_Progression_Marker_Initiative2011-px}.
 The external dataset included 438 patients with Parkinson's disease and 207 healthy controls as described in~\cite{Wenzel2019}.
 The mean age among cases was $61.2$ with a standard deviation of $10.2$ years, 
 and the dataset comprised $35.2\%$ female cases.
-Details of the PPMI DAT-SPECT protocol are given at http://www.ppmi-info.org/study-design/research-documents-and-sops/ ~\citep{Parkinson_Progression_Marker_Initiative2011-px}. 
+Details of the PPMI DAT-SPECT protocol are given at~\cite{ppmi_datspect_prot}. 
 Raw projection data has been transferred to the PPMI imaging core lab for central image reconstruction using an iterative (HOSEM) algorithm on a HERMES workstation. 
 The clinical diagnosis was used as ground-truth label (Parkinson's disease = ``reduced", healthy control = ``normal"). 
 The external dataset showed lower spatial resolution than the development dataset (lower striatum-to-background contrast).
 
-The third dataset (`MPH dataset') comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE 
+\paragraph{MPH dataset}
+The `MPH dataset' comprised 640 consecutive DAT-SPECT with [$^{123}$I]FP-CIT from clinical routine at UKE 
 that had been acquired with a triple-head camera equipped with brain-specific multiple pinhole (MPH) collimators. 
 Multiple pinhole SPECT concurrently improves count sensitivity and spatial resolution compared to SPECT with parallel-hole 
 and fan-beam collimators~\citep{Mathies2022-yi, Tecklenburg2020-xr}.
@@ -63,8 +69,8 @@ In contrast to the development dataset, the internal test dataset exhibited a be
 leading to higher contrast between the striatum and background, along with reduced statistical noise.
 The MPH dataset has not been described in previous works.
 
-Figure~\ref{fig:datasets_samples} illustrates example DVR slabs for one `normal' case and three `reduced' cases obtained
-from the development dataset, the PPMI dataset, and the MPH dataset.
+Figure~\ref{fig:datasets_samples} illustrates differences in DVR image quality
+among the PPMI dataset, the MPH dataset, and the development dataset.
 
 \begin{figure}[t]
     \centering
