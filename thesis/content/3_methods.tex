@@ -11,21 +11,19 @@ utilized for the evaluation of the research outcomes.
 \subsection{Software Tools and Libraries}
 \label{subsec:libs}
 
-% Add versions of libraries!!!
-
-The project was built on \textit{Python 3.10}.
+The project was built on Python 3.10.
 A variety of widely adopted open-source libraries were used in the project.
-\textit{NumPy} was utilized to perform efficient array operations and numerical calculations.
-The \textit{NIBabel} library was used for reading and writing of medical image data stored in the
+\textit{NumPy}~\citep{numpy} was utilized to perform efficient array operations and numerical calculations.
+The \textit{NIBabel}~\citep{nibabel} library was used for reading and writing of medical image data stored in the
 Neuroimaging Informatics Technology Initiative (NIfTI) file format.
-\textit{PyTorch}, a widely adopted deep learning framework, was employed for building 
+\textit{PyTorch}~\citep{pytorch}, a widely adopted deep learning framework, was employed for building 
 and training the neural networks.
-The \textit{Torchvision} package provided the machine learning models and image transformation capabilities 
+The \textit{Torchvision}~\citep{torchvision} package provided the machine learning models and image transformation capabilities 
 utilized in this project.
-\textit{Pandas} was used for efficient structured data manipulation and analysis.
-\textit{Matplotlib} and \textit{Seaborn} were employed for the creation of customized data visualizations.
-The \textit{Scikit-Learn} library provided machine learning models and model evaluation tools utilized in this project, 
-whereas \textit{Scipy} was used for data interpolation.
+\textit{Pandas}~\citep{pandas} was used for efficient structured data manipulation and analysis.
+\textit{Matplotlib}~\citep{matplotlib} and \textit{Seaborn}~\citep{seaborn} were employed for the creation of customized data visualizations.
+The \textit{Scikit-Learn}~\citep{scikitlearn} library provided machine learning models and model evaluation tools utilized in this project, 
+whereas \textit{Scipy}~\citep{scipy} was used for data interpolation.
 
 % seeds were set 
 The seeds of the random number generators in each package were initialized to ensure reproducibility.
@@ -299,9 +297,9 @@ development dataset as well as on the independent datasets PPMI and MPH.
 % PIncObs(PIncVal) 
 As a further metric, the $\text{mean} \pm \text{SD}$ percentage of observed inconclusive cases in the test set (PIncObs, \%) 
 was plotted against the PIncVal (\%).
-A mean of PIncObs(PIncVal) near the identity line is an indicator for a similar prediction distribution 
+A mean of PIncObs near the identity line is an indicator for a similar prediction distribution 
 for validation set and test set on average.
-In case the mean of PIncObs(PIncVal) consistently lies over (under) the identity line 
+In case the mean of PIncObs consistently lies over (under) the identity line 
 the supposed prediction certainty on the test set, on average, is lower (higher) than on the validation set.
 Also a lower standard deviation of PIncObs over PIncVal indicates 
 that PIncObs is less sensitive to the randomness of the inconclusive intervals across random splits.
