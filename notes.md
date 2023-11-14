@@ -1,3 +1,0 @@
-- To create conda environent with all the dependencies: `conda env create -f environment.yaml`
-- 
-- 
