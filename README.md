@@ -1,4 +1,4 @@
-# master-thesis-kucerenko
+# CNN-based DAT-SPECT classification
 
 
 
