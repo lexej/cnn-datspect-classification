@@ -1,5 +1,24 @@
 \section{Conclusion}
 
+This work contributed to a better understanding of the performance differences 
+resulting from the usage of either random label selection or majority vote selection
+as label selection strategies for training convolutional neural networks.
+The results showed a slight performance advantage on test data for the random label selection strategy 
+concerning the proposed AUC-bACC metric.
+To justify additional costs for obtaining multiple ground truth assessments for DAT-SPECT images
+the significance of the performance difference on more diverse real-world data 
+has to be further investigated in future work.
+The proposed AUC-bACC performance metric allows to decide for a concrete classification method among different methods
+considering both the cost of manual inspection of inconclusive DAT-SPECT cases 
+by physicians and the classification performance on conclusive cases.
+Both aspects are crucial for an automatic DAT-SPECT image classification method to be useful in clinical practice.
+The metric also allows for the derivation of an operating point for a binary DAT-SPECT classifier 
+given a target balanced accuracy.
+Further research has to be conducted to assess the robustness of the AUC-bACC metric 
+and the statistical significance of the produced results.
+The study further confirmed the performance advantage of CNN based DAT-SPECT classification compared to benchmark methods.
+The higher robustness of CNN methods is particularly prominent when evaluating on unseen DAT-SPECT images 
+with higher spatial resolution.
 
 % Recap the main findings and their implications.
 
@@ -8,6 +27,5 @@
 % Discuss the broader significance of the research in the context of real-world applications.
 
 % Provide suggestions for practitioners and policymakers based on the findings.
-
 
 % Revisit the limitations and propose potential ways to overcome them in future research.
