@@ -5,10 +5,10 @@
 
 The performance results summarized in Figure~\ref{fig:auc_comparison_methods_data} demonstrate 
 that the RLT strategy leads to slightly better AUC-bACC performance (higher by $0.05-0.1\%$) on the development data test set 
-and the external PPMI test dataset.
+and the external PPMI test dataset compared to the MVT strategy.
 On the internal MPH test dataset the AUC-bACC performance of the CNN using RLT strategy is higher by $0.4\%$ compared to the MVT strategy.
 Since the MPH dataset cases exhibit better spatial resolution than the development dataset and PPMI dataset cases
-and thus are more difficult to classify 
+and thus are potentially more difficult to classify 
 the clear superiority of the RLT strategy on this test dataset is particularly remarkable.
 Hence the findings support the primary hypothesis of this work.
 
@@ -51,21 +51,22 @@ can lead to better performance results compared to the majority vote strategy
 when training a CNN classifier for Parkinson's disease diagnosis based on DAT-SPECT.
 However, considering that the random label strategy requires visual assessment of the DAT-SPECT images by several readers 
 the practical benefit may be not significant enough to justify the additional assessment costs.
-Second, the mean AUC-bACC of balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases
-can be used as a metric for comparison of the actual underlying decision confidence of 
-different binary classification models.
+Second, the mean AUC-bACC of balanced accuracy on conclusive cases over the mean percentage of observed inconclusive cases (PIncObs)
+can be used as a metric to decide for a concrete binary classification approach given a set of possible methods.
 The metric decouples the classification model performance from the arbitrarily chosen inconclusive interval bounds.
-Also, the balanced accuracy on conclusive cases over PIncObs can be used to decide for that model which 
-produces the least relative amount of inconclusive cases for a specified target balanced accuracy.
-The applicability of the metric extends beyond DAT-SPECT classification to general binary classification problems.
+Given a chosen classification method for practical application,
+the balanced accuracy on conclusive cases over PIncObs allows to decide for the operating point (inconclusive interval)
+based on the target balanced accuracy.
+In practice, the target balanced accuracy can vary across applications.
+For example, given a target balanced accuracy of 98\% the required PIncObs might be 2\%. 
+The target PIncObs of 2\% can then be mapped back to the corresponding percentage of inconclusive cases in 
+validation set (PIncVal).
+The inconclusive interval associated with this PIncVal can then be used 
+as an operating point for the practical application.
+It should be noted that the applicability of the AUC-bACC metric is not limited to the medical field
+and extends to general binary classification problems.
 Third, the results once again confirm the superiority of CNN-based methods for DAT-SPECT classification compared to the
-widely adopted SBR method in clinical practice.
-
-
-% How would one choose the operating point (target inconclusive rate in practice? What are the implications? 
-
-% Which method to use in practice based on results?
-
+widely adopted SBR method in clinical practice, highlighting the importance of transitioning to CNN-based approaches.
 
 \subsection{Limitations of the Study}
 
@@ -87,8 +88,7 @@ when compared to standard classification metrics such as balanced accuracy and A
 
 \subsubsection{Generalizability of classification models}
 
-The results, presented in Figure~\ref{fig:auc_comparison_methods_data}, 
-show that AUC-bACC performance on the MPH test across all considered classification methods, 
+The results show that AUC-bACC performance on the MPH test across all considered classification methods, 
 is significantly lower than on the test set of the development dataset.
 The variation in image characteristics resulting from the augmentation of the training data,
 as described in Section~\ref{subsec:augment}, seems not to be sufficient to be robust 
@@ -120,8 +120,6 @@ one should also include DAT-SPECT images acquired using pinhole collimators in t
 
 % Are you speculating why the performance on the MPH, PPMI set are quite different, 
 %   reliability of ground truth, patient population, data sources?
-
-
 
 
 %Proportion of borderline cases is smaller in the PPMI dataset compared to the development dataset. 
