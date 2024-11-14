@@ -1,7 +1,8 @@
 # CNN-based DAT-SPECT classification
 
+[Results .zip](https://1drv.ms/u/c/412b97287f29c2e6/IQS0gaEDTuAMS5XsYxelEPfWAR6jR-w_rwrYKKCxvnQpm2c)
 
-<iframe src="https://1drv.ms/u/c/412b97287f29c2e6/IQS0gaEDTuAMS5XsYxelEPfWAR6jR-w_rwrYKKCxvnQpm2c" width="98" height="120" frameborder="0" scrolling="no"></iframe>
+
 
 
 ## Add your files
