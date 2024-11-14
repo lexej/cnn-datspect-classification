@@ -2,6 +2,6 @@
 
 - Source code can be found in folder [src](src) 
 
-- Results and trained parameters can be downloaded [here](https://1drv.ms/u/c/412b97287f29c2e6/IQS0gaEDTuAMS5XsYxelEPfWAWZ14rN34yo9rIANGJI0gkM)
+- Results and trained parameters can be downloaded [here](https://drive.google.com/file/d/1kCvcONDK5gOY0Bs5JT71qf7w8GdJf6yo/view?usp=share_link)
 
 
